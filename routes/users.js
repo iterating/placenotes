@@ -2,11 +2,12 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 const notes = require ('./notes.js')
- 
+import db from "../db/conn.js"
+import { ObjectId } from "mongodb";
+
+
 router.get('/:userId', async (req, res) => {
     try{
-
-    
     let collection = await db.collection("users");
     let query = req.params.userId
 
