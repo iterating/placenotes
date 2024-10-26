@@ -1,7 +1,7 @@
-const express = require('express')
+import express from "express"
 const router = express.Router()
-const mongoose = require('mongoose')
-const users = require('./users.js')
+import mongoose from 'mongoose';
+import users from "./users.js"
 
 router.get('/', async (req, res) => {
 try {
@@ -15,4 +15,4 @@ try {
 }
 })
 
-modules.exports = router
+export default router
