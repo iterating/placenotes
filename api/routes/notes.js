@@ -2,6 +2,8 @@ import express from "express"
 const router = express.Router()
 import mongoose from 'mongoose';
 import users from "./users.js"
+import db from "../../db/conn.js";
+
 
 router.get('/', async (req, res) => {
 try {

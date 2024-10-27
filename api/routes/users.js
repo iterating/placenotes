@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import mongoose from "mongoose";
-import db from "../db/conn.js";
+import db from "../../db/conn.js";
 import { ObjectId } from "mongodb";
 import notes from "./notes.js";
 
@@ -27,5 +27,8 @@ router.get("/:userId", async (req, res) => {
     res.status(500).send("Error getting user data");
   }
 });
+
+// Create user
+
 
 export default router;
