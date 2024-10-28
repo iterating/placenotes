@@ -14,6 +14,11 @@ const app = express();
 
 app.use(express());
 app.use("/users", users);
+app.use("/notes", notes);
+
+
+// Dark Mode
+
 
 app.get("/", (req, res) => {
   res.send("Welcome to Placenotes");

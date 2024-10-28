@@ -3,13 +3,16 @@ import passport from '../middleware/passport.js';
 
 const router = express.Router();
 
+router.route('/signup')
+  .get((req, res) => {
+
+  })
+
 router.post('/login', passport.authenticate('local', {
   failureRedirect: '/login',
   failureFlash: true
 }), (req, res) => {
-  const token = req.user.generateToken();
-  res.cookie('jwt', token);
-  res.redirect('/protected');
+
 });
 
 export default router
