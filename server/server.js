@@ -5,27 +5,29 @@ import dotenv from "dotenv";
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 import db from "./db/conn.js";
-import loginRouter from "./api/routes/login.js";
+import ejs from "ejs";
 import users from "./api/routes/users.js";
 import notes from "./api/routes/notes.js";
 import passport from "./api/middleware/passport.js";
 import cors from 'cors';
+import path from "path";
+import { fileURLToPath } from 'url';
+
+
 
 const app = express();
-app.use(flash());
-
 app.use(express.json());
 app.use(cors({ origin: "*" }));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// View engine
+
+// View Engine
+app.engine(".ejs", ejs.renderFile);
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, './api/views'));
 
 // Middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(expressSession({
-  secret: process.env.SECRET_KEY,
-  resave: true,
-  saveUninitialized: true,
-}));
+app.use(expressSession({ secret: 'secret', resave: true, saveUninitialized: true }));
 app.use(flash());
 app.use((err, req, res, next) => {
   console.error(err);
@@ -35,7 +37,6 @@ app.use((err, req, res, next) => {
 //Routes
 app.use("/users", users);
 app.use("/notes", notes);
-app.use("", loginRouter);
 app.get("/", (req, res) => {
   console.log('Welcome to Placenotes');
   res.send("Welcome to Placenotes");
