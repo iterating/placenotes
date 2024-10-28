@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+</head>
+<body>
+    <form action="/users/logout" method="post">
+        <button type="submit">Log Out</button>
+    </form>
+    <h1>Your Notes</h1>
+    <ul>
+        <% if (notes.length > 0) { %>
+            <% notes.forEach(note => { %>
+                <% if (note.userId && user && user._id && note.userId.toString() === user._id.toString()) { %>
+                    <li>
+                        <p><%= note.body %></p>
+                        <p>Location: <%= note.location.lat %>, <%= note.location.lon %></p>
+                        <p>Posted at <%= note.createdAt.toLocaleString() %></p>
+                    </li>
+                <% } %>
+            <% }); %>
+        <% } else { %>
+            <p>You don't have any notes yet.</p>
+        <% } %>
+    </ul>
+  
+</body>
+</html>
+

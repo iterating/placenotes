@@ -5,3 +5,8 @@ export const isAuthenticated = (req, res, next) => {
     }
     return res.status(401).send({ error: 'Unauthorized' });
   };
+
+export const setUser = (req, res, next) => {
+  res.locals.user = req.user;
+  next();
+};
