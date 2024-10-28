@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { MongoClient } from "mongodb"
 import dotenv from 'dotenv'
 dotenv.config()
 const connectionString = process.env.ATLAS_URI
+const dbName = "placenotes"
 
-mongoose.connect(connectionString)
+mongoose.connect(connectionString, { dbName })
   .then(() => {
     console.log("MongoDB connected");
   })
@@ -21,3 +21,4 @@ mongoose.connection.on("disconnected", () => {
   });
 
 export default mongoose
+
