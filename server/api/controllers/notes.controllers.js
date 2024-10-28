@@ -2,6 +2,7 @@ import passport from "passport";
 import Note from "../models/notes.js";
 import mongoose from "mongoose";
 
+// notes
 export const allNotes = (req, res) => {
   Note.find()
     .then((notes) => {
@@ -24,11 +25,11 @@ export const renderNotes = async (req, res) => {
     });
   }
 };
-export const renderNoteForm = (req, res) => res.render("notesNew");
+export const newNoteForm = (req, res) => res.render("notesNew");
 
 export const newNote = async (req, res) => {
-  const { userId, location, time, body } = req.body;
-  const email = req.user.email; // Automatically add logged in user's email
+  // Automatically add logged in user's email
+  const email = req.user.email; 
 
   const note = new Note({
     _id: new mongoose.Types.ObjectId(),
@@ -44,7 +45,11 @@ export const newNote = async (req, res) => {
     res.status(201).json(savedNote);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error creating note' });
+    res.status(500).json({ error: "Error creating note" });
   }
 };
 
+export const  editNote = async (req, res) => {
+}
+export const deleteNote = async (req, res) => {
+}

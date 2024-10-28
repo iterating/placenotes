@@ -13,13 +13,11 @@ import users from "./api/routes/users.js";
 import notes from "./api/routes/notes.js";
 import cors from 'cors';
 
-
-
 const app = express();
+// needs this for directory of ejs views to work
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(cors({ origin: "*" }));
 app.use(express.json());
-
 
 // View Engine
 app.set("views", path.join(__dirname, './api/views'));
@@ -34,22 +32,19 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-
 //Routes
 app.use("/users", users);
 app.use("/notes", notes);
 app.get("/", (req, res) => {
-  console.log('Welcome to Placenotes');
   res.send("Welcome to Placenotes");
 });
+
 
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send({ message: 'An error occurred', error: err.message });
 });
 
-
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
 });
-

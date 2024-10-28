@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     dropDups: true,
     // match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   },
+  name: String,
   password: {
     type: String,
     required: true
@@ -21,7 +22,6 @@ userSchema.methods.encryptPassword = async (password) => {
   const salt = await bcrypt.genSalt(1);
   return await bcrypt.hash(password, salt);
 };
-
 userSchema.methods.matchPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
