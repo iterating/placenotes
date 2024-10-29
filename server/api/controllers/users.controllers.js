@@ -76,23 +76,4 @@ export const logout = (req, res, next) => {
 };
 
 //!! Log in with email:com@com.com and password:com upon app start
-export const autoLogin = async () => {
-  try {
-    const user = await User.findOne({ email: 'com@com.com' });
-    if (user) {
-      await user.comparePassword('com', (err, isMatch) => {
-        if (isMatch) {
-          console.log("Auto-logging in with email:com@com.com and password:com")
-          user.login();
-        } else {
-          console.log("Auto-login failed");
-        }
-      });
-    } else {
-      console.log("No user found with email:com@com.com");
-    }
-  } catch (error) {
-    console.error(error);
-    console.log("Error auto-logging in");
-  }
-};
+

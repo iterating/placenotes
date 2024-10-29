@@ -16,8 +16,29 @@
                 <% if (note.userId && user && user._id && note.userId.toString() === user._id.toString()) { %>
                     <li>
                         <p><%= note.body %></p>
-                        <p>Location: <%= note.location.lat %>, <%= note.location.lon %></p>
-                        <p>Posted at <%= note.createdAt.toLocaleString() %></p>
+                        <form action="/notes/<%= note._id %>" method="POST" onsubmit="event.preventDefault(); deleteNote('<%= note._id %>');">
+                            <button type="submit">Delete</button>
+                        </form>
+                        <script>
+                            async function deleteNote(noteId) {
+                                try {
+                                    const response = await fetch(`/notes/${noteId}`, {
+                                        method: 'DELETE',
+                                    });
+                                    if (response.ok) {
+                                        location.reload();
+                                    } else {
+                                        console.error('Failed to delete note');
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                }
+                            }
+                        </script>
+                        <form action="/notes/<%= note._id %>/edit" method="GET">
+                            <button type="submit">Edit</button>
+                        </form>
+
                     </li>
                 <% } %>
             <% }); %>
@@ -25,16 +46,8 @@
             <p>You don't have any notes yet.</p>
         <% } %>
     </ul>
-    <h2>Create a new note</h2>
-    <form action="/notes/new" method="post">
-        <label for="note-body">Note:</label><br>
-        <textarea name="body" id="note-body" rows="4" cols="30" required></textarea><br>
-        <label for="note-lat">Latitude:</label><br>
-        <input type="number" name="location[lat]" id="note-lat" required><br>
-        <label for="note-lon">Longitude:</label><br>
-        <input type="number" name="location[lon]" id="note-lon" required><br>
-        <input type="submit" value="Create Note">
-    </form>
+    <p><a href="/notes/new">Create a new note</a></p>
+    
     
 </body>
 </html>
