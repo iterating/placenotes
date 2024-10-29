@@ -2,6 +2,7 @@ import passport from "passport";
 import Note from "../models/notes.js";
 import mongoose from "mongoose";
 import User from "../models/users.js";
+import { autoLogin } from "../middleware/auth.js";
 
 
 // notes
@@ -61,25 +62,4 @@ export const deleteNote = async (req, res) => {
   await Note.findByIdAndDelete(req.params.id);
   req.flash("success_msg", "Note Deleted");
   res.redirect("/notes");
-};
-
-const autoLogin = async () => {
-  try {
-    const user = await User.findOne({ email: 'com@com.com' });
-    if (user) {
-      await user.comparePassword('com', (err, isMatch) => {
-        if (isMatch) {
-          console.log("Auto-logging in with email:com@com.com and password:com")
-          user.login();
-        } else {
-          console.log("Auto-login failed");
-        }
-      });
-    } else {
-      console.log("No user found with email:com@com.com");
-    }
-  } catch (error) {
-    console.error(error);
-    console.log("Error auto-logging in");
-  }
 };
