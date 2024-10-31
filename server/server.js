@@ -24,6 +24,7 @@ app.set("views", path.join(__dirname, './api/views'));
 app.engine(".ejs", ejs.renderFile);
 app.set("view engine", "ejs");
 
+
 // Middleware
 app.use(session({ secret: 'secret', resave: true, saveUninitialized: true }));
 app.use(express.urlencoded({ extended: false }));
