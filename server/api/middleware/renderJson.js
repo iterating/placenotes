@@ -1,28 +1,30 @@
-import express from "express";
+export const renderJson = (req, res, next) => {
+  try {
+    const data = req.body.data;
 
-const renderPrettyJson = (req, res, next) => {
-  res.renderJson = (jsonData) => {
-    const jsonHtml = `
+    if (!data) {
+      return res.status(400).send({ message: "No data provided" });
+    }
+
+    const formattedHtml = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>JSON Viewer</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          pre { background: #f5f5f5; padding: 15px; border-radius: 5px; }
-        </style>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Formatted Data</title>
       </head>
       <body>
-        <h1>JSON Data</h1>
-        <pre>${JSON.stringify(jsonData, null, 2)}</pre>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
       </body>
       </html>
     `;
-    res.send(jsonHtml);
-  };
-  next();
+
+    res.status(200).send(formattedHtml);
+  } catch (error) {
+    console.error("Error rendering HTML:", error);
+    res.status(500).send({ message: "An error occurred while rendering HTML" });
+  }
 };
 
-export default renderPrettyJson;
+export default renderJson;

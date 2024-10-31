@@ -42,10 +42,17 @@ The Placenotes server is a RESTful API build on Express that supports the follow
 	+ Retrieves all notes for the logged in user
 - GET /notes/:id
 	+ Retrieves the note with the specified id
-- GET /notes?userId=:id
-	+ Retrieves notes created by the user with the specified userId
-- GET /notes?location=<VALUE>
+
+- GET /notes/:time
+	- Retrieces note created by the logged in user and the specified time
+- PUT /notes/:time
+	- Updates note created by the logged in user and the specified time
+- DELETE /notes/:time
+	- Deletes note created by the logged in user and the specified time
+
+- GET /notes/:location
 	+ Retrieves notes created at the specified location
+
 ### Template Engine and Middleware
 - A *template engine* renders views with Express
 

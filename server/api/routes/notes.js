@@ -13,8 +13,52 @@ router.put("/:id", setUser, editNote);
 router.delete("/:id", setUser, deleteNote);
 
 router.get("/:time", setUser, (req, res) => {
-    const notes = Note.find({ time: req.params.time }).lean();
-    res.send(notes);
+  Note.findOne({ userId: req.user._id, time: req.params.time })
+    .then((notes) => {
+      res.send(notes);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error retrieving notes");
+    });
+})
+router.put("/:time", setUser, (req, res) => {
+  Note.findOneAndUpdate(
+    { userId: req.user._id, time: req.params.time },
+    { $set: req.body },
+    { new: true }
+  )
+    .then((notes) => {
+      res.send(notes);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error editing note");
+    });
+})
+
+router.delete("/:time", setUser, (req, res) => {
+  Note.findOneAndDelete(
+    { userId: req.user._id, time: req.params.time }
+  )
+    .then((notes) => {
+      res.send({ message: "Note deleted" });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error deleting note");
+    });
+})
+
+router.get("/:location", setUser, (req, res) => {
+  Note.find({ userId: req.user._id, location: req.params.location })
+    .then((notes) => {
+      res.send(notes);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error retrieving notes");
+    });
 })
 
 
