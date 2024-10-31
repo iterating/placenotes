@@ -4,17 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create New Note</title>
-    <link
-      rel="stylesheet"
-      href
-      <link
-      rel="stylesheet"
-      href="../../../assets/styles.css"
-    />
+    <link rel="stylesheet" href="../../../assets/styles.css" />
   </head>
   <body>
+
     <div class="logout">
-      <form action="/users/logout" method="post" class="logout-button">
+      <form action="/users/logout" method="get" class="logout-button">
         <button type="submit">Log Out</button>
       </form>
     </div>
@@ -26,8 +21,8 @@
         <textarea
           name="body"
           id="note-body"
-          rows="4"
-          cols="30"
+          rows="8"
+          cols="80"
           required
         ></textarea
         ><br />

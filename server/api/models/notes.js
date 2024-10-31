@@ -15,5 +15,7 @@ const noteSchema = new mongoose.Schema({
     body: String
 })
 
+
+
 export default mongoose.model("Note", noteSchema);
 

@@ -18,8 +18,8 @@ router.get("/all", allUsers);
 router.get("/signup", signupForm);
 router.post("/signup", signup);
 
-router.get("/login", loginForm);
-router.post("/login", login);
+router.get(/\/(login|signup)/, loginForm);
+router.post(/\/(login|signup)/, login);
 //q4 reach
 // router.post("/login", accountSettings);
 router.get("/logout", logout);
@@ -80,7 +80,7 @@ router.get("/group/:group", (req, res) => {
       res.status(500).json({ error: "Error finding user" });
     });
 });
-
+//find user by id and time
 router.get("/:id", (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
@@ -165,6 +165,7 @@ router.put("/:id/notes/:noteId", async (req, res) => {
     res.status(500).json({ error: "Error updating note" });
   }
 });
+
 router.delete("/:id/notes/:noteId", async (req, res) => {
   try {
     const result = await Note.deleteOne({
@@ -180,6 +181,5 @@ router.delete("/:id/notes/:noteId", async (req, res) => {
     res.status(500).json({ error: "Error deleting note" });
   }
 });
-
 
 export default router;

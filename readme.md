@@ -62,11 +62,21 @@ The Placenotes server is a RESTful API build on Express that supports the follow
   - `passport.js`: Provides authentication services. Future development will include Google OAuth. 
 ### MongoDB Database
 - The API and MongoDB database supports full CRUD Operations
+### MVC Architecture
+- The app uses the Model View Controller (MVC) architecture to separate concerns between the database, user interface, and application logic. This allows for easier maintenance and scalability of the application.
 
+  - **Model**: defines the data layer of the application, which includes the database schema and any operations that interact with the database. This layer is responsible for retrieving and storing data in the database.
+
+  - **View**: defines the user interface layer of the application, which includes the templates and static assets. This layer is responsible for rendering the user interface and any static assets.
+
+  - **Controller**: defines the application logic layer of the application, which includes the API endpoints and any operations that interact with the Model and View. This layer is responsible for receiving requests, interacting with the Model and View, and sending responses back to the user.
+  
 ## How To Run
 
 1. `npm install` to install all dependencies
 2. `npm run seed` to seed the database with sample data
 3. `npm run dev` to start the server in development mode
 4. Open a web browser and navigate to `localhost:3000` to access the app
+
+
 

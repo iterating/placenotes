@@ -21,7 +21,7 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // Make css available
-app.use('/assets', express.static(path.join(__dirname, '../assets')));
+app.use('/assets', express.static(path.join(__dirname, './api/views/assets')));
 app.use('/components', express.static(path.join(__dirname, '../components')));
 
 
@@ -45,6 +45,7 @@ app.use("/notes", notes);
 app.get("/", (req, res) => {
   res.send("Welcome to Placenotes");
 });
+
 
 
 app.use((err, req, res, next) => {
