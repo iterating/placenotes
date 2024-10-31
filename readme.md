@@ -1,6 +1,24 @@
 https://github.com/iterating/placenotes
 
-This is a work in progress of a webapp that allows taking
+A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:
+"You've got this! You're not just qualified for this role; you're the perfect fit. Go in there and show them the incredible person I see every day. I'm so proud of you and I'm cheering you on all the way. 💖"
+
+You arrive at Costco, and get a message:
+" 2024.10.25 out of paper towel rolls
+- [ ] eggs
+- [ ] milk
+- [ ] oatmeal
+- [x] cheese got xl pack 10-15 
+- [ ] malbec wine "
+It's your Costco shopping list, and it pops up when you arrive at Costco. 
+
+
+
+
+A powerful messaging and notetaking app that adds the element of location to your messages.
+
+Built with Express and Mongodb
+This is a work in progress.
 
 ## Express server application
 ### RESTful API

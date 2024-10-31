@@ -33,7 +33,7 @@ importers:
         specifier: ^1.18.1
         version: 1.18.1
       graphql:
-        specifier: ^16.9.0
+        specifier: ''
         version: 16.9.0
       graphql-http:
         specifier: ^1.22.1
