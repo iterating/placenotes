@@ -56,10 +56,26 @@ export const newNote = async (req, res) => {
   }
 };
 
-export const  editNote = async (req, res) => {
-}
+export const editNote = async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    res.render("notesEdit", { note });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error finding note" });
+  }
+};
+
 export const deleteNote = async (req, res) => {
-  await Note.findByIdAndDelete(req.params.id);
-  req.flash("success_msg", "Note Deleted");
-  res.redirect("/notes");
+  try {
+    await Note.findByIdAndDelete(req.params.id);
+    req.flash("success_msg", "Note Deleted");
+    res.redirect("/notes");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error deleting note" });
+  }
 };

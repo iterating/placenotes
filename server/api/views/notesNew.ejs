@@ -1,19 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create New Note</title>
-    <link rel="stylesheet" href    <link rel="stylesheet" href="../../../assets/styles.css">
+    <link
+      rel="stylesheet"
+      href
+      <link
+      rel="stylesheet"
+      href="../../../assets/styles.css"
+    />
+  </head>
+  <body>
+    <div class="logout">
+      <form action="/users/logout" method="post" class="logout-button">
+        <button type="submit">Log Out</button>
+      </form>
+    </div>
 
-</head>
-<body>
-    <h1>Create New Note</h1>
-    <form action="/notes/new" method="post">
-        <label for="note-body">Note:</label><br>
-        <textarea name="body" id="note-body" rows="4" cols="30" required></textarea><br>
-        <input type="submit" value="Create Note">
-    </form>
-     
-</body>
+    <div class="flex-container">
+      <h1>Create New Note</h1>
+      <form action="/notes/new" method="post" class="flex-item">
+        <label for="note-body">Note:</label><br />
+        <textarea
+          name="body"
+          id="note-body"
+          rows="4"
+          cols="30"
+          required
+        ></textarea
+        ><br />
+        <input type="submit" value="Create Note" />
+      </form>
+      <p><a href="/notes">View All Notes</a></p>
+    </div>
+
+    <style>
+      .flex-container {
+        background-color: #f5deb3; /* Papyrus color */
+        font-family: Georgia;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .flex-item {
+        flex: 1;
+      }
+    </style>
+  </body>
 </html>

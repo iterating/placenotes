@@ -13,11 +13,17 @@ import users from "./api/routes/users.js";
 import notes from "./api/routes/notes.js";
 import cors from 'cors';
 
+
 const app = express();
 // needs this for directory of ejs views to work
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(cors({ origin: "*" }));
 app.use(express.json());
+
+// Make css available
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
+app.use('/components', express.static(path.join(__dirname, '../components')));
+
 
 // View Engine
 app.set("views", path.join(__dirname, './api/views'));

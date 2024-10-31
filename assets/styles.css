@@ -1,5 +1,5 @@
 body {
-  background-color: #F5DEB3; /* Papyrus color */
+  background-color: #f5deb3; /* Papyrus color */
   font-family: Georgia;
   color: #333;
   margin: 0;
@@ -7,8 +7,34 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
+  }
+.notes{
+  display: flex;
+  flex-direction: column;  
+}
+.notes-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow: scroll;
+}
+.note-body {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow: scroll;
 }
 
 h1 {
@@ -19,6 +45,18 @@ h1 {
 
 form {
   max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+
+#edit-note-form {
+  max-width: 800px;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;

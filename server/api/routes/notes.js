@@ -49,7 +49,35 @@ router.delete("/:time", setUser, (req, res) => {
       res.status(500).send("Error deleting note");
     });
 })
+router.get("/:id/edit", setUser, async (req, res) => {
+  try {
+    const note = await Note.findOne({ userId: req.user._id, _id: req.params.id });
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.render("noteEdit", { note });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving note");
+  }
+});
 
+router.post("/:id/edit", setUser, async (req, res) => {
+  try {
+    const note = await Note.findOneAndUpdate(
+      { userId: req.user._id, _id: req.params.id },
+      { $set: req.body },
+      { new: true }
+    );
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.redirect("/notes");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error editing note");
+  }
+});
 router.get("/:location", setUser, (req, res) => {
   Note.find({ userId: req.user._id, location: req.params.location })
     .then((notes) => {
