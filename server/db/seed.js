@@ -3,7 +3,7 @@ import User from '../api/models/users.js';
 import Note from '../api/models/notes.js';
 
 async function seedDatabase() {
-  await mongoose.connect('your_mongodb_connection_string', { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect(process.env.ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
   const users = [
     {

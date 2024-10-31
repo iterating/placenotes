@@ -15,11 +15,13 @@ const router = express.Router();
 //!! Remove for production //!!
 router.get("/all", allUsers);
 
-router.get("/signup", signupForm);
-router.post("/signup", signup);
+router.route("/signup")
+.get(signupForm)
+.post(signup);
 
-router.get(/\/(login|signup)/, loginForm);
-router.post(/\/(login|signup)/, login);
+router.route(/\/(login|signup)/)
+.get(loginForm)
+.post(login);
 //q4 reach
 // router.post("/login", accountSettings);
 router.get("/logout", logout);

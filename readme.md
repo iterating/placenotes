@@ -12,10 +12,7 @@ You arrive at Costco, and get a message:
 - [ ] malbec wine "
 It's your Costco shopping list, and it pops up when you arrive at Costco. 
 
-
-
-
-A powerful messaging and notetaking app that adds the element of location to your messages.
+**Placenotes** is a powerful messaging and notetaking app that adds the element of location to your messages.
 
 Built with Express and Mongodb
 This is a work in progress.
@@ -73,14 +70,15 @@ The Placenotes server is a RESTful API build on Express that supports the follow
 
 ### Template Engine and Middleware
 - A *template engine* renders views with Express
+- EJS renders UI components. It modularizes components such as the drawer UI, to keep DRY
 
 - The application runs the following **middleware**:
   - `autoLogin`: checks if a user is logged in and if not attempts to log them in using a cookie if present
-  - `setUser`: sets the user on the request object if the user is logged in
+  - `setUser`: sets the user on the request object if the user is logged in.
   - `passport.js`: Provides authentication services. Future development will include Google OAuth. 
-### MongoDB Database
+## MongoDB Database
 - The API and MongoDB database supports full CRUD Operations
-### MVC Architecture
+## MVC Architecture
 - The app uses the Model View Controller (MVC) architecture to separate concerns between the database, user interface, and application logic. This allows for easier maintenance and scalability of the application.
 
   - **Model**: defines the data layer of the application, which includes the database schema and any operations that interact with the database. This layer is responsible for retrieving and storing data in the database.
@@ -88,6 +86,7 @@ The Placenotes server is a RESTful API build on Express that supports the follow
   - **View**: defines the user interface layer of the application, which includes the templates and static assets. This layer is responsible for rendering the user interface and any static assets.
 
   - **Controller**: defines the application logic layer of the application, which includes the API endpoints and any operations that interact with the Model and View. This layer is responsible for receiving requests, interacting with the Model and View, and sending responses back to the user.
+- This organization practices **clean coding** and supports development of my application
   
 ## How To Run
 

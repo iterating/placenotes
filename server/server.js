@@ -22,6 +22,7 @@ app.use(express.json());
 
 // Make css available
 app.use('/assets', express.static(path.join(__dirname, './api/views/assets')));
+// Make components available
 app.use('/components', express.static(path.join(__dirname, '../components')));
 
 

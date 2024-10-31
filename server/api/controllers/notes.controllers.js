@@ -44,7 +44,7 @@ export const newNote = async (req, res) => {
       lat: "1"
     },
     body: req.body.body,
-    time: Date.now(),
+    time: new Date().toISOString(),
   });
 
   try {
@@ -71,11 +71,92 @@ export const editNote = async (req, res) => {
 
 export const deleteNote = async (req, res) => {
   try {
-    await Note.findByIdAndDelete(req.params.id);
-    req.flash("success_msg", "Note Deleted");
+    const note = await Note.findByIdAndDelete(req.params.id);
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
     res.redirect("/notes");
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error deleting note" });
   }
 };
+
+
+export async function getNoteByTime(req, res) {
+  try {
+    const note = await Note.findOne({ userId: req.user._id, time: req.params.time });
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.send(note);
+  } catch (err) {
+    res.status(500).send("Error retrieving note");
+  }
+}
+
+export async function updateNoteByTime(req, res) {
+  try {
+    const note = await Note.findOneAndUpdate(
+      { userId: req.user._id, time: req.params.time },
+      { $set: req.body },
+      { new: true }
+    );
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.send(note);
+  } catch (err) {
+    res.status(500).send("Error editing note");
+  }
+}
+
+export async function deleteNoteByTime(req, res) {
+  try {
+    const note = await Note.findOneAndDelete({ userId: req.user._id, time: req.params.time });
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.send({ message: "Note deleted" });
+  } catch (err) {
+    res.status(500).send("Error deleting note");
+  }
+}
+
+export async function getNoteById(req, res) {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.send(note);
+  } catch (err) {
+    res.status(500).send("Error retrieving note");
+  }
+}
+
+export async function updateNote(req, res) {
+  try {
+    const note = await Note.findOneAndUpdate(
+      { userId: req.user._id, _id: req.params.id },
+      { $set: req.body },
+      { new: true }
+    );
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.redirect("/notes");
+  } catch (err) {
+    res.status(500).send("Error editing note");
+  }
+}
+
+export async function getNotesByLocation(req, res) {
+  try {
+    const notes = await Note.find({ userId: req.user._id, location: req.params.location });
+    res.send(notes);
+  } catch (err) {
+    res.status(500).send("Error retrieving notes");
+  }
+}
+

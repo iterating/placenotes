@@ -1,11 +1,5 @@
 <%- include('header.ejs') %>
 
-<div class="logout">
-  <form action="/users/logout" method="get" class="logout-button">
-    <button type="submit">Log Out</button>
-  </form>
-</div>
-
 <div id="notes" style="margin-top: 1em">
   <h1>Your Notes</h1>
   <div class="note-container">
@@ -15,32 +9,17 @@
       user._id.toString()) { %>
       <li>
         <p class="note-body"><%= note.body %></p>
-        <form
-          action="/notes/<%= note._id %>"
-          method="POST"
-          onsubmit="event.preventDefault(); deleteNote('<%= note._id %>');"
-          class="button"
-        >
-          <button type="submit">Delete</button>
-        </form>
-        <script>
-          async function deleteNote(noteId) {
-            try {
-              const response = await fetch(`/notes/${noteId}`, {
-                method: "DELETE",
-              });
-              if (response.ok) {
-                location.reload();
-              } else {
-                console.error("Failed to delete note");
-              }
-            } catch (error) {
-              console.error("Error:", error);
-            }
-          }
-        </script>
         <form action="/notes/<%= note._id %>/edit" method="GET" class="button">
           <button type="submit">Edit</button>
+        </form>
+        <form
+          action="/notes/<%= note._id %>/delete"
+          method="POST"
+          class="button"
+          class="delete-button"
+        >
+          <button type="submit">Delete</button>
+          <input type="hidden" name="_method" value="DELETE" />
         </form>
       </li>
       <% } %> <% }); %> <% } else { %>
