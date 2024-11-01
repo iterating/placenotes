@@ -1,8 +1,8 @@
 <%- include('header.ejs') %>
 
-<div class="flex-container">
-  <h1>Create New Note</h1>
-  <form action="/notes/new" method="post" class="flex-item">
+<div class="edit-container">
+  <h1 class="title">Create New Note</h1>
+  <form action="/notes/new" method="post" class="edit-note-form">
     <label for="note-body">Note:</label><br />
     <textarea name="body" id="note-body" rows="8" cols="80" required></textarea
     ><br />

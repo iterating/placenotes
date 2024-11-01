@@ -1,8 +1,8 @@
 <%- include('header.ejs') %>
 
-<div class="edit-note-container">
-  <h1>Edit Note</h1>
-  <form action="/notes/<%= note._id %>/edit" method="post" id="edit-note-form">
+<div class="edit-container">
+  <h1 class="title">Edit Note</h1>
+  <form action="/notes/<%= note._id %>/edit" method="post" class="edit-note-form">
     <input type="hidden" name="_method" value="PUT" />
     <label for="note-body">Note:</label><br />
     <textarea name="body" id="note-body" rows="20" cols="200" required>

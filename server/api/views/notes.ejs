@@ -1,16 +1,16 @@
 <%- include('header.ejs') %>
-<div id="notes" style="margin-top: 1em">
-  <h1>Your Notes</h1>
-  <div class="note-container">
-    <ul class="notes-list">
+<div class="note-container">
+  <h1 class="title">Your Notes</h1>
       <% if (notes.length > 0) { %> <% notes.forEach(note => { %> <% if
       (note.userId && user && user._id && note.userId.toString() ===
       user._id.toString()) { %>
-      <li id="note-<%= note._id %>">
+      <div class="note" id="note-<%= note._id %>">
         <div class="note-preview" data-note-id="<%= note._id %>">
-          <%= note.body.split('\n')[0] %>
+          <%- marked(note.body.split('\n')[0]) %>
         </div>
-        <div class="note-full" style="display: none"><%= note.body %></div>
+        <div class="note-full" style="display: none">
+          <%- marked(note.body.split('\n').slice(1).join('\n')) %>
+        </div>
         <div class="note-actions-ui">
           <form
             action="/notes/<%= note._id %>/edit"
@@ -29,14 +29,12 @@
             <input type="hidden" name="_method" value="DELETE" />
           </form>
         </div>
-      </li>
+      </div>
       <% } %> <% }); %> <% } else { %>
       <p>You don't have any notes yet.</p>
       <% } %>
-    </ul>
     <p><a href="/notes/new">Create a new note</a></p>
   </div>
-</div>
 <%- include('footer.ejs') %>
 
 <script>
