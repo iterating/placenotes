@@ -7,9 +7,7 @@ import {
   signupForm,
   loginForm,
 } from "../controllers/users.controllers.js";
-import User from "../models/users.js";
-import Note from "../models/notes.js";
-
+import User from "../models/Users.js";
 const router = express.Router();
 
 //!! Remove for production //!!

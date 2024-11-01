@@ -1,9 +1,9 @@
 import passport from "passport";
-import Note from "../models/notes.js";
 import mongoose from "mongoose";
-import User from "../models/users.js";
+import User from "../models/Users.js";
+import Note from "../models/Notes.js";
 import { autoLogin } from "../middleware/auth.js";
-
+import { marked } from 'marked';
 
 // notes
 export const allNotes = (req, res) => {
@@ -20,7 +20,7 @@ export const allNotes = (req, res) => {
 export const renderNotes = async (req, res) => {
   try {
     const notes = await Note.find({ userId: req.user._id });
-    res.render("notes", { notes, user: req.user });
+    res.render("notes", { notes, marked: marked, user: req.user });
   } catch (err) {
     console.error(err);
     res.status(500).json({
@@ -28,8 +28,6 @@ export const renderNotes = async (req, res) => {
     });
   }
 };
-
-
 
 export const newNoteForm = (req, res) => res.render("notesNew");
 
@@ -62,12 +60,28 @@ export const editNote = async (req, res) => {
     if (!note) {
       return res.status(404).json({ error: "Note not found" });
     }
-    res.render("notesEdit", { note });
+    res.render("notesEdit", { note, marked });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error finding note" });
   }
 };
+
+export async function updateNote(req, res) {
+  try {
+    const note = await Note.findOneAndUpdate(
+      { userId: req.user._id, _id: req.params.id },
+      { $set: { body: req.body.body } },
+      { new: true }
+    );
+    if (!note) {
+      return res.status(404).send("Note not found");
+    }
+    res.redirect("/notes");
+  } catch (err) {
+    res.status(500).send("Error editing note");
+  }
+}
 
 export const deleteNote = async (req, res) => {
   try {
@@ -135,21 +149,7 @@ export async function getNoteById(req, res) {
   }
 }
 
-export async function updateNote(req, res) {
-  try {
-    const note = await Note.findOneAndUpdate(
-      { userId: req.user._id, _id: req.params.id },
-      { $set: req.body },
-      { new: true }
-    );
-    if (!note) {
-      return res.status(404).send("Note not found");
-    }
-    res.redirect("/notes");
-  } catch (err) {
-    res.status(500).send("Error editing note");
-  }
-}
+
 
 export async function getNotesByLocation(req, res) {
   try {

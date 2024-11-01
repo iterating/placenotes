@@ -1,4 +1,6 @@
 import express from "express";
+// Required for passport
+import passport from "./api/middleware/passport.js";
 import session from 'express-session';
 import flash from "connect-flash";
 import dotenv from "dotenv";
@@ -8,7 +10,6 @@ import db from "./db/conn.js";
 import ejs from "ejs";
 import path from "path";
 import { fileURLToPath } from 'url';
-import passport from "./api/middleware/passport.js";
 import users from "./api/routes/users.js";
 import notes from "./api/routes/notes.js";
 import cors from 'cors';
@@ -23,7 +24,6 @@ app.use(express.json());
 // Make css available
 app.use('/assets', express.static(path.join(__dirname, './api/views/assets')));
 // Make components available
-app.use('/components', express.static(path.join(__dirname, '../components')));
 
 
 // View Engine
@@ -44,7 +44,7 @@ app.use(flash());
 app.use("/users", users);
 app.use("/notes", notes);
 app.get("/", (req, res) => {
-  res.send("Welcome to Placenotes");
+  res.send('Welcome to Placenotes. <a href="/users/login">Go to Login</a>');
 });
 
 

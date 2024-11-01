@@ -1,4 +1,4 @@
- function toggleNote(noteId) {
+export function toggleNote(noteId) {
   const noteFull = document.querySelector(`#note-${noteId} .note-full`);
   if (noteFull.style.display === "none" || noteFull.style.display === "") {
     noteFull.style.display = "block";
@@ -7,7 +7,7 @@
   }
 }
 
- async function deleteNote(noteId) {
+ export async function deleteNote(noteId) {
   try {
     const response = await fetch(`/notes/${noteId}`, {
       method: "DELETE",
@@ -22,7 +22,7 @@
   }
 }
 
-const notePreviews = document.querySelectorAll(".note-preview");
+export const notePreviews = document.querySelectorAll(".note-preview");
 notePreviews.forEach((element) => {
   element.addEventListener("click", (event) => {
     const noteId = element.getAttribute("data-note-id");
@@ -30,7 +30,7 @@ notePreviews.forEach((element) => {
   });
 });
 
-const deleteButtons = document.querySelectorAll(".delete-note");
+export const deleteButtons = document.querySelectorAll(".delete-note");
 deleteButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
     event.preventDefault();

@@ -1,5 +1,6 @@
 import express from "express";
-import User from "../models/users.js";
+import User from "../models/Users.js";
+import Note from "../models/Notes.js";
 import passport from "../middleware/passport.js";
 import mongoose from "mongoose";
 

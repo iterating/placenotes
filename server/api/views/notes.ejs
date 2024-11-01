@@ -1,5 +1,4 @@
 <%- include('header.ejs') %>
-
 <div id="notes" style="margin-top: 1em">
   <h1>Your Notes</h1>
   <div class="note-container">
@@ -7,20 +6,29 @@
       <% if (notes.length > 0) { %> <% notes.forEach(note => { %> <% if
       (note.userId && user && user._id && note.userId.toString() ===
       user._id.toString()) { %>
-      <li>
-        <p class="note-body"><%= note.body %></p>
-        <form action="/notes/<%= note._id %>/edit" method="GET" class="button">
-          <button type="submit">Edit</button>
-        </form>
-        <form
-          action="/notes/<%= note._id %>/delete"
-          method="POST"
-          class="button"
-          class="delete-button"
-        >
-          <button type="submit">Delete</button>
-          <input type="hidden" name="_method" value="DELETE" />
-        </form>
+      <li id="note-<%= note._id %>">
+        <div class="note-preview" data-note-id="<%= note._id %>">
+          <%= note.body.split('\n')[0] %>
+        </div>
+        <div class="note-full" style="display: none"><%= note.body %></div>
+        <div class="note-actions-ui">
+          <form
+            action="/notes/<%= note._id %>/edit"
+            method="GET"
+            class="button"
+          >
+            <button type="submit">Edit</button>
+          </form>
+          <form
+            action="/notes/<%= note._id %>/delete"
+            method="POST"
+            class="button"
+            class="delete-button"
+          >
+            <button type="submit">Delete</button>
+            <input type="hidden" name="_method" value="DELETE" />
+          </form>
+        </div>
       </li>
       <% } %> <% }); %> <% } else { %>
       <p>You don't have any notes yet.</p>
@@ -30,3 +38,22 @@
   </div>
 </div>
 <%- include('footer.ejs') %>
+
+<script>
+  function toggleNote(noteId) {
+    const noteFull = document.querySelector(`#note-${noteId} .note-full`);
+    if (noteFull.style.display === "none" || noteFull.style.display === "") {
+      noteFull.style.display = "block";
+    } else {
+      noteFull.style.display = "none";
+    }
+  }
+
+  const notePreviews = document.querySelectorAll(".note-preview");
+  notePreviews.forEach((element) => {
+    element.addEventListener("click", (event) => {
+      const noteId = element.getAttribute("data-note-id");
+      toggleNote(noteId);
+    });
+  });
+</script>

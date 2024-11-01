@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema({
     required: true
   }
 });
+
+// index email
 userSchema.index({ email: 1 }, { unique: true });
 
 userSchema.methods.encryptPassword = async (password) => {

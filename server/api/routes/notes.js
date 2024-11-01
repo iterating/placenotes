@@ -14,7 +14,7 @@ import {
   updateNote,
   getNoteById,
 } from "../controllers/notes.controllers.js";
-import Note from "../models/notes.js";
+import Note from "../models/Notes.js";
 import users from "./users.js";
 import { autoLogin, setUser } from "../middleware/auth.js";
 

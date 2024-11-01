@@ -42,13 +42,23 @@ h1 {
 
 form {
   max-width: 400px;
-  margin: 20px auto;
-  padding: 20px;
+  margin: 10px auto;
+  padding: 10px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+}
+
+.note-actions-ui {
+  display: flex;
+  margin: none;
+  padding: none;
+  button {
+    font-size: 14px;
+    padding: 5px 10px;
+  }
 }
 
 #edit-note-form {

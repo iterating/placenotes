@@ -9,7 +9,7 @@ export const setUser = (req, res, next) => {
   }
 };
 
-import User from "../models/users.js";
+import User from "../models/Users.js";
 import bcrypt from "bcrypt";
 export const autoLogin = async () => {
   try {
