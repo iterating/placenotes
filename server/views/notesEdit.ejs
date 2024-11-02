@@ -3,21 +3,23 @@
 <div class="edit-container">
   <h1 class="title">Edit Note</h1>
   <form action="/notes/<%= note._id %>/edit" method="post" class="edit-note-form">
+    <!-- HTML forms support only GET and POST. method-override and hidden-input to use other requests -->
     <input type="hidden" name="_method" value="PUT" />
     <label for="note-body">Note:</label><br />
     <textarea name="body" id="note-body" rows="20" cols="200" required>
 <%= note.body %></textarea
     ><br />
     <button type="submit">Save Changes</button>
-  </form>
-  <form
-    action="/notes/<%= note._id %>/delete"
-    method="POST"
-    class="button"
-    class="delete-button"
-  >
-    <button type="submit">Delete</button>
-    <input type="hidden" name="_method" value="DELETE" />
+    <form
+      action="/notes/<%= note._id %>/delete"
+      method="POST"
+      class="button"
+      class="delete-button"
+    >
+      <button type="submit" class="button delete-button">Delete</button>
+      <input type="hidden" name="_method" value="DELETE" />
+      <a href="/notes" class="button">Cancel</a>
+    </form>
   </form>
 
   <p><a href="/notes">Back to All Notes</a></p>

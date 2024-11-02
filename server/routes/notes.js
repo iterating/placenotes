@@ -20,6 +20,8 @@ import { autoLogin, setUser } from "../middleware/auth.js";
 
 router.get("/all", allNotes);
 router.get("/", setUser, renderNotes);
+
+
 router.route("/new").get(setUser, newNoteForm).post(setUser, newNote);
 router
   .route("/:id")
@@ -35,5 +37,8 @@ router
   .delete(setUser, deleteNoteByTime);
 
 router.route("/:location").get(setUser, getNotesByLocation);
+
+
+
 
 export default router;

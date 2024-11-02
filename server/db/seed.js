@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import User from '../api/models/users.js';
-import Note from '../api/models/notes.js';
+import User from "../models/Users.js"
+import Note from "../models/Notes.js"
 
 async function seedDatabase() {
   await mongoose.connect(process.env.ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true });

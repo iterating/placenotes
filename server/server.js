@@ -1,6 +1,6 @@
 import express from "express";
 // Required for passport
-import passport from "./api/middleware/passport.js";
+import passport from "./middleware/passport.js";
 import session from 'express-session';
 import flash from "connect-flash";
 import dotenv from "dotenv";
@@ -10,8 +10,8 @@ import db from "./db/conn.js";
 import ejs from "ejs";
 import path from "path";
 import { fileURLToPath } from 'url';
-import users from "./api/routes/users.js";
-import notes from "./api/routes/notes.js";
+import users from "./routes/users.js";
+import notes from "./routes/notes.js";
 import cors from 'cors';
 
 
@@ -22,12 +22,12 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // Make css available
-app.use('/assets', express.static(path.join(__dirname, './api/views/assets')));
+app.use('/assets', express.static(path.join(__dirname, './views/assets')));
 // Make components available
 
 
 // View Engine
-app.set("views", path.join(__dirname, './api/views'));
+app.set("views", path.join(__dirname, './views'));
 app.engine(".ejs", ejs.renderFile);
 app.set("view engine", "ejs");
 
@@ -57,3 +57,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
 });
+
+// take export default app into ./loaders

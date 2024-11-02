@@ -1,14 +1,32 @@
 import express from "express";
 import {
-  allUsers,
   login,
   logout,
   signup,
-  signupForm,
-  loginForm,
+} from "../controllers/auth.controllers.js";
+import {
+  allUsers,
+
 } from "../controllers/users.controllers.js";
+
 import User from "../models/Users.js";
 const router = express.Router();
+
+
+const loginForm = (req, res) => {
+  console.log("Entering loginForm route");
+  console.log("req.session:", req.session);
+  res.render("login", {
+    errorMessage: req.flash("errorMessage"),
+  });
+};
+
+const signupForm = (req, res) => {
+  res.render("signup", {
+    errorMessage: req.flash("errorMessage"),
+  });
+};
+
 
 //!! Remove for production //!!
 router.get("/all", allUsers);
@@ -181,5 +199,7 @@ router.delete("/:id/notes/:noteId", async (req, res) => {
     res.status(500).json({ error: "Error deleting note" });
   }
 });
+
+
 
 export default router;

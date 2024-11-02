@@ -1,25 +1,10 @@
+import db from "../db/db.js";
 import express from "express";
 import User from "../models/Users.js";
 import Note from "../models/Notes.js";
 import passport from "../middleware/passport.js";
 import mongoose from "mongoose";
-
-//!! Change for production //!!
-export const allUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error getting users");
-  }
-};
-// user/login endpoint GETs sign in form and POSTs new user account
-export const signupForm = (req, res) => {
-  res.render("signup", {
-    errorMessage: req.flash("errorMessage"),
-  });
-};
+ 
 export const signup = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -27,13 +12,17 @@ export const signup = async (req, res) => {
     if (password.length < 2) {
       errors.push({ text: "Passwords must be at least 2 characters." });
     }
-//!!q3 form validation here
+    //!!q3 form validation here
     if (errors.length > 0) {
       req.flash("errorMessage", errors);
       return res.redirect("/users/signup");
     }
 
-    const newUser = new User({ email, password, _id: new mongoose.Types.ObjectId() });
+    const newUser = new User({
+      email,
+      password,
+      _id: new mongoose.Types.ObjectId(),
+    });
 
     newUser.password = await newUser.encryptPassword(password);
     await newUser.save();
@@ -46,27 +35,22 @@ export const signup = async (req, res) => {
       }
       res.redirect("/notes");
     });
-
   } catch (error) {
-    console.error(error);
+    console.error(error); 
     res.status(500).send("Error registering user");
   }
 };
 
 // Log In
-export const loginForm = (req, res) => {
-  console.log("Entering loginForm route");
-  console.log("req.session:", req.session);
-  res.render("login", {
-    errorMessage: req.flash("errorMessage"),
-  });
-};
 
-export const login = passport.authenticate('local', {
-  successRedirect: '/notes',
-  failureRedirect: '/users/login',
+
+export const login = passport.authenticate("local", {
+  successRedirect: "/notes",
+  failureRedirect: "/users/login",
   failureFlash: true,
 });
+
+
 
 export const logout = (req, res, next) => {
   req.logout((err) => {
@@ -75,6 +59,3 @@ export const logout = (req, res, next) => {
     res.redirect("/users/login");
   });
 };
-
-//!! Log in with email:com@com.com and password:com upon app start
-

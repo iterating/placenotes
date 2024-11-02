@@ -102,7 +102,7 @@ textarea {
 }
 
 input[type="submit"],
-button {
+button, .button {
   width: 100%;
   padding: 10px;
   background-color: #007bff;
@@ -114,7 +114,7 @@ button {
 }
 
 input[type="submit"]:hover,
-button:hover {
+button:hover, .button:hover { 
   background-color: #0056b3;
 }
 
@@ -130,4 +130,10 @@ a:hover {
   color: #0056b3;
 }
 
+
+button, .button {
+  display: inline-block;
+  margin: 0.2rem;
+  max-width: 200px;
+}
 
