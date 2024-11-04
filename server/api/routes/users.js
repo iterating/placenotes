@@ -1,15 +1,8 @@
 import express from "express";
-import {
-  login,
-  logout,
-  signup,
-} from "../controllers/auth.controllers.js";
-import {
-  allUsers,
+import * as authController from "../../controllers/auth.controllers.js";
+import * as usersController from "../../controllers/users.controllers.js";
 
-} from "../controllers/users.controllers.js";
-
-import User from "../models/Users.js";
+import User from "../../models/User.js";
 const router = express.Router();
 
 
@@ -29,18 +22,18 @@ const signupForm = (req, res) => {
 
 
 //!! Remove for production //!!
-router.get("/all", allUsers);
+router.get("/all", usersController.allUsers);
 
 router.route("/signup")
 .get(signupForm)
-.post(signup);
+.post(authController.signup);
 
 router.route(/\/(login|signup)/)
 .get(loginForm)
-.post(login);
+.post(authController.login);
 //q4 reach
 // router.post("/login", accountSettings);
-router.get("/logout", logout);
+router.get("/logout", authController.logout);
 
 // Get user by /users?id=:id or /users/:id
 router.get("/", async (req, res) => {

@@ -1,10 +1,8 @@
 import express from "express";
-import User from "../models/Users.js";
-import Note from "../models/Notes.js";
-import passport from "../middleware/passport.js";
-import mongoose from "mongoose";
+import User from "../models/User.js";
+import Note from "../models/Note.js";
+import passport from "../api/middleware/passport.js";
 
-//!! Change for production //!!
 export const allUsers = async (req, res) => {
   try {
     const users = await User.find();

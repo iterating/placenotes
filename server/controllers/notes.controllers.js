@@ -1,9 +1,8 @@
 import passport from "passport";
-import mongoose from "mongoose";
-import User from "../models/Users.js";
-import Note from "../models/Notes.js";
-import { autoLogin } from "../middleware/auth.js";
+import User from "../models/User.js";
+import Note from "../models/Note.js";
 import { marked } from 'marked';
+import { _id } from "../db/db.js";
 
 // notes
 export const allNotes = (req, res) => {
@@ -34,7 +33,7 @@ export const newNoteForm = (req, res) => res.render("notesNew");
 export const newNote = async (req, res) => {
   // Automatically add logged in user's email
   const note = new Note({
-    _id: new mongoose.Types.ObjectId(),
+    _id: _id,
     userId: req.user._id,
     email: req.user.email,
     location: {

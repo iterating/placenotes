@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Marked } from 'marked';
+import bcrypt from "bcrypt";
 
 const noteSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,

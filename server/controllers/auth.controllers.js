@@ -1,10 +1,9 @@
-import db from "../db/db.js";
-import express from "express";
-import User from "../models/Users.js";
-import Note from "../models/Notes.js";
-import passport from "../middleware/passport.js";
-import mongoose from "mongoose";
- 
+import User from "../models/User.js";
+import Note from "../models/Note.js";
+import passport from "../api/middleware/passport.js";
+import { _id } from "../db/db.js";
+
+
 export const signup = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -19,9 +18,9 @@ export const signup = async (req, res) => {
     }
 
     const newUser = new User({
+      _id: _id,
       email,
       password,
-      _id: new mongoose.Types.ObjectId(),
     });
 
     newUser.password = await newUser.encryptPassword(password);
@@ -44,11 +43,23 @@ export const signup = async (req, res) => {
 // Log In
 
 
-export const login = passport.authenticate("local", {
-  successRedirect: "/notes",
-  failureRedirect: "/users/login",
-  failureFlash: true,
-});
+export const login = (req, res, next) => {
+  passport.authenticate("localLogin", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      req.flash("errorMessage", info.message);
+      return res.redirect("/users/login");
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect("/notes");
+    });
+  })(req, res, next);
+};
 
 
 
