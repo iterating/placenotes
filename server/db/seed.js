@@ -26,7 +26,7 @@ async function seedDatabase() {
       userId: users[0]._id.toString(),
       email: 'john.doe@example.com',
       location: { lat: '37.7749', lon: '-122.4194' },
-      time: new Date().toISOString(),
+      time: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', '-'),
       body: 'This is a note from John Doe.'
     },
     {
@@ -34,9 +34,10 @@ async function seedDatabase() {
       userId: users[1]._id.toString(),
       email: 'jane.smith@example.com',
       location: { lat: '40.7128', lon: '-74.0060' },
-      time: new Date().toISOString(),
+      time: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', '-'),
       body: 'This is a note from Jane Smith.'
     }
+  
   ];
 
   await User.insertMany(users);

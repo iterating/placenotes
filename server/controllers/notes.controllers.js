@@ -33,7 +33,7 @@ export const newNoteForm = (req, res) => res.render("notesNew");
 export const newNote = async (req, res) => {
   // Automatically add logged in user's email
   const note = new Note({
-    _id: _id,
+    _id: new _id(),
     userId: req.user._id,
     email: req.user.email,
     location: {
@@ -41,7 +41,7 @@ export const newNote = async (req, res) => {
       lat: "1"
     },
     body: req.body.body,
-    time: new Date().toISOString(),
+    time: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', '-'),
   });
 
   try {
@@ -152,9 +152,29 @@ export async function getNoteById(req, res) {
 
 export async function getNotesByLocation(req, res) {
   try {
-    const notes = await Note.find({ userId: req.user._id, location: req.params.location });
+    const { lat, lon } = req.params;
+    if (lat == null || lon == null) {
+      return res.status(400).send("Latitude and longitude must be provided");
+    }
+
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).send("User not authenticated");
+    }
+
+    const notes = await Note.find({
+      userId: userId,
+      "location.lat": Number(lat),
+      "location.lon": Number(lon),
+    });
+
+    if (!notes || notes.length === 0) {
+      return res.status(404).send("No notes found at the specified location");
+    }
+
     res.send(notes);
   } catch (err) {
+    console.error("Error retrieving notes:", err);
     res.status(500).send("Error retrieving notes");
   }
 }

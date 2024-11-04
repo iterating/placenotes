@@ -17,12 +17,12 @@ router.route("/:id/delete")
   .post(setUser, notesController.deleteNote);
 router.route("/:id/edit").get(setUser, notesController.editNote).post(setUser, notesController.updateNote);
 router
-  .route("/:time")
+  .route("/time/:time")
   .get(setUser, notesController.getNoteByTime)
   .put(setUser, notesController.updateNoteByTime)
   .delete(setUser, notesController.deleteNoteByTime);
 
-router.route("/:location").get(setUser, notesController.getNotesByLocation);
+router.route("/location/:lat/:lon").get(setUser, notesController.getNotesByLocation);
 
 
 

@@ -1,18 +1,21 @@
 [Live Site](https://placenotes.onrender.com/users/login)
 
 A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:
+
 "You've got this! You're not just qualified for this role; you're the perfect fit. Go in there and show them the incredible person I see every day. I'm so proud of you and I'm cheering you on all the way. 💖"
 
-You arrive at Costco, and get a message:
+You arrive at Costco, and get a message:  
+
 " 2024.10.25 out of paper towel rolls
 - [ ] eggs
 - [ ] milk
 - [ ] oatmeal
 - [x] cheese got xl pack 10-15 
 - [ ] malbec wine "
+
 It's your Costco shopping list, and it pops up when you arrive at Costco. 
 
-**Placenotes** is a powerful messaging and notetaking app that adds the element of location to your messages.
+**Placenotes** is a powerful messaging and notetaking app that adds the element of location to your messages. It can be used as a notetaking app or a messaging app
 
 Built with Express and Mongodb
 This is a work in progress.
@@ -20,12 +23,12 @@ This is a work in progress.
 ## Express server application
 ### RESTful API
 The Placenotes server is a RESTful API build on Express that supports the following actions:
-- POST /login
+- POST users/login or users/signup
 	- Directs user to login form
-- POST /login
+- POST users/login or users/signup
 	+ Creates a new user
 
-- GET /users pr /users/all
+- GET /users/all
 	+ Retrieves all users
 - GET /users/:id
 	+ Retrieves the user with the specified id
@@ -58,15 +61,15 @@ The Placenotes server is a RESTful API build on Express that supports the follow
 - GET /notes/:id
 	+ Retrieves the note with the specified id
 
-- GET /notes/:time
+- GET /notes/time/:time
 	- Retrieces note created by the logged in user and the specified time
-- PUT /notes/:time
+- PUT /notes//time/:time
 	- Updates note created by the logged in user and the specified time
-- DELETE /notes/:time
+- DELETE /notes/time/:time
 	- Deletes note created by the logged in user and the specified time
 
-- GET /notes/:location
-	+ Retrieves notes created at the specified location
+- GET /notes/location/:lat/:lon
+	+ Retrieves notes created at the specified latitude and longitude
 
 ### Template Engine and Middleware
 - A *template engine* renders views with Express

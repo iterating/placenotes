@@ -18,9 +18,9 @@ export const signup = async (req, res) => {
     }
 
     const newUser = new User({
-      _id: _id,
       email,
       password,
+      _id: new _id(),
     });
 
     newUser.password = await newUser.encryptPassword(password);
@@ -43,23 +43,11 @@ export const signup = async (req, res) => {
 // Log In
 
 
-export const login = (req, res, next) => {
-  passport.authenticate("localLogin", (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      req.flash("errorMessage", info.message);
-      return res.redirect("/users/login");
-    }
-    req.logIn(user, (err) => {
-      if (err) {
-        return next(err);
-      }
-      return res.redirect("/notes");
-    });
-  })(req, res, next);
-};
+export const login = passport.authenticate("localLogin", {
+  successRedirect: "/notes",
+  failureRedirect: "/users/login",
+  failureFlash: true,
+});
 
 
 
