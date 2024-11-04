@@ -44,11 +44,23 @@ export const signup = async (req, res) => {
 
 
 export const login = (req, res, next) => {
-  console.log("Login attempt from", req.body.email);
-  passport.authenticate("localLogin", {
-    successRedirect: "/notes",
-    failureRedirect: "/users/login",
-    failureFlash: true,
+  console.log(`Login attempt from ${req.body.email}`);
+  passport.authenticate("localLogin", (err, user, info) => {
+    if (err) {
+      console.error("Error during authentication", err);
+      return next(err);
+    }
+    if (!user) {
+      req.flash("errorMessage", info.message);
+      return res.redirect("/users/login");
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        console.error("Error logging in user", err);
+        return next(err);
+      }
+      res.redirect("/notes");
+    });
   })(req, res, next);
 };
 
