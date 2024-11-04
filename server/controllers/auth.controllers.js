@@ -43,12 +43,14 @@ export const signup = async (req, res) => {
 // Log In
 
 
-export const login = passport.authenticate("localLogin", {
-  successRedirect: "/notes",
-  failureRedirect: "/users/login",
-  failureFlash: true,
-});
-
+export const login = (req, res, next) => {
+  console.log("Login attempt from", req.body.email);
+  passport.authenticate("localLogin", {
+    successRedirect: "/notes",
+    failureRedirect: "/users/login",
+    failureFlash: true,
+  })(req, res, next);
+};
 
 
 export const logout = (req, res, next) => {
