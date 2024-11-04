@@ -10,8 +10,5 @@ export const allUsers = async (req, res) => {
     res.status(500).send("Error getting users");
   }
 };
-// user/login endpoint GETs sign in form and POSTs new user account
 
-
-//!! Log in with email:com@com.com and password:com upon app start
 
