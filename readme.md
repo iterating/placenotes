@@ -1,6 +1,6 @@
 [Live Site](https://placenotes.onrender.com/users/login)
 
-A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:
+A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:  
 
 "You've got this! You're not just qualified for this role; you're the perfect fit. Go in there and show them the incredible person I see every day. I'm so proud of you and I'm cheering you on all the way. 💖"
 
@@ -82,15 +82,31 @@ The Placenotes server is a RESTful API build on Express that supports the follow
 ## MongoDB Database
 - The API and MongoDB database supports full CRUD Operations
 ## MVC Architecture
+
 - The app uses the Model View Controller (MVC) architecture to separate concerns between the database, user interface, and application logic. This allows for easier maintenance and scalability of the application.
 
-  - **Model**: defines the data layer of the application, which includes the database schema and any operations that interact with the database. This layer is responsible for retrieving and storing data in the database.
+```mermaid
+graph TD
+    A[User] --> B[Controller]
+    B --> C[Service]
+    C --> D[Model]
+    D --> E[Database]
+    E --> D
+    D --> C
+    C --> B
+    B --> F[View]
+    F --> A
+```
 
-  - **View**: defines the user interface layer of the application, which includes the templates and static assets. This layer is responsible for rendering the user interface and any static assets.
+- **Model**: defines the data layer of the application, which includes the database schema and any operations that interact with the database. This layer is responsible for retrieving and storing data in the database.
 
-  - **Controller**: defines the application logic layer of the application, which includes the API endpoints and any operations that interact with the Model and View. This layer is responsible for receiving requests, interacting with the Model and View, and sending responses back to the user.
-- This organization practices **clean coding** and supports development of my application
-  
+- **View**: defines the user interface layer of the application, which includes the templates and static assets. This layer is responsible for rendering the user interface and any static assets.
+- **Service Layer**: Here is the business logic of the application. 
+- **Controller**: defines the application logic layer of the application, which includes the API endpoints and any operations that interact with the Model and View. This layer is responsible for receiving requests, interacting with the Model and View, and sending responses back to the user.
+
+
+- This organization practices my **clean coding** skills and supports development of my application
+
 ## How To Run
 
 1. `npm install` to install all dependencies

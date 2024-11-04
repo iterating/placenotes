@@ -1,4 +1,3 @@
-import passport from "passport";
 import User from "../models/User.js";
 import Note from "../models/Note.js";
 import { marked } from 'marked';

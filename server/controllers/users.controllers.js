@@ -1,7 +1,5 @@
-import express from "express";
 import User from "../models/User.js";
 import Note from "../models/Note.js";
-import passport from "../api/middleware/passport.js";
 
 export const allUsers = async (req, res) => {
   try {
