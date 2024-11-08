@@ -1,11 +1,11 @@
 import express from "express";
 const router = express.Router();
 import * as notesController from "../../controllers/notes.controllers.js";
-import Note from "../../models/Note.js";
 import {  setUser } from "../middleware/auth.js";
 
 router.get("/all", notesController.allNotes);
-router.get("/", setUser, notesController.renderNotes);
+
+router.get("/", setUser, notesController.getNotes);
 
 
 router.route("/new").get(setUser, notesController.newNoteForm).post(setUser, notesController.newNote);

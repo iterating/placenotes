@@ -1,8 +1,5 @@
-import User from "../models/User.js";
-import Note from "../models/Note.js";
+import * as authService  from "../services/auth.service.js";
 import passport from "../api/middleware/passport.js";
-import { _id } from "../db/db.js";
-
 
 export const signup = async (req, res) => {
   try {
@@ -11,40 +8,27 @@ export const signup = async (req, res) => {
     if (password.length < 2) {
       errors.push({ text: "Passwords must be at least 2 characters." });
     }
-    //!!q3 form validation here
     if (errors.length > 0) {
       req.flash("errorMessage", errors);
       return res.redirect("/users/signup");
     }
 
-    const newUser = new User({
-      email,
-      password,
-      _id: new _id(),
-    });
-
-    newUser.password = await newUser.encryptPassword(password);
-    await newUser.save();
-    req.flash("successMessage", "You are now registered");
-    // Automatically log in the new user
-    req.login(newUser, (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error logging in user after registration");
-      }
+    await authService.signup({ email, password });
+    req.flash("successMessage", "User registered");
+    req.logIn(await authService.login({email, password}), (err) => {
+      if (err) return next(err);
       res.redirect("/notes");
     });
   } catch (error) {
     console.error(error); 
     res.status(500).send("Error registering user");
   }
+  
 };
 
 // Log In
-
-
-export const login = (req, res, next) => {
-  console.log(`Login attempt from ${req.body.email}`);
+export const login = async (req, res, next) => {
+  console.log(`controller Login attempt from ${req.body.email}`)
   passport.authenticate("localLogin", (err, user, info) => {
     if (err) {
       console.error("Error during authentication", err);
@@ -64,7 +48,6 @@ export const login = (req, res, next) => {
   })(req, res, next);
 };
 
-
 export const logout = (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
@@ -72,3 +55,4 @@ export const logout = (req, res, next) => {
     res.redirect("/users/login");
   });
 };
+

@@ -99,10 +99,10 @@ graph TD
 ```
 
 - **Model**: defines the data layer of the application, which includes the database schema and any operations that interact with the database. This layer is responsible for retrieving and storing data in the database.
-
 - **View**: defines the user interface layer of the application, which includes the templates and static assets. This layer is responsible for rendering the user interface and any static assets.
-- **Service Layer**: Here is the business logic of the application. 
-- **Controller**: defines the application logic layer of the application, which includes the API endpoints and any operations that interact with the Model and View. This layer is responsible for receiving requests, interacting with the Model and View, and sending responses back to the user.
+- **Controller**: defines the application logic layer of the application, which includes the API endpoints and any operations that interact with the View. It calls the service layer to perform business logic. 
+	- The **Routes** defines API end points and maps them to controller functions. 
+- **Service Layer**: Here is the business logic of the application. It interacts with the models to perform database operations. 
 
 
 - This organization practices my **clean coding** skills and supports development of my application
@@ -121,3 +121,28 @@ graph TD
 2024.11.01
 - [ ] one file does one thing
 
+
+# SBA 319
+|     |     |
+| --- | --- |
+| Requirement | Weight |
+| Use at least three different data collections within the database (such as users, posts, or comments). | 5%  |
+| Utilize reasonable data modeling practices. | 10% |
+| Create GET routes for all data that should be exposed to the client, using appropriate query commands to retrieve the data from the database. | 10% |
+| Create POST routes for data, as appropriate, using appropriate insertion commands to add data to the database. At least one data collection should allow for client creation via a POST request. | 10% |
+| Create PATCH or PUT routes for data, as appropriate, using appropriate update commands to change data in the database. At least one data collection should allow for client manipulation via a PATCH or PUT request. | 10% |
+| Create DELETE routes for data, as appropriate, using appropriate delete commands to remove data from the database. At least one data collection should allow for client deletion via a DELETE request. | 10% |
+| Include sensible indexes for any and all fields that are queried frequently. For fields that may have a high write-to-read ratio, you may forgo indexes for performance considerations. Make comments of this where applicable. | 5%  |
+| Include sensible MongoDB data validation rules for at least one data collection.  <br><br>Note: this may be accomplished in a number of ways. If you choose to perform this task outside of your application's code, you must include a way to test the validation within the application's routes. This can be as simple as providing a POST route that attempts to create an invalid document and displays the resulting error. | 5%  |
+| Populate your application's collections with sample data illustrating the use case of the collections. You must include at least five sample documents per collection.  <br><br>Note: Double-check this requirement before submission. Testing your delete routes may leave you under the requirement. To be safe, populate your collections with sample data well above the requirement (we recommend 10-20 documents). | 5%  |
+| Utilize reasonable code organization practices. | 5%  |
+| Ensure that the program runs without errors (comment out things that do not work, and explain your blockers - you can still receive partial credit). | 10% |
+| Commit frequently to the git repository. | 5%  |
+| Include a README file that contains a description of your application.  <br><br>This README must include a description of your API's available routes and their corresponding CRUD operations for reference. | 5%  |
+| Level of effort displayed in creativity and user experience. | 5%  |
+
+Bonus Objectives The objectives listed here are not required. Ensure that your application meets the requirements above before attempting to further expand your features. These bonus objectives cannot increase your overall score above 100%. Successful completion of these objectives can; however, make up for lost points above. Ensure your application works as outlined by the requirements above before attempting these objectives, time permitting.
+
+Use Mongoose to implement your application.  
+
+Note: The validation requirements above must still be implemented database-side, but should also be implemented application-side within your Mongoose schema(s).

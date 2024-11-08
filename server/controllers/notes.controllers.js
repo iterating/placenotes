@@ -1,23 +1,21 @@
-import User from "../models/User.js";
-import Note from "../models/Note.js";
-import { marked } from 'marked';
+import { marked } from "marked";
 import { _id } from "../db/db.js";
+import * as NotesService from "../services/notes.service.js";
 
 // notes
-export const allNotes = (req, res) => {
-  Note.find()
-    .then((notes) => {
-      res.json(notes);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error getting users");
-    });
+export const allNotes = async (req, res) => {
+  try {
+    const notes = await NotesService.allNotes();
+    res.json(notes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error getting users");
+  }
 };
 
-export const renderNotes = async (req, res) => {
+export const getNotes = async (req, res) => {
   try {
-    const notes = await Note.find({ userId: req.user._id });
+    const notes = await NotesService.getNotes(req.user._id);
     res.render("notes", { notes, marked: marked, user: req.user });
   } catch (err) {
     console.error(err);
@@ -30,21 +28,25 @@ export const renderNotes = async (req, res) => {
 export const newNoteForm = (req, res) => res.render("notesNew");
 
 export const newNote = async (req, res) => {
-  // Automatically add logged in user's email
-  const note = new Note({
-    _id: new _id(),
+  console.log("req.user._id:", req.user._id);
+  const note = {
     userId: req.user._id,
     email: req.user.email,
     location: {
       lon: "1",
-      lat: "1"
+      lat: "1",
     },
     body: req.body.body,
-    time: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', '-'),
-  });
+    time: new Date()
+      .toISOString()
+      .replace(/T/, " ")
+      .replace(/\..+/, "")
+      .replace(/[-:]/g, "")
+      .replace(" ", "-"),
+  };
 
   try {
-    const savedNote = await note.save();
+    const savedNote = await NotesService.newNote(note);
     res.redirect("/notes");
   } catch (err) {
     console.error(err);
@@ -54,7 +56,7 @@ export const newNote = async (req, res) => {
 
 export const editNote = async (req, res) => {
   try {
-    const note = await Note.findById(req.params.id);
+    const note = await NotesService.getNoteById(req.params.id);
     if (!note) {
       return res.status(404).json({ error: "Note not found" });
     }
@@ -67,11 +69,16 @@ export const editNote = async (req, res) => {
 
 export async function updateNote(req, res) {
   try {
-    const note = await Note.findOneAndUpdate(
-      { userId: req.user._id, _id: req.params.id },
-      { $set: { body: req.body.body } },
-      { new: true }
-    );
+    const note = await NotesService.updateNote({
+      userId: req.user._id,
+      _id: req.params.id,
+      body: req.body.body,
+      time: req.body.time,
+      location: {
+        lon: req.body.lon,
+        lat: req.body.lat,
+      },
+    });
     if (!note) {
       return res.status(404).send("Note not found");
     }
@@ -83,7 +90,7 @@ export async function updateNote(req, res) {
 
 export const deleteNote = async (req, res) => {
   try {
-    const note = await Note.findByIdAndDelete(req.params.id);
+    const note = await NotesService.deleteNote(req.params.id);
     if (!note) {
       return res.status(404).json({ error: "Note not found" });
     }
@@ -94,10 +101,12 @@ export const deleteNote = async (req, res) => {
   }
 };
 
-
 export async function getNoteByTime(req, res) {
   try {
-    const note = await Note.findOne({ userId: req.user._id, time: req.params.time });
+    const note = await NotesService.getNoteByTime({
+      userId: req.user._id,
+      time: req.params.time,
+    });
     if (!note) {
       return res.status(404).send("Note not found");
     }
@@ -109,7 +118,7 @@ export async function getNoteByTime(req, res) {
 
 export async function updateNoteByTime(req, res) {
   try {
-    const note = await Note.findOneAndUpdate(
+    const note = await NotesService.updateNoteByTime(
       { userId: req.user._id, time: req.params.time },
       { $set: req.body },
       { new: true }
@@ -125,7 +134,10 @@ export async function updateNoteByTime(req, res) {
 
 export async function deleteNoteByTime(req, res) {
   try {
-    const note = await Note.findOneAndDelete({ userId: req.user._id, time: req.params.time });
+    const note = await NotesService.deleteNoteByTime({
+      userId: req.user._id,
+      time: req.params.time,
+    });
     if (!note) {
       return res.status(404).send("Note not found");
     }
@@ -137,7 +149,7 @@ export async function deleteNoteByTime(req, res) {
 
 export async function getNoteById(req, res) {
   try {
-    const note = await Note.findById(req.params.id);
+    const note = await NotesService.getNoteById(req.params.id);
     if (!note) {
       return res.status(404).send("Note not found");
     }
@@ -146,8 +158,6 @@ export async function getNoteById(req, res) {
     res.status(500).send("Error retrieving note");
   }
 }
-
-
 
 export async function getNotesByLocation(req, res) {
   try {
@@ -161,7 +171,7 @@ export async function getNotesByLocation(req, res) {
       return res.status(401).send("User not authenticated");
     }
 
-    const notes = await Note.find({
+    const notes = await NotesService.getNotesByLocation({
       userId: userId,
       "location.lat": Number(lat),
       "location.lon": Number(lon),
@@ -177,4 +187,3 @@ export async function getNotesByLocation(req, res) {
     res.status(500).send("Error retrieving notes");
   }
 }
-
