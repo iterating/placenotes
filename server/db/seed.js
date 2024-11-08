@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import User from "../models/User.js"
 import Note from "../models/Note.js"
+import Group from "../models/Group.js"
 
 async function seedDatabase() {
   await mongoose.connect(process.env.ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -19,7 +20,18 @@ async function seedDatabase() {
       password: 'hashed_password2'
     }
   ];
-
+  const groups = [
+    {
+      _id: new mongoose.Types.ObjectId(),
+      name: 'Group 1',
+      notes: [ ]
+    },
+    {
+      _id: new mongoose.Types.ObjectId(),
+      name: 'Group 2',
+      notes: [ ]
+    }
+  ];
   const notes = [
     {
       _id: new mongoose.Types.ObjectId(),

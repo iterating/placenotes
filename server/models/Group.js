@@ -1,9 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const groupSchema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
-    name: String,
-    notes: [String]
+  _id: mongoose.Schema.Types.ObjectId,
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 1,
+    maxlength: 100,
+  },
+  notes: [String],
 });
 
-export default mongoose.model("Group", groupSchema)
+export default mongoose.model("Group", groupSchema);
