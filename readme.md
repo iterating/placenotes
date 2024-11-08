@@ -134,8 +134,7 @@ graph TD
 - [ ] Redux for state for real time updates
 
   2024.11.01
-
-- [ ] one file does one thing
+- [x] one file does one thing
 
 ```mermaid
 erDiagram
