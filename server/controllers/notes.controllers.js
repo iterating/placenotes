@@ -33,16 +33,13 @@ export const newNote = async (req, res) => {
     userId: req.user._id,
     email: req.user.email,
     location: {
-      lon: "1",
-      lat: "1",
+      coordinates: [
+        req.body.location || 1,1 
+      ]
     },
+    radius: req.body.radius || 1 ,
     body: req.body.body,
-    time: new Date()
-      .toISOString()
-      .replace(/T/, " ")
-      .replace(/\..+/, "")
-      .replace(/[-:]/g, "")
-      .replace(" ", "-"),
+    time: new Date(),
   };
 
   try {

@@ -15,7 +15,12 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
-  }
+  },
+  currentLocation: {
+    lat: String,
+    lon: String,
+    lastUpdated: Date
+  },
 });
 
 // index email

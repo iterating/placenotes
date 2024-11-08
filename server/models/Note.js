@@ -1,6 +1,16 @@
 import mongoose from 'mongoose';
 import bcrypt from "bcrypt";
 
+const pointSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ['Point'],
+      },
+      coordinates: {
+        type: [Number],
+      }
+})
+
 const noteSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     userId: String,
@@ -8,14 +18,22 @@ const noteSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-    location: {
-        lat: {type: String},
-        lon: {type: String},   
-    },
+      location: {
+        type: {
+          type: String, 
+          enum: ['Point'],
+        },
+        coordinates: {
+          type: [Number||1,1 ],
+        }
+      },
     radius: Number,
-    time: String,
+    time: Date,
     body: {
         type: String,
+    },
+    recipients: {
+        type: Array
     }
 })
 

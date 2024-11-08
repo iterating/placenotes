@@ -17,13 +17,9 @@ export const newNote = async (noteData) => {
     userId: noteData.userId,
     email: noteData.email,
     location: noteData.location,
+    radius: noteData.radius,
     body: noteData.body,
-    time: new Date()
-      .toISOString()
-      .replace(/T/, " ")
-      .replace(/\..+/, "")
-      .replace(/[-:]/g, "")
-      .replace(" ", "-"),
+    time: noteData.time,
   });
 
   try {
@@ -46,14 +42,10 @@ export const updateNote = async (note) => {
       {
         $set: {
           body: note.body,
-          location: {
-            lon: note.location.lon,
-            lat: note.location.lat,
-          },
-          radius: note.radius,
-          time: note.time,
           email: note.email,
           userId: note.userId,
+          date: Date(),
+          
         },
       },
       { new: true }
