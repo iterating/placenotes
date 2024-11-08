@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     required: true,
     dropDups: true,
-    // match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   },
   name: String,
   group: String,
