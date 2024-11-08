@@ -12,6 +12,10 @@ export const signup = async ({ email, password }) => {
     if (password.length < 2) {
       errors.push({ text: "Passwords must be at least 2 characters." });
     }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      errors.push({ text: "Email is already taken." });
+    }
     if (errors.length > 0) {
       return { errorMessage: errors };
     }

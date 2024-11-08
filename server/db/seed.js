@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import User from "../models/Users.js"
-import Note from "../models/Notes.js"
+import User from "../models/User.js"
+import Note from "../models/Note.js"
 
 async function seedDatabase() {
   await mongoose.connect(process.env.ATLAS_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -24,16 +24,14 @@ async function seedDatabase() {
     {
       _id: new mongoose.Types.ObjectId(),
       userId: users[0]._id.toString(),
-      email: 'john.doe@example.com',
-      location: { lat: '37.7749', lon: '-122.4194' },
+      location: { type: 'Point', coordinates: [ -122.4194, 37.7749 ] },
       time: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', '-'),
       body: 'This is a note from John Doe.'
     },
     {
       _id: new mongoose.Types.ObjectId(),
       userId: users[1]._id.toString(),
-      email: 'jane.smith@example.com',
-      location: { lat: '40.7128', lon: '-74.0060' },
+      location: { type: 'Point', coordinates: [ -74.0060, 40.7128 ] },
       time: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', '-'),
       body: 'This is a note from Jane Smith.'
     }
@@ -48,3 +46,4 @@ async function seedDatabase() {
 }
 
 seedDatabase().catch(err => console.error('Error seeding database:', err));
+
