@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import mongoose from "mongoose"
+import bcrypt from "bcrypt"
 
 const pointSchema = new mongoose.Schema({
   type: {
@@ -9,7 +9,7 @@ const pointSchema = new mongoose.Schema({
   coordinates: {
     type: [Number],
   },
-});
+})
 
 const noteSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -50,8 +50,8 @@ const noteSchema = new mongoose.Schema({
       readAt: Date,
     },
   ],
-});
+})
 
-noteSchema.index({ location: "2dsphere" });
+noteSchema.index({ location: "2dsphere" })
 
-export default mongoose.model("Note", noteSchema);
+export default mongoose.model("Note", noteSchema)

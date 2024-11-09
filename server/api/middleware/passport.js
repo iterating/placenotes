@@ -9,7 +9,7 @@ passport.use('localLogin',
     },
     async (email, password, done) => {
       try {
-        console.log(`Attempting login with email: ${email}`);
+        console.log(`Passport login with email: ${email}`);
         const user = await User.findOne({ email });
         if (!user) {
           console.log("Incorrect email.");

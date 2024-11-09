@@ -1,17 +1,14 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
 export const _id = () => {
-    return new mongoose.Types.ObjectId();
-  }
+  return new mongoose.Types.ObjectId()
+}
 
-
-  //db layer
+//db layer
 export const findOne = async ({ email }) => {
-  return User.findOne({ email });
-};
+  return User.findOne({ email })
+}
 
 export const create = async (user) => {
-  return User.create(user);
-};
-
-
+  return User.create(user)
+}

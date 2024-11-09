@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
 const groupSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -10,6 +10,6 @@ const groupSchema = new mongoose.Schema({
     maxlength: 100,
   },
   notes: [String],
-});
+})
 
-export default mongoose.model("Group", groupSchema);
+export default mongoose.model("Group", groupSchema)

@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import mongoose from "mongoose"
+import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -11,45 +11,43 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
     maxlength: 50,
-    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address']
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"],
   },
   name: String,
   group: String,
   password: {
     type: String,
-    required: true
+    required: true,
   },
   currentLocation: {
     type: {
-      type: String, 
-      enum: ['Point'],
+      type: String,
+      enum: ["Point"],
     },
     coordinates: {
-      type: [Number, Number||1,1 ],
-    }
+      type: [Number, Number || 1, 1],
+    },
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   lastActive: {
-    type: Date
+    type: Date,
   },
-});
+})
 
 // index email
-userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true })
 
-userSchema.index({ currentLocation: "2dsphere" });
+userSchema.index({ currentLocation: "2dsphere" })
 
 userSchema.methods.encryptPassword = async (password) => {
-  const salt = await bcrypt.genSalt(1);
-  return await bcrypt.hash(password, salt);
-};
+  const salt = await bcrypt.genSalt(1)
+  return await bcrypt.hash(password, salt)
+}
 userSchema.methods.matchPassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
-};
+  return await bcrypt.compare(password, this.password)
+}
 
-
-export default mongoose.model("User", userSchema);
-
+export default mongoose.model("User", userSchema)

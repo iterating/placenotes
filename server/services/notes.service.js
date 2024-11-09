@@ -1,17 +1,17 @@
 // services/notes.service.js
-import Note from "../models/Note.js";
-import { _id } from "../db/db.js";
+import Note from "../models/Note.js"
+import { _id } from "../db/db.js"
 
 export const allNotes = async () => {
-    return await Note.find();
-};
+  return await Note.find()
+}
 
 export const getNotes = async (userId) => {
-  return await Note.find({ userId });
-};
+  return await Note.find({ userId })
+}
 
 export const newNote = async (noteData) => {
-  console.log("userId:", noteData.userId);
+  console.log("userId:", noteData.userId)
   const note = new Note({
     _id: _id(),
     userId: noteData.userId,
@@ -20,20 +20,20 @@ export const newNote = async (noteData) => {
     radius: noteData.radius,
     body: noteData.body,
     time: noteData.time,
-  });
+  })
 
   try {
-    const savedNote = await Note.create(note);
-    return savedNote;
+    const savedNote = await Note.create(note)
+    return savedNote
   } catch (err) {
-    console.error(err);
-    throw new Error("Error creating note");
+    console.error(err)
+    throw new Error("Error creating note")
   }
-};
+}
 
 export const editNote = async (id) => {
-  return await Note.findById(id);
-};
+  return await Note.findById(id)
+}
 
 export const updateNote = async (note) => {
   try {
@@ -45,38 +45,37 @@ export const updateNote = async (note) => {
           email: note.email,
           userId: note.userId,
           date: Date(),
-          
         },
       },
       { new: true }
-    );
-    return updatedNote;
+    )
+    return updatedNote
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
 
 export const deleteNote = async (id) => {
   try {
-    const note = await Note.findByIdAndDelete(id);
-    return note;
+    const note = await Note.findByIdAndDelete(id)
+    return note
   } catch (err) {
-    console.error(err);
-    throw new Error("Error deleting note");
+    console.error(err)
+    throw new Error("Error deleting note")
   }
-};
+}
 
 export const getNoteByTime = async (userId, time) => {
   try {
     const note = await Note.findOne({
       userId,
       time,
-    });
-    return note;
+    })
+    return note
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
 
 export const updateNoteByTime = async (userId, time, body) => {
   try {
@@ -84,34 +83,33 @@ export const updateNoteByTime = async (userId, time, body) => {
       { userId, time },
       { $set: { body } },
       { new: true }
-    );
-    return note;
+    )
+    return note
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
 
 export const deleteNoteByTime = async (userId, time) => {
   try {
     const note = await Note.findOneAndDelete({
       userId,
       time,
-    });
-    return note;
+    })
+    return note
   } catch (err) {
-    throw err;
+    throw err
   }
-};
-
+}
 
 export const getNoteById = async (id) => {
   try {
-    const note = await Note.findById(id);
-    return note;
+    const note = await Note.findById(id)
+    return note
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
 
 export const getNotesByLocation = async (userId, lat, lon) => {
   try {
@@ -119,11 +117,11 @@ export const getNotesByLocation = async (userId, lat, lon) => {
       userId,
       "location.lat": Number(lat),
       "location.lon": Number(lon),
-    });
-    return notes;
+    })
+    return notes
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
 
-export default {};
+export default {}

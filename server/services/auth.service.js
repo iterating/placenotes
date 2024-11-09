@@ -1,5 +1,5 @@
-import User from "../models/User.js";
-import { _id } from "../db/db.js";
+import User from "../models/User.js"
+import { _id } from "../db/db.js"
 
 export const signup = async ({ email, password }) => {
   try {
@@ -7,46 +7,43 @@ export const signup = async ({ email, password }) => {
       email,
       password,
       _id: _id(),
-    });
-    let errors = [];
+    })
+    let errors = []
     if (password.length < 2) {
-      errors.push({ text: "Passwords must be at least 2 characters." });
+      errors.push({ text: "Passwords must be at least 2 characters." })
     }
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email })
     if (existingUser) {
-      errors.push({ text: "Email is already taken." });
+      errors.push({ text: "Email is already taken." })
     }
     if (errors.length > 0) {
-      return { errorMessage: errors };
+      return { errorMessage: errors }
     }
 
-    newUser.password = await newUser.encryptPassword(password);
-    await newUser.save();
-    
+    newUser.password = await newUser.encryptPassword(password)
+    await newUser.save()
   } catch (error) {
-    console.error(error);
-    throw new Error("Error registering user");
+    console.error(error)
+    throw new Error("Error registering user")
   }
-};
+}
 
 // Log In
 export const login = async ({ email, password }) => {
-  console.log(`service Login attempt from ${email}`);
+  console.log(`service Login attempt from ${email}`)
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email })
   if (!user) {
-    throw new Error("Incorrect email.");
+    throw new Error("Incorrect email.")
   }
-  const isMatch = await user.matchPassword(password);
+  const isMatch = await user.matchPassword(password)
   if (!isMatch) {
-    throw new Error("Incorrect password.");
+    throw new Error("Incorrect password.")
   }
-  return user;
-};
+  return user
+}
 
 // Log Out
 export const logout = () => {
-  return { successMessage: "You have been logged out" };
-};
-
-
+  return { successMessage: "You have been logged out" }
+}
