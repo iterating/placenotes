@@ -11,7 +11,7 @@ passport.use(
         console.log(`Passport login with email: ${email}`)
         const user = await User.findOne({ email })
         if (!user) {
-          console.log("Incorrect email.")
+          console.log("Passport: Incorrect email.")
           return done(null, false, { message: "Incorrect email." })
         }
         console.log("User found. Checking password...")
