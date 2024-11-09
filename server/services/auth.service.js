@@ -32,6 +32,7 @@ export const signup = async ({ email, password }) => {
 // Log In
 export const login = async ({ email, password }) => {
   console.log(`service Login attempt from ${email}`);
+
   const user = await User.findOne({ email });
   if (!user) {
     throw new Error("Incorrect email.");

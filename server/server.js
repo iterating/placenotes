@@ -34,18 +34,7 @@ app.set("view engine", "ejs");
 
 // Middleware
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || "secret",
-  resave: true,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production", // set to true when in production
-    httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-
-
-  }
-}));
+app.use(session({ secret: 'secret', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());

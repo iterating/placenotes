@@ -16,7 +16,7 @@ You arrive at Costco, and get a message:
 
 It's your Costco shopping list, and it pops up when you arrive at Costco.
 
-**Placenotes** is a powerful messaging and notetaking app that adds the element of location to your messages. It can be used as a notetaking app or a messaging app
+**Placenotes** is a powerful messaging and notetaking app that adds the element of location to your messages. Supporting Markdown formatting, it can be used as a notetaking app or a messaging app.
 
 Built with Express and Mongodb
 This is a work in progress.
