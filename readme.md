@@ -121,21 +121,7 @@ graph TD
 
 - This organization practices my **clean coding** skills and supports development of my application
 
-## How To Run
-
-1. `npm install` to install all dependencies
-2. `npm run seed` to seed the database with sample data
-3. `npm run dev` to start the server in development mode
-4. Open a web browser and navigate to `localhost:3000` to access the app
-
-## Todo
-
-- [ ] realtime communication library
-- [ ] Redux for state for real time updates
-
-  2024.11.01
-- [x] one file does one thing
-
+## Database Schema
 ```mermaid
 erDiagram
     Group {
@@ -183,6 +169,23 @@ erDiagram
     User }o--|| Group : "member of"
 
 ```
+
+## How To Run
+
+1. `npm install` to install all dependencies
+2. `npm run seed` to seed the database with sample data
+3. `npm run dev` to start the server in development mode
+4. Open a web browser and navigate to `localhost:3000` to access the app
+
+## Todo
+
+- [ ] realtime communication library
+- [ ] Redux for state for real time updates
+
+  2024.11.01
+- [x] one file does one thing
+
+
 
 # SBA 319
 
