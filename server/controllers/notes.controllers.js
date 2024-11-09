@@ -16,11 +16,11 @@ export const allNotes = async (req, res) => {
 export const getNotes = async (req, res) => {
   try {
     const notes = await NotesService.getNotes(req.user._id)
-    res.render("notes", { notes, marked: marked, user: req.user })
+    res.render("notes", { notes, marked, user: req.user })
   } catch (err) {
     console.error(err)
     res.status(500).json({
-      error: err,
+      error: err.message,
     })
   }
 }
@@ -33,6 +33,7 @@ export const newNote = async (req, res) => {
     userId: req.user._id,
     email: req.user.email,
     location: {
+      type: "Point",
       coordinates: [req.body.location || 1, 1],
     },
     radius: req.body.radius || 1,
