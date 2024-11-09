@@ -26,7 +26,6 @@ const accountSettings = (req, res) => {
   })
 }
 
-
 //!! Remove for production //!!
 router.get("/all", usersController.allUsers)
 

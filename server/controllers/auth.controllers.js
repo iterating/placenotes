@@ -27,25 +27,25 @@ export const signup = async (req, res) => {
 
 // Log In
 export const login = async (req, res, next) => {
-  console.log(`controller Login attempt from ${req.body.email}`);
+  console.log(`controller Login attempt from ${req.body.email}`)
   passport.authenticate("localLogin", (err, user, info) => {
     if (err) {
-      console.error("Error during authentication", err);
-      return next(err);
+      console.error("Error during authentication", err)
+      return next(err)
     }
     if (!user) {
-      req.flash("errorMessage", info.message);
-      return res.redirect("/users/login");
+      req.flash("errorMessage", info.message)
+      return res.redirect("/users/login")
     }
     req.logIn(user, (err) => {
       if (err) {
-        console.error("Error logging in user", err);
-        return next(err);
+        console.error("Error logging in user", err)
+        return next(err)
       }
-      res.redirect("/notes");
-    });
-  })(req, res, next);
-};
+      res.redirect("/notes")
+    })
+  })(req, res, next)
+}
 
 export const logout = (req, res, next) => {
   req.logout((err) => {
