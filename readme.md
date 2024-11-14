@@ -92,11 +92,7 @@ The Placenotes server is a RESTful API build on Express that supports the follow
   - `setUser`: sets the user on the request object if the user is logged in.
   - `passport.js`: Provides authentication services. Future development will include Google OAuth.
 
-## MongoDB Database
-
-- The API and MongoDB database supports full CRUD Operations
-
-## MVC Architecture
+## System Design
 
 - The app uses the Model View Controller (MVC) architecture to separate concerns between the database, user interface, and application logic. This allows for easier maintenance and scalability of the application.
 
