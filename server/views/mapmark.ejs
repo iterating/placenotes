@@ -21,6 +21,7 @@
         radius: <%= note.radius %>,
         editable: true
       }).addTo(map);
+      let radius = <%= note.radius %>;
 
       // Event handlers
       marker.on('dragend', () => {
@@ -31,11 +32,12 @@
       circle.on('edit', () => {
         const latlng = circle.getLatLng();
         marker.setLatLng(latlng);
+        document.querySelector('input[name="radius"]').value = circle.getRadius();
         document.querySelector('input[name="location"]').value = `{"type": "Point", "coordinates": [${latlng.lng}, ${latlng.lat}]}`;
       });
       circle.on('radiuschange', () => {
-        const radius = circle.getRadius();
-        document.querySelector('input[name="radius"]').value = radius;
+      radius = circle.getRadius(); 
+      document.querySelector('input[name="radius"]').value = radius;
       });
     </script>
   </div>
@@ -46,3 +48,4 @@
   <input type="hidden" name="radius" value="<%= note.radius %>" />
   <input type="hidden" name="time" value="<%= note.time %>" />
   <input type="hidden" name="recipients" value="<%= note.recipients %>" />
+

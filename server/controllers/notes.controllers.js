@@ -67,6 +67,7 @@ export const editNote = async (req, res) => {
 }
 
 export async function updateNote(req, res) {
+  console.log('controller req.body',req.body)
   try {
     const location = JSON.parse(req.body.location)
     const noteData = {

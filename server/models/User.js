@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema({
       enum: ["Point"],
     },
     coordinates: {
-      type: [Number, Number || 1, 1],
+      type: [Number, Number],
+      default: [-118.243683, 34.052235],
     },
   },
   createdAt: {
@@ -35,6 +36,11 @@ const userSchema = new mongoose.Schema({
   lastActive: {
     type: Date,
   },
+  friends: {
+    added: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    accepted: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  },
+  
 })
 
 // index email

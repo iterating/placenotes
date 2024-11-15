@@ -8,7 +8,8 @@ const pointSchema = new mongoose.Schema({
       enum: ['Point'],
     },
     coordinates: {
-      type: [Number],
+      type: [Number, Number],
+      default: [-118.243683, 34.052235],
     }
   },
 })
@@ -27,12 +28,14 @@ const noteSchema = new mongoose.Schema({
     },
     coordinates: {
       type: [Number],
+      default: [-118.243683, 34.052235],
     }
   },
   radius: {
     type: Number,
-    min: 0,
+    min: 1,
     max: 100000,
+    default: 200,
   },
   time: {
     type: Date,
@@ -41,7 +44,7 @@ const noteSchema = new mongoose.Schema({
   body: {
     type: String,
     required: true,
-    maxlength: 8000,
+    maxlength: 15000,
   },
   recipients: [
     {
@@ -52,6 +55,16 @@ const noteSchema = new mongoose.Schema({
       readAt: Date,
     },
   ],
+  type: {
+    type: String,
+    enum: ["note", "reminder", "event"],
+    default: "note",
+  },
+  status: {
+    type: String,
+    enum: ["active", "unseen", "seen", "archived"],
+    default: "active",
+  },
 })
 
 noteSchema.index({ location: "2dsphere" })
