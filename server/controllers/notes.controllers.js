@@ -35,9 +35,9 @@ export const newNote = async (req, res) => {
     email: req.user.email,
     location: {
       type: "Point",
-      coordinates: [req.body?.location ?? 1, 1],
+      coordinates: [req.body?.location ??  34.052235, -118.243683],
     },
-    radius: req.body?.radius ?? 1,
+    radius: req.body?.radius ?? 100,
     body: req.body.body,
     time: new Date(),
     recipients: req.body?.recipients ?? [],

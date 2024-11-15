@@ -1,53 +1,82 @@
 <%- include('header.ejs') %>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+/>
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
 <div class="edit-container">
   <h1 class="title">Edit Note</h1>
-  <form action="/notes/<%= note._id %>/edit" method="post" class="edit-note-form">
-    <input type="hidden" name="location" value='{"type": "Point", "coordinates": [<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>]}' />
-    <input type="hidden" name="radius" value="<%= note.radius %>" />
-    <input type="hidden" name="time" value="<%= note.time %>" />
-
+  <form
+    action="/notes/<%= note.id %>/edit"
+    method="post"
+    class="edit-note-form"
+  >
     <input type="hidden" name="_method" value="PUT" />
 
     <label for="note-body">Note:</label><br />
-    <textarea name="body" id="note-body" rows="20" cols="200" required><%= note.body %></textarea><br />
+    <textarea name="body" id="note-body" rows="20" cols="200" required>
+    <%= note.body %></textarea
+    ><br />
 
-    <div id="map" style="width: 400px; height: 600px"></div>
+    <div class="map-container">
+      <div id="map" style="height: 400px"></div>
 
-    <script>
-      const map = L.map('map').setView([<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      <script>
+        const map = L.map('map').setView([<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-      }).addTo(map);
+        }).addTo(map);
 
-      const circle = L.circle([<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>], {
-        radius: <%= note.radius || 1000 %>
-      }).addTo(map);
+        const marker = L.marker([<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>], {
+        }).addTo(map);
 
-      const marker = L.marker([<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>], {
-        draggable: true
-      }).addTo(map);
+        const circle = L.circle(marker.getLatLng(), {
+        radius: <%= note.radius || 100 %>,
+        editable: true
+        }).addTo(map);
 
-      marker.on('dragend', function(event) {
-        const { lat, lng } = event.target.getLatLng();
-        document.querySelector('input[name="location"]').value = `{"type": "Point", "coordinates": [${lng}, ${lat}]}`;
-        circle.setLatLng([lat, lng]);
-        circle.redraw();
-      });
-    </script>
+        marker.on('dragend', () => {
+        const latlng = marker.getLatLng();
+        document.querySelector('input[name="location"]').value = `{"type": "Point", "coordinates": [${latlng.lng}, ${latlng.lat}]}`;
+        circle.setLatLng(latlng);
+        });
+
+        circle.on('edit', () => {
+        const latlng = circle.getLatLng();
+        marker.setLatLng(latlng);
+        document.querySelector('input[name="location"]').value = `{"type": "Point", "coordinates": [${latlng.lng}, ${latlng.lat}]}`;
+        });
+
+        circle.on('radiuschange', () => {
+        const radius = circle.getRadius();
+        document.querySelector('input[name="radius"]').value = radius;
+        });
+      </script>
+    </div>
 
     <button type="submit">Save Changes</button>
-  </form>
-  <form action="/notes/<%= note._id %>/delete" method="POST" class="button delete-button">
-    <button type="submit" class="button delete-button">Delete</button>
-    <input type="hidden" name="_method" value="DELETE" />
+    <input
+      type="hidden"
+      name="location"
+      value='{"type": "Point", "coordinates": [<%= note.location.coordinates[0] %>, <%= note.location.coordinates[1] %>]}'
+    />
+    <input type="hidden" name="radius" value="<%= note.radius %>" />
+    <input type="hidden" name="time" value="<%= note.time %>" />
     <a href="/notes" class="button">Cancel</a>
+    <form
+      action="/notes/<%= note.id %>/delete"
+      method="POST"
+      class="button delete-button"
+    >
+      <button type="submit" class="button delete-button">Delete</button>
+      <input type="hidden" name="_method" value="DELETE" />
+    </form>
   </form>
 
   <p><a href="/notes">Back to All Notes</a></p>
 </div>
 
 <%- include('footer.ejs') %>
-
