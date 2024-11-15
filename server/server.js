@@ -18,6 +18,7 @@ const app = express()
 // needs this for directory of ejs views to work
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 app.use(cors({ origin: "*" }))
+app.use(express.urlencoded({extended: true}));
 app.use(express.json())
 
 // Make css available

@@ -37,18 +37,16 @@ export const editNote = async (id) => {
 
 export const updateNote = async (note) => {
   try {
+    console.log("service note:", note);
+
     const updatedNote = await Note.findOneAndUpdate(
       { _id: note._id },
       {
         $set: {
-          body: note.body,
-          email: note.email,
-          location: {
-            type: "Point",
-            coordinates: note.location.coordinates,
-          },
+          location: note.location,
           radius: note.radius,
           time: note.time,
+          body: note.body,
         },
       },
       { new: true }

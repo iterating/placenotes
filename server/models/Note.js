@@ -2,12 +2,14 @@ import mongoose from "mongoose"
 import bcrypt from "bcrypt"
 
 const pointSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ["Point"],
-  },
-  coordinates: {
-    type: [Number],
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
+    coordinates: {
+      type: [Number],
+    }
   },
 })
 
@@ -22,11 +24,9 @@ const noteSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ['Point'],
-      required: true
     },
     coordinates: {
       type: [Number],
-      required: true
     }
   },
   radius: {

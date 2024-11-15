@@ -35,11 +35,12 @@ export const newNote = async (req, res) => {
     email: req.user.email,
     location: {
       type: "Point",
-      coordinates: [req.body.location || 1, 1],
+      coordinates: [req.body?.location ?? 1, 1],
     },
-    radius: req.body.radius || 1,
+    radius: req.body?.radius ?? 1,
     body: req.body.body,
     time: new Date(),
+    recipients: req.body?.recipients ?? [],
   }
 
   try {
@@ -57,7 +58,7 @@ export const editNote = async (req, res) => {
     if (!note) {
       return res.status(404).json({ error: "Note not found" })
     }
-    console.log("edit note:", note)
+    console.log("editing note:", note)
     res.render("notesEdit", {
       note,
       marked,
@@ -69,23 +70,25 @@ export const editNote = async (req, res) => {
 }
 
 export async function updateNote(req, res) {
+  // Convert location string to object
+  const location = JSON.parse(req.body.location)
   console.log("controller req.body:", req.body)
-  console.log("controller req.body.body:", req.body.body)
-  console.log("controller req.body.location:", req.body.location);
+  // console.log("controller req.body.location:", req.body.location);
   try {
-    const { body, location, radius, time, ...rest } = req.body
-    note = await NotesService.updateNote({
-      userId: req.user._id,
+    const note = await NotesService.updateNote({
       _id: req.params.id,
-      body,
+      userId: req.user._id,
       location: {
         type: "Point",
         coordinates: location.coordinates,
       },
-      radius,
-      time,
-      ...rest,
+      radius: req.body.radius,
+      time: req.body.time,
+      body: req.body.body,
+      email: req.user.email,
+      recipients: req.body?.recipients ?? [],
     })
+    console.log("controller note:", note)
     if (!note) {
       return res.status(404).send("Note not found")
     }
@@ -126,11 +129,11 @@ export async function getNoteByTime(req, res) {
 
 export async function updateNoteByTime(req, res) {
   try {
-    const note = await NotesService.updateNoteByTime(
-      { userId: req.user._id, time: req.params.time },
-      { $set: req.body },
-      { new: true }
-    )
+    const note = await NotesService.updateNoteByTime({
+      userId: req.user._id,
+      time: req.params.time,
+      body: req.body,
+    })
     if (!note) {
       return res.status(404).send("Note not found")
     }
