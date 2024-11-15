@@ -15,6 +15,7 @@ export const allNotes = async (req, res) => {
 
 export const getNotes = async (req, res) => {
   try {
+    //expecting array of notes
     const notes = await NotesService.getNotes(req.user._id)
     res.render("notes", { notes, marked, user: req.user })
   } catch (err) {
@@ -56,7 +57,11 @@ export const editNote = async (req, res) => {
     if (!note) {
       return res.status(404).json({ error: "Note not found" })
     }
-    res.render("notesEdit", { note, marked })
+    console.log("edit note:", note)
+    res.render("notesEdit", {
+      note,
+      marked,
+    })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: "Error finding note" })
@@ -64,22 +69,29 @@ export const editNote = async (req, res) => {
 }
 
 export async function updateNote(req, res) {
+  console.log("controller req.body:", req.body)
+  console.log("controller req.body.body:", req.body.body)
+  console.log("controller req.body.location:", req.body.location);
   try {
-    const note = await NotesService.updateNote({
+    const { body, location, radius, time, ...rest } = req.body
+    note = await NotesService.updateNote({
       userId: req.user._id,
       _id: req.params.id,
-      body: req.body.body,
-      time: req.body.time,
+      body,
       location: {
-        lon: req.body.lon,
-        lat: req.body.lat,
+        type: "Point",
+        coordinates: location.coordinates,
       },
+      radius,
+      time,
+      ...rest,
     })
     if (!note) {
       return res.status(404).send("Note not found")
     }
     res.redirect("/notes")
   } catch (err) {
+    console.error(err)
     res.status(500).send("Error editing note")
   }
 }

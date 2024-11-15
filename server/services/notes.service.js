@@ -43,8 +43,12 @@ export const updateNote = async (note) => {
         $set: {
           body: note.body,
           email: note.email,
-          userId: note.userId,
-          date: Date(),
+          location: {
+            type: "Point",
+            coordinates: note.location.coordinates,
+          },
+          radius: note.radius,
+          time: note.time,
         },
       },
       { new: true }
