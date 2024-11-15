@@ -21,11 +21,13 @@ const noteSchema = new mongoose.Schema({
   location: {
     type: {
       type: String,
-      enum: ["Point"],
+      enum: ['Point'],
+      required: true
     },
     coordinates: {
-      type: [Number, Number || 1, 1],
-    },
+      type: [Number],
+      required: true
+    }
   },
   radius: {
     type: Number,
