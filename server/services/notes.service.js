@@ -7,8 +7,19 @@ export const allNotes = () => Note.find()
 export const getNotes = (userId) => Note.find({ userId })
 
 export const recentNotes = (userId) => Note.find({ userId }).sort({ time: -1 }).limit(20)
-export const oldestNotes = (userId) => Note.find({ userId }).sort({ time: 1 }).limit(20)
 
+export const oldestNotes = (userId) =>
+  Note.find({ userId })
+    .sort({ time: 1 })
+    .limit(20)
+    .then(notes => {
+      console.log(`Found ${notes.length} notes for user ${userId}`);
+      return notes;
+    })
+    .catch(err => {
+      console.error(`Error fetching oldest notes for user ${userId}: ${err}`);
+      throw err;
+    });
 
 export const newNote = (noteData) => Note.insertMany([{ _id: _id(), ...noteData }]);
 export const editNote = (id) => Note.findById(id)

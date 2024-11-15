@@ -155,11 +155,12 @@ export async function deleteNoteByTime(req, res) {
 export async function recentNotes(req, res) {
   try {
     const notes = await NotesService.recentNotes(req.user._id)
-    if (!notes) {
+    if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found")
     }
-    res.send(notes)
+    res.render("notes", { notes, marked, user: req.user })
   } catch (err) {
+    console.error(err)
     res.status(500).send("Error retrieving notes")
   }
 }
@@ -167,14 +168,16 @@ export async function recentNotes(req, res) {
 export async function oldestNotes(req, res) {
   try {
     const notes = await NotesService.oldestNotes(req.user._id)
-    if (!notes) {
+    if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found")
     }
-    res.send(notes)
+    res.render("notes", { notes, marked, user: req.user })
   } catch (err) {
+    console.error(err)
     res.status(500).send("Error retrieving notes")
   }
 }
+
 
 export async function getNoteById(req, res) {
   try {

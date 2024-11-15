@@ -42,8 +42,9 @@ export const login = async (req, res, next) => {
         console.error("Error logging in user", err)
         return next(err)
       }
-      res.redirect("/notes")
+      res.redirect(req.session.returnTo || "/notes")
     })
+
   })(req, res, next)
 }
 
