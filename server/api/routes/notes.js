@@ -6,9 +6,6 @@ import {  setUser } from "../middleware/auth.js";
 router.get("/all", notesController.allNotes);
 
 router.get("/", setUser, notesController.getNotes);
-
-
-router.route("/new").get(setUser, notesController.newNoteForm).post(setUser, notesController.newNote);
 router
   .route("/:id")
   .get( notesController.getNoteById)
@@ -23,7 +20,9 @@ router
   .delete(setUser, notesController.deleteNoteByTime);
 
 router.route("/location/:lat/:lon").get(setUser, notesController.getNotesByLocation);
-
+router.route("/new").get(setUser, notesController.newNoteForm).post(setUser, notesController.newNote);
+router.get("/recent", setUser, notesController.recentNotes);
+router.get("/oldest", setUser, notesController.oldestNotes);
 
 
 

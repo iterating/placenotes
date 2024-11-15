@@ -1,8 +1,4 @@
 <%- include('header.ejs') %>
-<!-- leaflet and leaflet-draw -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
 <div class="edit-container">
 <h1 class="title">Edit Note</h1>
@@ -19,14 +15,14 @@
 
 <%- include('mapmark.ejs') %>
 <button type="submit">Save Changes</button>
-
-  <form
-    action="/notes/<%= note.id %>/delete"
-    method="POST"
-    class="button delete-button">
-    <button type="submit" class="button delete-button">Delete</button>
-    <input type="hidden" name="_method" value="DELETE" />
-  </form>
+</form>
+<a href="/notes" class="button">Cancel</a><br>
+<form
+  action="/notes/<%= note.id %>/delete"
+  method="POST"
+  class="button delete-button">
+  <button type="submit" class="button delete-button">Delete</button>
+  <input type="hidden" name="_method" value="DELETE" />
 </form>
 
   <p><a href="/notes">Back to All Notes</a></p>

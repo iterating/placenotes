@@ -1,3 +1,8 @@
+<!-- leaflet and leaflet-draw -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
 <div class="map-container">
     <!-- Map -->
     <div id="map" style="height: 400px"></div>
@@ -40,4 +45,4 @@
     value='{"type": "Point", "coordinates": [<%= note.location.coordinates[0] %>, <%= note.location.coordinates[1] %>]}'/>
   <input type="hidden" name="radius" value="<%= note.radius %>" />
   <input type="hidden" name="time" value="<%= note.time %>" />
-  <a href="/notes" class="button">Cancel</a>
+  <input type="hidden" name="recipients" value="<%= note.recipients %>" />

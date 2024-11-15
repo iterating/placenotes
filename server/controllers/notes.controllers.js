@@ -27,36 +27,32 @@ export const getNotes = async (req, res) => {
 export const newNoteForm = (req, res) =>
   res.render("notesNew", {
     note: {
-      userId: req.user._id,
-      email: req.user.email,
       location: {
-        type: "Point",
         coordinates: req.body?.location ?? [-118.243683, 34.052235],
       },
-      radius: 100,
+      radius: 200,
       time: "",
       body: "",
+      recipients: req.body?.recipients ?? [],
     },
     marked,
   })
 
 export const newNote = async (req, res) => {
-  console.log("req.user._id:", req.user._id)
-  const location = JSON.parse(req.body.location)
-  const note = {
-    time: new Date(),
-    userId: req.user._id,
-    email: req.user.email,
-    location: {
-      type: "Point",
-      coordinates: location.coordinates,
-    },
-    radius: req.body?.radius ?? 100,
-    body: req.body.body,
-    recipients: req.body?.recipients ?? [],
-  }
   try {
-    const savedNote = await NotesService.newNote(note)
+    const location = JSON.parse(req.body.location)
+    await NotesService.newNote({
+      userId: req.user._id,
+      email: req.user.email,
+      location: {
+        type: "Point",
+        coordinates: location.coordinates,
+      },
+      radius: req.body?.radius ?? 200,
+      body: req.body.body,
+      // `recipients:req.body?.recipients??[]` creates empty string, not array
+      recipients: req.body?.recipients ? JSON.parse(req.body.recipients) : [],
+    })
     res.redirect("/notes")
   } catch (err) {
     console.error(err)
@@ -65,21 +61,18 @@ export const newNote = async (req, res) => {
 }
 
 export const editNote = async (req, res) => {
-  try {
-    const note = await NotesService.getNoteById(req.params.id)
-    if (!note) return res.status(404).json({ error: "Note not found" })
-    res.render("notesEdit", { note, marked })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: "Error finding note" })
-  }
+  const note = await NotesService.getNoteById(req.params.id)
+  if (!note) return res.status(404).json({ error: "Note not found" })
+  res.render("notesEdit", { note, marked })
 }
+
 export async function updateNote(req, res) {
   try {
     const location = JSON.parse(req.body.location)
     const noteData = {
       _id: req.params.id,
       userId: req.user._id,
+      email: req.user.email,
       location: {
         type: "Point",
         coordinates: location.coordinates,
@@ -87,8 +80,7 @@ export async function updateNote(req, res) {
       radius: req.body.radius,
       time: req.body.time,
       body: req.body.body,
-      email: req.user.email,
-      recipients: req.body?.recipients ?? [],
+      recipients: req.body?.recipients ? JSON.parse(req.body.recipients) : [],
     }
     const note = await NotesService.updateNote(noteData)
     if (!note) {
@@ -157,6 +149,30 @@ export async function deleteNoteByTime(req, res) {
     res.send({ message: "Note deleted" })
   } catch (err) {
     res.status(500).send("Error deleting note")
+  }
+}
+
+export async function recentNotes(req, res) {
+  try {
+    const notes = await NotesService.recentNotes(req.user._id)
+    if (!notes) {
+      return res.status(404).send("No notes found")
+    }
+    res.send(notes)
+  } catch (err) {
+    res.status(500).send("Error retrieving notes")
+  }
+}
+
+export async function oldestNotes(req, res) {
+  try {
+    const notes = await NotesService.oldestNotes(req.user._id)
+    if (!notes) {
+      return res.status(404).send("No notes found")
+    }
+    res.send(notes)
+  } catch (err) {
+    res.status(500).send("Error retrieving notes")
   }
 }
 

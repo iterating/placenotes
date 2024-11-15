@@ -6,8 +6,11 @@ export const allNotes = () => Note.find()
 
 export const getNotes = (userId) => Note.find({ userId })
 
-export const newNote = (noteData) => Note.create({ _id: _id(), ...noteData })
+export const recentNotes = (userId) => Note.find({ userId }).sort({ time: -1 }).limit(20)
+export const oldestNotes = (userId) => Note.find({ userId }).sort({ time: 1 }).limit(20)
 
+
+export const newNote = (noteData) => Note.insertMany([{ _id: _id(), ...noteData }]);
 export const editNote = (id) => Note.findById(id)
 
 export const updateNote = (note) =>
@@ -17,6 +20,8 @@ export const deleteNote = (id) => Note.findByIdAndDelete(id)
 
 export const getNoteByTime = ({ userId, time }) =>
   Note.findOne({ userId, time })
+
+
 
 export const updateNoteByTime = ({ userId, time, body }) =>
   Note.findOneAndUpdate({ userId, time }, { $set: { body } }, { new: true })

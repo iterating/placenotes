@@ -1,8 +1,4 @@
 <%- include('header.ejs') %>
-<!-- leaflet and leaflet-draw -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
 <div class="edit-container">
   <h1 class="title">Create New Note</h1>
@@ -11,6 +7,7 @@
     <textarea name="body" id="note-body" rows="8" cols="80" required></textarea>
 <%- include('mapmark.ejs') %>
     <input type="submit" value="Create Note" />
+    <a href="/notes" class="button">Cancel</a>
   </form>
   <p><a href="/notes">View All Notes</a></p>
 </div>
