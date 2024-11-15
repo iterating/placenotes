@@ -1,0 +1,43 @@
+<div class="map-container">
+    <!-- Map -->
+    <div id="map" style="height: 400px"></div>
+    <script>
+      const map = L.map('map').setView([<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      }).addTo(map);
+
+      const marker = L.marker(
+        [typeof <%= note.location.coordinates[1] %> !== 'undefined' ? <%= note.location.coordinates[1] %> : -86.26232028007509,
+        typeof <%= note.location.coordinates[0] %> !== 'undefined' ? <%= note.location.coordinates[0] %> : 32.69226560224167],
+        {
+        draggable: false
+      }).addTo(map);
+      const circle = L.circle(marker.getLatLng(), {
+        radius: <%= note.radius %>,
+        editable: true
+      }).addTo(map);
+
+      // Event handlers
+      marker.on('dragend', () => {
+        const latlng = marker.getLatLng();
+        document.querySelector('input[name="location"]').value = `{"type": "Point", "coordinates": [${latlng.lng}, ${latlng.lat}]}`;
+        circle.setLatLng(latlng);
+      });
+      circle.on('edit', () => {
+        const latlng = circle.getLatLng();
+        marker.setLatLng(latlng);
+        document.querySelector('input[name="location"]').value = `{"type": "Point", "coordinates": [${latlng.lng}, ${latlng.lat}]}`;
+      });
+      circle.on('radiuschange', () => {
+        const radius = circle.getRadius();
+        document.querySelector('input[name="radius"]').value = radius;
+      });
+    </script>
+  </div>
+
+  <!-- Hidden inputs needed to pass properties of note to PUT request -->
+  <input type="hidden" name="location"
+    value='{"type": "Point", "coordinates": [<%= note.location.coordinates[0] %>, <%= note.location.coordinates[1] %>]}'/>
+  <input type="hidden" name="radius" value="<%= note.radius %>" />
+  <input type="hidden" name="time" value="<%= note.time %>" />
+  <a href="/notes" class="button">Cancel</a>

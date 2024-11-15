@@ -26,20 +26,37 @@ export const getNotes = async (req, res) => {
   }
 }
 
-export const newNoteForm = (req, res) => res.render("notesNew")
-
-export const newNote = async (req, res) => {
-  console.log("req.user._id:", req.user._id)
+export const newNoteForm = (req, res) => {
   const note = {
     userId: req.user._id,
     email: req.user.email,
     location: {
       type: "Point",
-      coordinates: [req.body?.location ??  34.052235, -118.243683],
+      coordinates: [req.body?.location ??  -118.243683, 34.052235],
+    },
+    radius: 100,
+    time: "",
+    body: "",
+  }
+  res.render("notesNew", {
+    note,
+    marked,
+  })
+}
+
+export const newNote = async (req, res) => {
+  console.log("req.user._id:", req.user._id)
+  const location = JSON.parse(req.body.location)
+  const note = {
+    time: new Date(),
+    userId: req.user._id,
+    email: req.user.email,
+    location: {
+      type: "Point",
+      coordinates: location.coordinates,
     },
     radius: req.body?.radius ?? 100,
     body: req.body.body,
-    time: new Date(),
     recipients: req.body?.recipients ?? [],
   }
 

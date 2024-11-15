@@ -2,128 +2,45 @@
 import Note from "../models/Note.js"
 import { _id } from "../db/db.js"
 
-export const allNotes = async () => {
-  return await Note.find()
-}
+export const allNotes = () => Note.find()
 
-export const getNotes = async (userId) => {
-  return await Note.find({ userId })
-}
+export const getNotes = (userId) => Note.find({ userId })
 
-export const newNote = async (noteData) => {
-  console.log("userId:", noteData.userId)
-  const note = new Note({
-    _id: _id(),
-    userId: noteData.userId,
-    email: noteData.email,
-    location: noteData.location,
-    radius: noteData.radius,
-    body: noteData.body,
-    time: noteData.time,
+export const newNote = (noteData) =>
+  Note.create({ _id: _id(), ...noteData })
+
+export const editNote = (id) => Note.findById(id)
+
+export const updateNote = (note) =>
+  Note.findOneAndUpdate(
+    { _id: note._id },
+    { $set: { ...note } },
+    { new: true }
+  )
+
+export const deleteNote = (id) => Note.findByIdAndDelete(id)
+
+export const getNoteByTime = (userId, time) =>
+  Note.findOne({ userId, time })
+
+export const updateNoteByTime = (userId, time, body) =>
+  Note.findOneAndUpdate(
+    { userId, time },
+    { $set: { body } },
+    { new: true }
+  )
+
+export const deleteNoteByTime = (userId, time) =>
+  Note.findOneAndDelete({ userId, time })
+
+export const getNoteById = (id) => Note.findById(id)
+
+export const getNotesByLocation = (userId, lat, lon) =>
+  Note.find({
+    userId,
+    "location.lat": Number(lat),
+    "location.lon": Number(lon),
   })
 
-  try {
-    const savedNote = await Note.create(note)
-    return savedNote
-  } catch (err) {
-    console.error(err)
-    throw new Error("Error creating note")
-  }
-}
-
-export const editNote = async (id) => {
-  return await Note.findById(id)
-}
-
-export const updateNote = async (note) => {
-  try {
-    console.log("service note:", note);
-
-    const updatedNote = await Note.findOneAndUpdate(
-      { _id: note._id },
-      {
-        $set: {
-          location: note.location,
-          radius: note.radius,
-          time: note.time,
-          body: note.body,
-        },
-      },
-      { new: true }
-    )
-    return updatedNote
-  } catch (err) {
-    throw err
-  }
-}
-
-export const deleteNote = async (id) => {
-  try {
-    const note = await Note.findByIdAndDelete(id)
-    return note
-  } catch (err) {
-    console.error(err)
-    throw new Error("Error deleting note")
-  }
-}
-
-export const getNoteByTime = async (userId, time) => {
-  try {
-    const note = await Note.findOne({
-      userId,
-      time,
-    })
-    return note
-  } catch (err) {
-    throw err
-  }
-}
-
-export const updateNoteByTime = async (userId, time, body) => {
-  try {
-    const note = await Note.findOneAndUpdate(
-      { userId, time },
-      { $set: { body } },
-      { new: true }
-    )
-    return note
-  } catch (err) {
-    throw err
-  }
-}
-
-export const deleteNoteByTime = async (userId, time) => {
-  try {
-    const note = await Note.findOneAndDelete({
-      userId,
-      time,
-    })
-    return note
-  } catch (err) {
-    throw err
-  }
-}
-
-export const getNoteById = async (id) => {
-  try {
-    const note = await Note.findById(id)
-    return note
-  } catch (err) {
-    throw err
-  }
-}
-
-export const getNotesByLocation = async (userId, lat, lon) => {
-  try {
-    const notes = await Note.find({
-      userId,
-      "location.lat": Number(lat),
-      "location.lon": Number(lon),
-    })
-    return notes
-  } catch (err) {
-    throw err
-  }
-}
-
 export default {}
+
