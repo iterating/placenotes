@@ -1,8 +1,13 @@
 <%- include('header.ejs') %>
 
+
 <div class="edit-container">
   <h1 class="title">Create New Note</h1>
   <form action="/notes/new" method="post" class="edit-note-form">
+        <!-- Hidden input fields needed to pass the note data -->
+        <input type="hidden" name="location" value='{"type": "Point", "coordinates": [<%= note.location.coordinates[1] %>, <%= note.location.coordinates[0] %>]}' />
+        <input type="hidden" name="radius" value="<%= note.radius %>" />
+        <input type="hidden" name="time" value="<%= note.time %>" />
     <label for="note-body">Note:</label><br />
     <textarea name="body" id="note-body" rows="8" cols="80" required></textarea
     ><br />
