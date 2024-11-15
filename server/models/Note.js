@@ -44,7 +44,7 @@ const noteSchema = new mongoose.Schema({
   body: {
     type: String,
     required: true,
-    maxlength: 15000,
+    maxlength: 1500000,
   },
   recipients: [
     {

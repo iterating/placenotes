@@ -2,63 +2,69 @@ body {
 
   font-family: Georgia;
   color: #333;
-  margin: 0;
-  padding: 0;
+  margin: 0rem;
+  padding: 0rem;
   /* background-color: #f5deb3;  */
 
 }
-
+.map-container {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+}
 .note-container {
-  margin: 20px auto;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 0.5rem;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
 }
 .note {
-  margin-bottom: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   display: flex;
   flex-flow: column wrap;
 }
 .note-preview {
-  font-size: max 1rem
+  font-size: 1rem;
+  margin: 0.5rem;
 }
 
-.note-body {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
+.note-full {
+  max-width: 900px;
+  margin: 1rem auto;
+  padding: 1rem;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   display: flex;
   flex-flow: column wrap;
-  max-height: 400px;
+  max-height: 25rem;
   overflow: scroll;
 }
 .edit-note-form, .edit-container {
-  max-width: 80vw;
+  max-width: 70rem;
   margin: 0.5rem auto;
   padding: 0.5rem;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   
 }
 .title {
   color: #333;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 1rem;
+  font-size: 2rem;
 }
 
 form {
-  max-width: 400px;
-  margin: 10px auto;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 20rem;
+  margin: 0.25rem auto;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
 
 }
 
@@ -68,34 +74,35 @@ form {
   padding: none;
 }
 
-
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
   font-weight: bold;
+  font-size: 1rem;
 }
 
 input[type="email"],
 input[type="password"],
 textarea {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   box-sizing: border-box;
+  font-size: 1rem;
 }
 
 input[type="submit"],
 button, .button {
-  width: 300px;
-  padding: 10px;
+  width: 15rem;
+  padding: 0.25rem;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 input[type="submit"]:hover,
@@ -107,13 +114,13 @@ a {
   display: block;
   text-align: center;
   color: #007bff;
-  margin-top: 10px;
+  margin-top: 0.5rem;
   text-decoration: none;
+  font-size: 1rem;
 }
 
 a:hover {
   color: #0056b3;
 }
-
 
 
