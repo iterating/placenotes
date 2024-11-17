@@ -1,5 +1,4 @@
 import { marked } from "marked"
-import { _id } from "../db/db.js"
 import * as NotesService from "../services/notes.service.js"
 
 // notes

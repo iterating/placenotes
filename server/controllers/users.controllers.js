@@ -1,5 +1,4 @@
 import User from "../models/User.js"
-import Note from "../models/Note.js"
 
 export const allUsers = async (req, res) => {
   try {
@@ -21,3 +20,4 @@ export const accountSet = async (req, res) => {
     res.status(400).send("Error updating user")
   }
 }
+

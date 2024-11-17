@@ -1,4 +1,3 @@
-// services/notes.service.js
 import Note from "../models/Note.js"
 import { _id } from "../db/db.js"
 
@@ -6,22 +5,14 @@ export const allNotes = () => Note.find()
 
 export const getNotes = (userId) => Note.find({ userId })
 
-export const recentNotes = (userId) => Note.find({ userId }).sort({ time: -1 }).limit(20)
+export const recentNotes = (userId) =>
+  Note.find({ userId }).sort({ time: -1 }).limit(20)
 
 export const oldestNotes = (userId) =>
-  Note.find({ userId })
-    .sort({ time: 1 })
-    .limit(20)
-    .then(notes => {
-      console.log(`Found ${notes.length} notes for user ${userId}`);
-      return notes;
-    })
-    .catch(err => {
-      console.error(`Error fetching oldest notes for user ${userId}: ${err}`);
-      throw err;
-    });
+  Note.find({ userId }).sort({ time: 1 }).limit(20)
 
-export const newNote = (noteData) => Note.insertMany([{ _id: _id(), ...noteData }]);
+export const newNote = (noteData) =>
+  Note.insertMany([{ _id: _id(), ...noteData }])
 export const editNote = (id) => Note.findById(id)
 
 export const updateNote = (note) =>
@@ -31,8 +22,6 @@ export const deleteNote = (id) => Note.findByIdAndDelete(id)
 
 export const getNoteByTime = ({ userId, time }) =>
   Note.findOne({ userId, time })
-
-
 
 export const updateNoteByTime = ({ userId, time, body }) =>
   Note.findOneAndUpdate({ userId, time }, { $set: { body } }, { new: true })
@@ -55,4 +44,15 @@ export const getNotesByLocation = ({ userId, lat, lon }) =>
     },
   })
 
+export const getUserNotes = (userId) =>
+  Note.find({ userId })
+
+export const getUserNoteById = (userId, noteId) =>
+  Note.findOne({ userId, _id: noteId })
+
+export const updateUserNote = (userId, noteId, update) =>
+  Note.findOneAndUpdate({ userId, _id: noteId }, { $set: update }, { new: true })
+
+export const deleteUserNote = (userId, noteId) =>
+  Note.findOneAndDelete({ userId, _id: noteId })
 export default {}

@@ -1,9 +1,10 @@
 import express from "express"
 import * as authController from "../../controllers/auth.controllers.js"
 import * as usersController from "../../controllers/users.controllers.js"
-import Note from "../../models/Note.js"
-import User from "../../models/User.js"
 import { setUser } from "../middleware/auth.js"
+import * as notesService from "../../services/notes.service.js"
+import * as usersService from "../../services/users.service.js"
+
 const router = express.Router()
 
 const loginForm = (req, res) => {
@@ -44,28 +45,47 @@ router
   .get(setUser, accountSettings)
   .post(setUser, usersController.accountSet)
 
-// Get user by /users?id=:id or /users/:id
+
 router.get("/", async (req, res) => {
   try {
-    const users = req.query.name
-      ? await User.find({ name: req.query.name }).lean()
-      : await User.find().lean()
-    res.send(users)
+    const query = req.query.name ? { name: req.query.name } : {};
+    const users = await usersService.findUsers(query);
+    res.send(users);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: "Error finding users" })
+    console.error(err);
+    res.status(500).json({ error: "Error finding users" });
   }
-})
+});
 
 router.get("/search", async (req, res) => {
   try {
-    const { id, name, group, email } = req.query
-    const query = {}
-    if (id) query._id = id
-    if (name) query.name = name
-    if (group) query.group = group
-    if (email) query.email = email
-    const user = await User.findOne(query).lean()
+    const { id, name, group, email } = req.query;
+    const query = {};
+    if (id) query._id = id;
+    if (name) query.name = name;
+    if (group) query.group = group;
+    if (email) query.email = email;
+    const user = await usersService.findOneUser(query);
+    res.send(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error finding user" });
+  }
+});
+
+router.get("/name/:name", async (req, res) => {
+  try {
+    const users = await usersService.findUsers({ name: req.params.name });
+    res.send(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error finding user" });
+  }
+});
+
+router.get("/email/:email", async (req, res) => {
+  try {
+    const user = await usersService.findByEmail(req.params.email)
     res.send(user)
   } catch (err) {
     console.error(err)
@@ -73,75 +93,60 @@ router.get("/search", async (req, res) => {
   }
 })
 
-// Find users by name
-router.get("/name/:name", (req, res) => {
-  User.find({ name: req.params.name })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      console.error(err)
-      res.status(500).json({ error: "Error finding user" })
-    })
-})
-// find user by email
-router.get("/email/:email", (req, res) => {
-  User.find({ email: req.params.email })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      console.error(err)
-      res.status(500).json({ error: "Error finding user" })
-    })
-})
-// find user by group
-router.get("/group/:group", (req, res) => {
-  User.find({ group: req.params.group })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      console.error(err)
-      res.status(500).json({ error: "Error finding user" })
-    })
-})
-//find user by id and time
-router.get("/:id", (req, res) => {
-  User.findById(req.params.id)
-    .then((user) => {
-      const time = req.query.time
-      const notes = user.notes.filter((note) => note.time.toString() === time)
-      res.send(notes)
-    })
-    .catch((err) => {
-      console.error(err)
-      res.status(500).json({ error: "Error retrieving notes" })
-    })
+router.get("/group/:group", async (req, res) => {
+  try {
+    const user = await usersService.findByGroup(req.params.group)
+    res.send(user)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Error finding user" })
+  }
 })
 
-router.get("/:id/time/:time", (req, res) => {
-  const user = User.findById(req.params.id)
-  const notes = user.notes.filter((note) => note.time === req.params.time)
-  res.send(notes)
+router.get("/:id", async (req, res) => {
+  try {
+    const time = req.query.time
+    const notes = await usersService.findUserNotesByIdAndTime(req.params.id, time)
+    res.send(notes)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Error retrieving notes" })
+  }
 })
 
-//router to get a user's notes sorted by most recent
-router.get("/:id/recent", (req, res) => {
-  Note.find({ userId: req.params.id })
-    .sort({ time: -1 })
-    .then((notes) => res.send(notes))
-    .catch((err) => {
-      console.error(err)
-      res.status(500).json({ error: "Error retrieving notes" })
-    })
+router.get("/:id/time/:time", async (req, res) => {
+  try {
+    const notes = await usersService.findUserNotesByIdAndTime(req.params.id, req.params.time)
+    res.send(notes)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Error retrieving notes" })
+  }
 })
 
-//route to get a a user's notes sorted by oldest
-router.get("/:id/oldest", (req, res) => {
-  const user = User.findById(req.params.id)
-  const notes = user.notes.sort((a, b) => a.time - b.time)
-  res.send(notes)
+router.get("/:id/recent", async (req, res) => {
+  try {
+    const notes = await notesService.recentNotes(req.params.id)
+    res.send(notes)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Error retrieving notes" })
+  }
 })
 
-// Notes by ID
+router.get("/:id/oldest", async (req, res) => {
+  try {
+    const notes = await notesService.oldestNotes(req.params.id)
+    res.send(notes)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Error retrieving notes" })
+  }
+})
+
 router.get("/:id/notes", async (req, res) => {
   try {
-    const notes = await Note.find({ userId: req.params.id }).lean()
+    const notes = await notesService.getUserNotes(req.params.id)
     res.send(notes)
   } catch (err) {
     console.error(err)
@@ -151,15 +156,10 @@ router.get("/:id/notes", async (req, res) => {
 
 router.get("/:id/notes/:noteId", async (req, res) => {
   try {
-    const note = await Note.findOne({
-      _id: req.params.noteId,
-      userId: req.params.id,
-    }).lean()
-
+    const note = await notesService.getUserNoteById(req.params.id, req.params.noteId)
     if (!note) {
       return res.status(404).json({ error: "Note not found" })
     }
-
     res.send(note)
   } catch (err) {
     console.error(err)
@@ -169,16 +169,10 @@ router.get("/:id/notes/:noteId", async (req, res) => {
 
 router.put("/:id/notes/:noteId", async (req, res) => {
   try {
-    const note = await Note.findOneAndUpdate(
-      { _id: req.params.noteId, userId: req.params.id },
-      { $set: req.body },
-      { new: true }
-    )
-
+    const note = await notesService.updateUserNote(req.params.id, req.params.noteId, req.body)
     if (!note) {
       return res.status(404).json({ error: "Note not found" })
     }
-
     res.send(note)
   } catch (err) {
     console.error(err)
@@ -188,10 +182,7 @@ router.put("/:id/notes/:noteId", async (req, res) => {
 
 router.delete("/:id/notes/:noteId", async (req, res) => {
   try {
-    const result = await Note.deleteOne({
-      _id: req.params.noteId,
-      userId: req.params.id,
-    })
+    const result = await notesService.deleteUserNote(req.params.id, req.params.noteId)
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: "Note not found" })
     }
@@ -202,4 +193,6 @@ router.delete("/:id/notes/:noteId", async (req, res) => {
   }
 })
 
+
 export default router
+
