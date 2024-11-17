@@ -1,43 +1,30 @@
 import express from "express"
-// Required for passport
-import passport from "./api/middleware/passport.js"
-import session from "express-session"
-import flash from "connect-flash"
 const PORT = process.env.PORT || 3000
 import ejs from "ejs"
 import path from "path"
 import { fileURLToPath } from "url"
-import users from "./api/routes/users.js"
-import notes from "./api/routes/notes.js"
+import middleware from "./api/middleware/middleware.js"
+import users from "./api/routes/userRoutes.js"
+import notes from "./api/routes/noteRoutes.js"
 import db from "./db/conn.js"
-import cors from "cors"
 import dotenv from "dotenv"
+
 dotenv.config()
 
 const app = express()
-// needs this for directory of ejs views to work
+
+// Middleware
+middleware(app)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-app.use(cors({ origin: "*" }))
-app.use(express.urlencoded({extended: true}));
-app.use(express.json())
 
 // Make css available
 app.use("/assets", express.static(path.join(__dirname, "./views/assets")))
-
 // Make components available
 
 // View Engine
 app.set("views", path.join(__dirname, "./views"))
 app.engine(".ejs", ejs.renderFile)
 app.set("view engine", "ejs")
-
-// Middleware
-
-app.use(session({ secret: "secret", resave: true, saveUninitialized: true }))
-app.use(passport.initialize())
-app.use(passport.session())
-app.use(flash())
-app.use(express.urlencoded({ extended: false }))
 
 //Routes
 app.use("/users", users)
