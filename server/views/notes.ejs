@@ -24,6 +24,7 @@
       <form action="/notes/<%= note._id %>/edit" method="GET" class="button">
         <button type="submit">Edit</button>
       </form>
+      <br>
       <form
         action="/notes/<%= note._id %>/delete"
         method="POST"
@@ -41,46 +42,53 @@
   <p><a href="/notes/new">Create a new note</a></p>
 
   <script>
-          function toggleNote(noteId) {
-            const noteFull = document.querySelector(`#note-${noteId} .note-full`)
-            if (noteFull.style.display === "none" || noteFull.style.display === "") {
-              noteFull.style.display = "block"
-            } else {
-              noteFull.style.display = "none"
-            }
-          }
+  function toggleNote(noteId) {
+    const noteFull = document.querySelector(`#note-${noteId} .note-full`)
+    if (noteFull.style.display === "none" || noteFull.style.display === "") {
+      noteFull.style.display = "block"
+    } else {
+      noteFull.style.display = "none"
+    }
+  }
 
-          const notePreviews = document.querySelectorAll(".note-preview")
-          notePreviews.forEach((element) => {
-            element.addEventListener("click", (event) => {
-              const noteId = element.getAttribute("data-note-id")
-              toggleNote(noteId)
-            })
-          })
+  const notePreviews = document.querySelectorAll(".note-preview")
+  notePreviews.forEach((element) => {
+    element.addEventListener("click", (event) => {
+      const noteId = element.getAttribute("data-note-id")
+      toggleNote(noteId)
+    })
+  })
+  //map
+  const map = L.map('map').setView([34.052235, -118.243683], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    subdomains: ['a', 'b', 'c']
+    }).addTo(map);
 
-          //map
-    const map = L.map('map').setView([34.052235, -118.243683], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      subdomains: ['a', 'b', 'c']
-      }).addTo(map);
+  // Add markers for each note
+  const notes = [<% notes.forEach(note => { %>
+    {
+      id: "<%= note._id %>",
+      userId: "<%= note.userId %>",
+      location: {
+        lat: "<%= note.location.coordinates[1] %>",
+        lng: "<%= note.location.coordinates[0] %>"
+      }
+    },
+    <% }); %>];
 
-      // Add markers for each note
-          const notes = [<% notes.forEach(note => { %>
-            {
-              id: "<%= note._id %>",
-              userId: "<%= note.userId %>",
-              location: {
-                lat: "<%= note.location.coordinates[1] %>",
-                lng: "<%= note.location.coordinates[0] %>"
-              }
-            },
-            <% }); %>];
-
-      notes.forEach(note => {
-        const marker = L.marker([note.location.lat, note.location.lng]).addTo(map);
-        const notetitle = document.querySelector(`#note-${note.id} .note-preview`).textContent;
-        marker.bindPopup(`${notetitle}<br /><a href="/notes/${note.id}/edit">View Note ${note.id}</a>`);
+    notes.forEach(note => {
+      const marker = L.marker([note.location.lat, note.location.lng]).addTo(map);
+      const notetitle = document.querySelector(`#note-${note.id} .note-preview`).textContent;
+      marker.bindPopup(`${notetitle}<br /><a href="/notes/${note.id}/edit">View Note</a>`);
+      marker.on('mouseover', function() {
+        const noteElement = document.querySelector(`#note-${note.id}`);
+        noteElement.style.backgroundColor = "#add8e6";
       });
+      marker.on('mouseout', function() {
+        const noteElement = document.querySelector(`#note-${note.id}`);
+        noteElement.style.backgroundColor = "";
+      });
+    });
   </script>
 </div>
 
