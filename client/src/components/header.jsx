@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import './styles.css'; // Import your CSS file
+import './Header.css';
 
 const Header = () => {
   useEffect(() => {
@@ -43,10 +43,6 @@ const Header = () => {
         </div>
         <div className="overlay" id="overlay"></div>
       </header>
-
-      <main id="content">
-        {/* Your main content here */}
-      </main>
     </div>
   );
 };

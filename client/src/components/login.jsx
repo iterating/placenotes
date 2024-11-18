@@ -1,15 +1,58 @@
-const Login = () => (
-  <div id="form" className="form">
-    <h1 className="title">Login</h1>
-    <form action="/users/login" method="post">
-      <label htmlFor="email">Email</label>
-      <input type="email" name="email" id="email" required /><br />
-      <label htmlFor="password">Password</label>
-      <input type="password" name="password" id="password" required /><br />
-      <input type="submit" value="Submit" />
-      <a href="/users/signup">Sign Up For Account</a>
-    </form>
-  </div>
-);
+import axios from 'axios';
+import React, { useState } from 'react';
+
+
+const Login = (props) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/users/login', { email, password });
+      const data = response.data;
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        props.history.push('/notes');
+      } else {
+        alert('Invalid email or password');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+    }
+    props.onLogin(email, password);
+  };
+
+  return (
+    <>
+      <div id="form" className="form">
+        <h1 className="title">Login</h1>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          /><br />
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          /><br />
+          <input type="submit" value="Submit" />
+          <a href="/users/signup">Sign Up For Account</a>
+        </form>
+      </div>
+    </>
+  );
+};
 
 export default Login;
+
