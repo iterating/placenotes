@@ -5,7 +5,9 @@
   "main": "./server/server.js",
   "type": "module",
   "scripts": {
-    "start": "node ./server/server.js",
+    "client": "vite --port 3000",
+    "server": "nodemon --watch ./server --exec \"node ./server/server.js\" --port 5000",
+    "start": "concurrently \"pnpm run client\" \"pnpm run server\"",
     "seed": "node ./server/db/seed.js",
     "dev": "nodemon ./server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -30,6 +32,10 @@
     "passport": "^0.7.0",
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "vite": "^5.4.11"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }

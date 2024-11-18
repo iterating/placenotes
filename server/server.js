@@ -1,5 +1,4 @@
 import express from "express"
-const PORT = process.env.PORT || 3000
 import ejs from "ejs"
 import path from "path"
 import { fileURLToPath } from "url"
@@ -10,6 +9,7 @@ import db from "./db/conn.js"
 import dotenv from "dotenv"
 
 dotenv.config()
+const PORT = process.env.PORT || 5000
 
 const app = express()
 
