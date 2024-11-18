@@ -3,15 +3,15 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
 import "./assets/styles.css"
-import App from "./App"
+import AppRouter from './app/AppRouter.jsx'
 
 const container = document.getElementById("root")
 if (!container) throw new Error("No root element found")
 const root = createRoot(container)
 root.render(
   <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <Route path='/' component={ AppRouter } />
+</BrowserRouter>
 )
 
 

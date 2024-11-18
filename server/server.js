@@ -2,11 +2,14 @@ import express from "express"
 import ejs from "ejs"
 import path from "path"
 import { fileURLToPath } from "url"
+import { dirname } from 'path';
 import middleware from "./api/middleware/middleware.js"
 import users from "./api/routes/userRoutes.js"
 import notes from "./api/routes/noteRoutes.js"
 import db from "./db/conn.js"
 import dotenv from "dotenv"
+
+
 
 dotenv.config()
 const PORT = process.env.PORT || 5000
@@ -15,7 +18,7 @@ const app = express()
 
 // Middleware
 middleware(app)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Make css available
 app.use("/assets", express.static(path.join(__dirname, "./views/assets")))

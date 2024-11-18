@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import Drawer from './Drawer';
 import './Header.css';
 
 const Header = () => {
@@ -35,12 +36,7 @@ const Header = () => {
     <div>
       <header>
         <span className="drawer-icon" id="sidebar-icon">&#9776;</span>
-        <div className="drawer" id="drawer">
-          <a href="/notes">Home</a>
-          <a href="/notes/new">New Note</a>
-          <a href="/users/account">Settings</a>
-          <a href="/users/logout">Logout</a>
-        </div>
+        <Drawer/>
         <div className="overlay" id="overlay"></div>
       </header>
     </div>

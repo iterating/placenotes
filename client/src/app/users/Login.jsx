@@ -1,26 +1,33 @@
-import axios from 'axios';
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = (props) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/users/login', { email, password });
-      const data = response.data;
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        props.history.push('/notes');
+      const response = await axios.post('localhost:5000/users/login', {
+        email,
+        password,
+      });
+
+      if (response.data.success) {
+        navigate('/notes');
       } else {
         alert('Invalid email or password');
       }
     } catch (error) {
       console.error('Error logging in:', error);
+      if (error.response && error.response.data) {
+        alert(error.response.data.message);
+      } else {
+        alert('An unexpected error occurred');
+      }
     }
-    props.onLogin(email, password);
   };
 
   return (

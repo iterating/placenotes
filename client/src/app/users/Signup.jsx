@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
+import axios from 'axios';
 
 const Signup = (props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    props.onSubmit(email, password);
+    try {
+      const response = await axios.post('/users/signup', {
+        email,
+        password
+      });
+      const data = response.data;
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        props.history.push('/notes');
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error signing up:', error);
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import React from "react"
-import Signup from "./Signup"
+import Signup from "./users/Signup"
 // import Notes from "./Notes"
 // import NoteForm from "./NoteForm"
 

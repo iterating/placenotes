@@ -38,6 +38,9 @@ importers:
       graphql-http:
         specifier: ^1.22.2
         version: 1.22.2(graphql@16.9.0)
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -53,6 +56,9 @@ importers:
       passport-google-oauth:
         specifier: ^2.0.0
         version: 2.0.0
+      passport-http-bearer:
+        specifier: ^1.0.1
+        version: 1.0.1
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
@@ -911,6 +917,10 @@ packages:
 
   passport-google-oauth@2.0.0:
     resolution: {integrity: sha512-JKxZpBx6wBQXX1/a1s7VmdBgwOugohH+IxCy84aPTZNq/iIPX6u7Mqov1zY7MKRz3niFPol0KJz8zPLBoHKtYA==}
+    engines: {node: '>= 0.4.0'}
+
+  passport-http-bearer@1.0.1:
+    resolution: {integrity: sha512-SELQM+dOTuMigr9yu8Wo4Fm3ciFfkMq5h/ZQ8ffi4ELgZrX1xh9PlglqZdcUZ1upzJD/whVyt+YWF62s3U6Ipw==}
     engines: {node: '>= 0.4.0'}
 
   passport-jwt@4.0.1:
@@ -1961,6 +1971,10 @@ snapshots:
     dependencies:
       passport-google-oauth1: 1.0.0
       passport-google-oauth20: 2.0.0
+
+  passport-http-bearer@1.0.1:
+    dependencies:
+      passport-strategy: 1.0.0
 
   passport-jwt@4.0.1:
     dependencies:

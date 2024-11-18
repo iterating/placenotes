@@ -5,7 +5,11 @@ import {  setUser } from "../middleware/auth.js";
 
 router.get("/all", notesController.allNotes);
 
-router.get("/", setUser, notesController.getNotes);
+router.get("/", setUser, (req, res, next) => {
+  console.log("GET /notes (getNotes) called");
+  console.log("req.user:", req.user);
+  notesController.getNotes(req, res, next);
+});
 router.route("/new").get(setUser, notesController.newNoteForm).post(setUser, notesController.newNote);
 router
   .route("/:id")

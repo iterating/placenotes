@@ -11,20 +11,25 @@ export const allNotes = async (req, res) => {
     res.status(500).send("Error getting users")
   }
 }
-
 export const getNotes = async (req, res) => {
+  console.log("getNotes called");
   try {
-    //expecting array of notes
-    const notes = await NotesService.getNotes(req.user._id)
-    res.render("notes", { notes, marked, user: req.user })
+    const userId = req.user._id;
+    console.log("Fetching notes for user:", userId);
+    const notes = await NotesService.getNotes(userId);
+    if (!notes || notes.length === 0) {
+      console.log("No notes found for user:", userId);
+    } else {
+      console.log("Notes successfully retrieved for user:", userId);
+    }
+    res.json(notes || []);
   } catch (err) {
-    console.error(err)
-    res.status(500).send(err.message)
+    console.error("Error retrieving notes:", err);
+    res.status(500).json({ error: "Error retrieving notes" });
   }
 }
-
 export const newNoteForm = (req, res) =>
-  res.render("notesNew", {
+  res.json({
     note: {
       location: {
         coordinates: req.body?.location ?? [-118.243683, 34.052235],
@@ -34,13 +39,12 @@ export const newNoteForm = (req, res) =>
       body: "",
       recipients: req.body?.recipients ?? [],
     },
-    marked,
   })
 
 export const newNote = async (req, res) => {
   try {
     const location = JSON.parse(req.body.location)
-    await NotesService.newNote({
+    const note = await NotesService.newNote({
       userId: req.user._id,
       email: req.user.email,
       location: {
@@ -52,7 +56,7 @@ export const newNote = async (req, res) => {
       // `recipients:req.body?.recipients??[]` creates empty string, not array
       recipients: req.body?.recipients ? JSON.parse(req.body.recipients) : [],
     })
-    res.redirect("/notes")
+    res.json(note)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: "Error creating note" })
@@ -62,7 +66,7 @@ export const newNote = async (req, res) => {
 export const editNote = async (req, res) => {
   const note = await NotesService.getNoteById(req.params.id)
   if (!note) return res.status(404).json({ error: "Note not found" })
-  res.render("notesEdit", { note, marked })
+  res.json(note)
 }
 
 export async function updateNote(req, res) {
@@ -86,10 +90,10 @@ export async function updateNote(req, res) {
     if (!note) {
       return res.status(404).send("Note not found")
     }
-    res.redirect("/notes")
+    res.json(note)
   } catch (err) {
     console.error(err)
-    res.status(500).send("Error editing note")
+    res.status(500).json({ error: "Error editing note" })
   }
 }
 
@@ -99,7 +103,7 @@ export const deleteNote = async (req, res) => {
     if (!note) {
       return res.status(404).json({ error: "Note not found" })
     }
-    res.redirect("/notes")
+    res.json({ message: "Note deleted" })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: "Error deleting note" })
@@ -115,7 +119,7 @@ export async function getNoteByTime(req, res) {
     if (!note) {
       return res.status(404).send("Note not found")
     }
-    res.send(note)
+    res.json(note)
   } catch (err) {
     res.status(500).send("Error retrieving note")
   }
@@ -131,7 +135,7 @@ export async function updateNoteByTime(req, res) {
     if (!note) {
       return res.status(404).send("Note not found")
     }
-    res.send(note)
+    res.json(note)
   } catch (err) {
     res.status(500).send("Error editing note")
   }
@@ -146,7 +150,7 @@ export async function deleteNoteByTime(req, res) {
     if (!note) {
       return res.status(404).send("Note not found")
     }
-    res.send({ message: "Note deleted" })
+    res.json({ message: "Note deleted" })
   } catch (err) {
     res.status(500).send("Error deleting note")
   }
@@ -158,7 +162,7 @@ export async function recentNotes(req, res) {
     if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found")
     }
-    res.render("notes", { notes, marked, user: req.user })
+    res.json(notes)
   } catch (err) {
     console.error(err)
     res.status(500).send("Error retrieving notes")
@@ -171,13 +175,12 @@ export async function oldestNotes(req, res) {
     if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found")
     }
-    res.render("notes", { notes, marked, user: req.user })
+    res.json(notes)
   } catch (err) {
     console.error(err)
     res.status(500).send("Error retrieving notes")
   }
 }
-
 
 export async function getNoteById(req, res) {
   try {
@@ -185,7 +188,7 @@ export async function getNoteById(req, res) {
     if (!note) {
       return res.status(404).send("Note not found")
     }
-    res.send(note)
+    res.json(note)
   } catch (err) {
     res.status(500).send("Error retrieving note")
   }
@@ -209,9 +212,10 @@ export async function getNotesByLocation(req, res) {
     if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found at the specified location")
     }
-    res.send(notes)
+    res.json(notes)
   } catch (err) {
     console.error("Error retrieving notes:", err)
     res.status(500).send("Error retrieving notes")
   }
 }
+

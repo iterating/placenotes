@@ -13,6 +13,7 @@ const middleware = (app) => {
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(flash())
+
 }
 
 export default middleware

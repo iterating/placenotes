@@ -1,3 +1,4 @@
+import path from "path"
 import express from "express"
 import * as authController from "../../controllers/auth.controllers.js"
 import * as usersController from "../../controllers/users.controllers.js"
@@ -22,11 +23,10 @@ const signupForm = (req, res) => {
 }
 
 const accountSettings = (req, res) => {
-  res.render("account", {
+  res.status(200).json({
     errorMessage: req.flash("errorMessage"),
-  })
+  });
 }
-
 
 //!! Remove for production //!!
 router.get("/all", usersController.allUsers)
@@ -44,7 +44,6 @@ router
   .route("/account")
   .get(setUser, accountSettings)
   .post(setUser, usersController.accountSet)
-
 
 router.get("/", async (req, res) => {
   try {
@@ -91,7 +90,7 @@ router.get("/email/:email", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error finding user" })
   }
-})
+});
 
 router.get("/group/:group", async (req, res) => {
   try {
@@ -101,18 +100,18 @@ router.get("/group/:group", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error finding user" })
   }
-})
+});
 
-router.get("/:id", async (req, res) => {
-  try {
-    const time = req.query.time
-    const notes = await usersService.findUserNotesByIdAndTime(req.params.id, time)
-    res.send(notes)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: "Error retrieving notes" })
-  }
-})
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const time = req.query.time
+//     const notes = await usersService.findUserNotesByIdAndTime(req.params.id, time)
+//     res.send(notes)
+//   } catch (err) {
+//     console.error(err)
+//     res.status(500).json({ error: "Error retrieving notes" })
+//   }
+// });
 
 router.get("/:id/time/:time", async (req, res) => {
   try {
@@ -122,7 +121,7 @@ router.get("/:id/time/:time", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error retrieving notes" })
   }
-})
+});
 
 router.get("/:id/recent", async (req, res) => {
   try {
@@ -132,7 +131,7 @@ router.get("/:id/recent", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error retrieving notes" })
   }
-})
+});
 
 router.get("/:id/oldest", async (req, res) => {
   try {
@@ -142,7 +141,7 @@ router.get("/:id/oldest", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error retrieving notes" })
   }
-})
+});
 
 router.get("/:id/notes", async (req, res) => {
   try {
@@ -152,7 +151,7 @@ router.get("/:id/notes", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error retrieving notes" })
   }
-})
+});
 
 router.get("/:id/notes/:noteId", async (req, res) => {
   try {
@@ -165,7 +164,7 @@ router.get("/:id/notes/:noteId", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error retrieving note" })
   }
-})
+});
 
 router.put("/:id/notes/:noteId", async (req, res) => {
   try {
@@ -178,7 +177,7 @@ router.put("/:id/notes/:noteId", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error updating note" })
   }
-})
+});
 
 router.delete("/:id/notes/:noteId", async (req, res) => {
   try {
@@ -191,8 +190,7 @@ router.delete("/:id/notes/:noteId", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Error deleting note" })
   }
-})
-
+});
 
 export default router
 
