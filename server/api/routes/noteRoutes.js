@@ -4,7 +4,10 @@ import {  setUser } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/all", notesController.allNotes);
+router.get("/all", (req, res, next) => {
+  console.log("GET /notes/all called");
+  notesController.allNotes(req, res, next);
+});
 
 router.get("/", setUser, (req, res, next) => {
   console.log("GET /notes (getNotes) called");
@@ -12,7 +15,14 @@ router.get("/", setUser, (req, res, next) => {
   notesController.getNotes(req, res, next);
 });
 
-router.route("/new").get(setUser, notesController.newNoteForm).post(setUser, notesController.newNote);
+router.route("/new").get((req, res, next) => {
+  console.log("GET /notes/new called");
+  notesController.newNoteForm(req, res, next);
+}).post((req, res, next) => {
+  console.log("POST /notes/new called");
+  notesController.newNote(req, res, next);
+});
+
 router
   .route("/:id")
   .get( notesController.getNoteById)

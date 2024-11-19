@@ -22,12 +22,12 @@ const userSchema = new mongoose.Schema({
   currentLocation: {
     type: {
       type: String,
-      enum: ["Point"],
+      enum: ['Point'],
     },
     coordinates: {
       type: [Number, Number],
       default: [-118.243683, 34.052235],
-    },
+    }
   },
   createdAt: {
     type: Date,

@@ -7,8 +7,21 @@ import Note from "./Note";
 const Notes = () => {
   const [notes, setNotes] = useState([]);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  console.log("Notes component props:", { notes, user, token });
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      console.log("Fetching token from local storage...");
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        console.log("Token found in local storage:", storedToken);
+        setToken(storedToken);
+      } else {
+        console.log("No token found in local storage");
+      }
+    };
+    fetchToken();
+  }, []);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -18,69 +31,75 @@ const Notes = () => {
         return;
       }
       try {
-        console.log("Fetching user with token:", token);
-        const response = await axios.post("http://localhost:5000/users/login", {
-          method: 'POST',
-        });
-        setToken(response.data.token); // Assign the token value within the try block
-        console.log("New Token:", token);
-
-        const notesResponse = await axios.get("http://localhost:5000/notes", {
+        console.log("Fetching notes with token:", token);
+        const response = await axios.get("http://localhost:5000/notes", {
           headers: {
             Authorization: token,
           },
         });
-        console.log("Notes response:", notesResponse);
-        if (!notesResponse || !notesResponse.data) {
+        if (!response || !response.data) {
+          throw new Error("No response received from server");
+        }
+        if (!response.data.notes) {
           throw new Error("No notes received from server");
         }
-        console.log("Setting notes state to:", notesResponse.data);
-        setNotes(notesResponse.data);
+        console.log("Setting notes state to:", response.data.notes);
+        setNotes(response.data.notes);
         setUser(response.data.user);
       } catch (error) {
-        console.error(error);
-        throw error;
+        console.error("Error fetching notes:", error);
+        if (error.response && error.response.status === 401) {
+          console.log("Unauthorized, logging out...");
+          localStorage.removeItem("token");
+          window.location.href = "/";
+        } else {
+          throw error;
+        }
       }
-      console.log("Notes received from server:", notesResponse.request.res.responseUrl);
+      console.log("Notes received from server:", response.request.res.responseUrl);
     }
     if (token !== null) {
       fetchNotes();
+    }
+  }, [token]);
+
+  if (!notes) {
+    console.log("Notes not available yet, loading...");
+    return <div>Loading...</div>;
   }
-}, [token]);
-console.log("Notes state:", notes);
-if (!notes) {
-  return <div>Loading...</div>;
-}
 
-console.log("User:", user);
-console.log("Notes:", notes);
+  if (!user) {
+    console.log("User not logged in");
+    return <div>You are not logged in.</div>;
+  }
 
-return (
-  <div className="note-container">
-    <h1 className="title">Your Notes</h1>
-    <MapWithMarkers notes={notes} />
-    {notes.length > 0 ? (
-      notes.map(note => {
-        console.log("Note:", note);
-        if (note.userId && user && user._id && note.userId.toString() === user._id.toString()) {
-          return (
-            <React.Fragment key={note._id}>
-              <div className="note" id={`note-${note._id}`}>
-                <Note note={note} />
-              </div>
-            </React.Fragment>
-          );
-        } else {
-          console.log("Note is not from current user:", note);
-          return null;
-        }
-      })
-    ) : (
-      <p>You don't have any notes yet.</p>
-    )}
-    <p><a href="/notes/new">Create a new note</a></p>
-  </div>
-);
+  console.log("Rendering notes for user:", user);
+  return (
+    <div className="note-container">
+      <h1 className="title">Your Notes</h1>
+      <MapWithMarkers notes={notes} />
+      {notes.length > 0 ? (
+        notes.map(note => {
+          console.log("Note:", note);
+          if (note.userId && user && user._id && note.userId.toString() === user._id.toString()) {
+            return (
+              <React.Fragment key={note._id}>
+                <div className="note" id={`note-${note._id}`}>
+                  <Note note={note} />
+                </div>
+              </React.Fragment>
+            );
+          } else {
+            console.log("Note is not from current user:", note);
+            return null;
+          }
+        })
+      ) : (
+        <p>You don't have any notes yet.</p>
+      )}
+      <p><a href="/notes/new">Create a new note</a></p>
+    </div>
+  );
 };
 
 export default Notes;

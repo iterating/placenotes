@@ -2,65 +2,75 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Login = (props) => {
+const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log('Login: Handling submit');
+
+    if (!email) {
+      console.log('Login: No email provided');
+      alert('Please enter your email address');
+      return;
+    }
+
+    if (!password) {
+      console.log('Login: No password provided');
+      alert('Please enter your password');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/users/login', {
         email,
         password,
       });
 
-      if (response.data.success) {
-        // Destroy the existing token and create a new one
-        localStorage.removeItem('authToken');
+      console.log('Login: Response from server:', response.data);
+
+      if (response.data && response.data.success && response.data.token) {
+        console.log('Login: Success');
         localStorage.setItem('authToken', response.data.token);
         navigate('/notes');
       } else {
-        alert('Invalid email or password');
+        console.log('Login: Failure. Invalid email or password');
+        alert(response.data?.message || 'Login failed, please try again.');
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      if (error.response && error.response.data) {
-        alert(error.response.data.message);
-      } else {
-        alert('An unexpected error occurred');
-      }
+      alert(error.response?.data?.message || 'An error occurred, please try again.');
     }
   };
 
   return (
-    <>
-      <div id="form" className="form">
-        <h1 className="title">Login</h1>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          /><br />
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          /><br />
-          <input type="submit" value="Submit" />
-          <a href="/users/signup">Sign Up For Account</a>
-        </form>
-      </div>
-    </>
+    <div id="form" className="form">
+      <h1 className="title">Login</h1>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="email">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        /><br />
+        <label htmlFor="password">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        /><br />
+        <input type="submit" value="Submit" />
+        <a href="/users/signup">Sign Up For Account</a>
+      </form>
+    </div>
   );
 };
 

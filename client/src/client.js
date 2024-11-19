@@ -55,7 +55,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
             localStorage.setItem("token", data.token);
             window.location.href = "notes.html";
         } else {
-            console.log("Invalid email or password");
+            console.log(`Invalid email or password. Sent: email: ${email}, password: ${password}`);
             alert("Invalid email or password");
         }
     } catch (error) {
