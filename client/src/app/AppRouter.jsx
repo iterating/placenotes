@@ -8,8 +8,8 @@ import Login from './users/Login.jsx';
 import Main from './Main.jsx';
 import Header from '../components/Header.jsx';
 import Notes from './notes/Notes.jsx';
+import NoteForm from './notes/NoteForm.jsx';
 // import Note from './components/Note.jsx';
-// import NoteForm from './components/NoteForm.jsx';
 // import NotesAtLocation from './components/NotesAtLocation';
 // import UserNotes from './components/UserNotes';
 

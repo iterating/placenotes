@@ -1,18 +1,18 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import L from "leaflet";
 
-const MapMark = ({ note }) => {
+const Mapmark = ({ note }) => {
   const mapRef = useRef(null);
-  const [radius, setRadius] = React.useState(note.radius);
-  const [lat, setLat] = React.useState(note.location.coordinates[1]);
-  const [lng, setLng] = React.useState(note.location.coordinates[0]);
+  const [radius, setRadius] = useState(note.radius);
+  const [lat, setLat] = useState(note.location.coordinates[1]);
+  const [lng, setLng] = useState(note.location.coordinates[0]);
 
   useEffect(() => {
     const map = L.map(mapRef.current).setView([lat, lng], 15);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(map);
 
     const marker = L.marker([lat, lng], { draggable: false }).addTo(map);
-    const circle = L.circle(marker.getLatLng(), { radius, editable: true }).addTo(map);
+    const circle = L.circle([lat, lng], { radius, editable: true }).addTo(map);
 
     const handleMarkerDragEnd = () => {
       const latlng = marker.getLatLng();
@@ -46,5 +46,5 @@ const MapMark = ({ note }) => {
   );
 };
 
-
+export default Mapmark;
 

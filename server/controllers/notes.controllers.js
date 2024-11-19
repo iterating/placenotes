@@ -27,7 +27,7 @@ export const getNotes = async (req, res) => {
     } else {
       console.log("Notes successfully retrieved for user:", userId);
     }
-    res.json(notes || []);
+    res.json(notes);
   } catch (err) {
     console.error("Error retrieving notes:", err);
     if (err.name === "CastError") {
@@ -36,7 +36,6 @@ export const getNotes = async (req, res) => {
     res.status(500).json({ error: "Error retrieving notes" });
   }
 }
-
 
 export const newNoteForm = (req, res) =>
   res.json({
