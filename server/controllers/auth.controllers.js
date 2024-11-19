@@ -23,28 +23,28 @@ export const generateToken = (user) => {
   return token
 }
 
-export const refreshToken = async (token) => {
-  console.log("Refreshing token", token)
-  if (!token) {
-    throw new Error("Token cannot be null")
-  }
-  try {
-    const decoded = jwt.decode(token)
-    if (!decoded) {
-      throw new Error("Token is invalid")
-    }
-    const { _id, email } = decoded
-    if (!_id || !email) {
-      throw new Error("Decoded token is invalid")
-    }
-    const newToken = generateToken({ _id, email })
-    console.log("Refreshed token:", newToken)
-    return newToken
-  } catch (err) {
-    console.error("Error refreshing token", err)
-    return null
-  }
-}
+// export const refreshToken = async (token) => {
+//   console.log("Refreshing token", token)
+//   if (!token) {
+//     throw new Error("Token cannot be null")
+//   }
+//   try {
+//     const decoded = jwt.decode(token)
+//     if (!decoded) {
+//       throw new Error("Token is invalid")
+//     }
+//     const { _id, email } = decoded
+//     if (!_id || !email) {
+//       throw new Error("Decoded token is invalid")
+//     }
+//     const newToken = generateToken({ _id, email })
+//     console.log("Refreshed token:", newToken)
+//     return newToken
+//   } catch (err) {
+//     console.error("Error refreshing token", err)
+//     return null
+//   }
+// }
 
 export const signup = async (req, res) => {
   console.log(

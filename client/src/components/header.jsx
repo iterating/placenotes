@@ -8,15 +8,10 @@ const Header = () => {
     const overlay = document.querySelector(".overlay");
 
     const toggleDrawer = () => {
-      const drawer = document.getElementById("drawer");
-      const overlay = document.getElementById("overlay");
-      const content = document.getElementById("content");
-
-      drawer.classList.toggle("open");
-      overlay.classList.toggle("open");
-      content.classList.toggle("drawer-open");
+      document.getElementById("drawer").classList.toggle("open");
+      document.getElementById("overlay").classList.toggle("open");
+      document.getElementById("content").classList.toggle("drawer-open");
     };
-
     [drawerIcon, overlay].forEach((element) => {
       if (element) {
         element.addEventListener("click", toggleDrawer);

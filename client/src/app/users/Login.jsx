@@ -33,8 +33,8 @@ const Login = () => {
 
       if (response.data && response.data.token) {
         console.log('Login: Success');
-        localStorage.setItem('authToken', response.data.token);
-        navigate('/notes');
+        sessionStorage.token = response.data.token;
+        location.href = '/notes';
       }
     } catch (error) {
       console.error('Error logging in:', error);

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { refreshToken, generateToken } from "../../controllers/auth.controllers.js";
+import {  generateToken } from "../../controllers/auth.controllers.js";
 
 const getTokenFromHeader = (req) => {
   console.log("Extracting token from header...");

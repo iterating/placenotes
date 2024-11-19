@@ -22,8 +22,8 @@ function AppRouter() {
         <Route path="/users/login" element={<Login />} />
         <Route path="/users/signup" element={<Signup />} />
         <Route path="/notes" element={<Notes />} />
+        <Route path="/notes/new" element={<NoteForm />} />
         {/* <Route path="/notes/:id" element={<Note />} /> */}
-        {/* <Route path="/notes/new" element={<NoteForm />} /> */}
         {/* <Route path="/notes/:id/edit" element={<NoteForm />} /> */}
         {/* <Route path="/notes/location/:location" element={<NotesAtLocation />} /> */}
         {/* <Route path="/users/:id/notes" element={<UserNotes />} /> */}

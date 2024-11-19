@@ -1,65 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MapWithMarkers } from "./MapWithMarkers";
 import "./Notes.css";
 import Note from "./Note";
 
 const Notes = () => {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(null);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      console.log("Fetching token from local storage...");
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        console.log("Token found in local storage:", storedToken);
-        setToken(storedToken);
-      } else {
-        console.log("No token found in local storage");
-      }
-    };
-    fetchToken();
-  }, []);
+  const [token, setToken] = useState(sessionStorage.token);
 
   useEffect(() => {
     const fetchNotes = async () => {
-      console.log("Fetching notes from server...");
       if (!token) {
-        console.error("Token is not yet available");
         return;
       }
       try {
-        console.log("Fetching notes with token:", token);
         const response = await axios.get("http://localhost:5000/notes", {
           headers: {
             Authorization: token,
           },
         });
-        if (!response || !response.data) {
-          throw new Error("No response received from server");
-        }
-        console.log("Setting notes state to:", response.data.notes);
-        setNotes(response.data.notes);
-        setUser(response.data.user);
+        const { notes: fetchedNotes, user: fetchedUser } = response.data;
+        setNotes(fetchedNotes);
+        setUser(fetchedUser);
       } catch (error) {
         console.error("Error fetching notes:", error);
       }
-    }
-    if (token !== null) {
+    };
+    if (token) {
       fetchNotes();
     }
   }, [token]);
 
-  if (!notes) {
-    console.log("Notes not available yet, loading...");
+  if (!notes || !user) {
     return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    console.log("User not logged in");
-    return <div>You are not logged in.</div>;
   }
 
   console.log("Rendering notes for user:", user);
@@ -69,8 +43,7 @@ const Notes = () => {
       <MapWithMarkers notes={notes} />
       {notes.length > 0 ? (
         notes.map(note => {
-          console.log("Note:", note);
-          if (note.userId && user && user._id && note.userId.toString() === user._id.toString()) {
+          if (note.userId.toString() === user._id.toString()) {
             return (
               <React.Fragment key={note._id}>
                 <div className="note" id={`note-${note._id}`}>
@@ -79,7 +52,6 @@ const Notes = () => {
               </React.Fragment>
             );
           } else {
-            console.log("Note is not from current user:", note);
             return null;
           }
         })
@@ -92,4 +64,5 @@ const Notes = () => {
 };
 
 export default Notes;
+
 

@@ -27,7 +27,9 @@ const Signup = () => {
       console.log('Signup: Response from server:', response.data);
       const data = response.data;
       console.log('Signup: Success');
-      localStorage.setItem('token', data.token);
+      // Store the token in session storage
+      sessionStorage.token = data.token;
+      // Redirect to notes page
       navigate('/notes');
     } catch (error) {
       console.error('Error signing up:', error);

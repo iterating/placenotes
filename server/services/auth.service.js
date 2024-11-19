@@ -53,6 +53,9 @@ export const login = async ({ email, password }) => {
 
 // Log Out
 export const logout = async () => {
-  return { successMessage: "You have been logged out" };
+  return Promise.resolve().then(() => {
+    sessionStorage.removeItem("token");
+    window.location = "/users/login";
+  });
 };
 
