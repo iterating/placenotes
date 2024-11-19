@@ -31,16 +31,16 @@ passport.use(
 
 
 passport.serializeUser((user, done) => {
-  done(null, user.id)
-})
-passport.deserializeUser(async (id, done) => {
-  console.log(`Deserializing user: ${id}`)
-  try {
-    const user = await usersService.findById(id)
-    done(null, user)
-  } catch (err) {
-    done(err)
+  if (user && user._id) {
+    done(null, user._id.toString());
+  } else {
+    done(new Error("User object is invalid or missing _id property"));
   }
-})
+});
+passport.deserializeUser((id, done) => {
+  AuthService.getUserById(id, (err, user) => {
+    done(err, user);
+  });
+});
 
 export default passport

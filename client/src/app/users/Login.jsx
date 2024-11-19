@@ -31,13 +31,10 @@ const Login = () => {
 
       console.log('Login: Response from server:', response.data);
 
-      if (response.data && response.data.success && response.data.token) {
+      if (response.data && response.data.token) {
         console.log('Login: Success');
         localStorage.setItem('authToken', response.data.token);
         navigate('/notes');
-      } else {
-        console.log('Login: Failure. Invalid email or password');
-        alert(response.data?.message || 'Login failed, please try again.');
       }
     } catch (error) {
       console.error('Error logging in:', error);

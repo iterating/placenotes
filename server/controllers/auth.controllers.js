@@ -2,6 +2,8 @@ import * as AuthService from "../services/auth.service.js"
 import passport from "../api/middleware/passport.js"
 import jwt from "jsonwebtoken"
 
+console.log("Auth Controller loaded")
+
 export const generateToken = (user) => {
   console.log("Generating token for", user)
   if (!user) {
@@ -45,15 +47,21 @@ export const refreshToken = async (token) => {
 }
 
 export const signup = async (req, res) => {
-  console.log("Signup request received. Email:", req.body.email)
+  console.log(
+    "Signup request received. Email:",
+    req.body.email,
+    "Location:",
+    req.body.location
+  )
   try {
+    const currentLocation = JSON.parse(req.body.location)
     const user = await AuthService.signup({
       email: req.body.email,
       password: req.body.password,
       name: "",
       currentLocation: {
         type: "Point",
-        coordinates: currentLocation.coordinates||[-118.243683, 34.052235],
+        coordinates: currentLocation.coordinates || [-118.243683, 34.052235],
       },
       createdAt: Date.now(),
       lastActive: Date.now(),
@@ -63,11 +71,21 @@ export const signup = async (req, res) => {
       },
       group: [],
     })
-    res.json(user)
-    req.logIn({ email: req.body.email, password: req.body.password })
+    console.log("User created:", user);
+    req.logIn(user, (err) => {
+      if (err) {
+        console.error("Error during req.logIn", err);
+        return res.status(500).send("Error during req.logIn");
+      }
+      const token = generateToken({ _id: user._id, email: user.email });
+      req.session.user = user;
+      req.session.token = token;
+      console.log("User logged in. Token:", token);
+      return res.json({ user, token });
+    });
   } catch (err) {
-    console.error("Error signing up user", err)
-    res.status(500).send("Error signing up user")
+    console.error("Error during signup", err);
+    res.status(500).send("Error during signup");
   }
 }
 
@@ -84,8 +102,8 @@ export const login = async (req, res, next) => {
     }
     req.logIn(user, (err) => {
       if (err) {
-        console.error("Error logging in user", err)
-        return res.redirect("/users/login")
+        console.error("Error during req.logIn", err)
+        return next(err)
       }
       const token = generateToken({ _id: user._id, email: user.email })
       req.session.user = user
@@ -97,6 +115,7 @@ export const login = async (req, res, next) => {
 }
 
 export const logout = (req, res) => {
+  console.log("Logout request received")
   if (!req.session) {
     console.error("Session was not found")
     return res.redirect("/users/login")

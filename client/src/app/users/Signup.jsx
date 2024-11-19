@@ -16,24 +16,19 @@ const Signup = () => {
     console.log('Signup: Handling submit');
     console.log(`Signup: Email entered: ${email}`);
     console.log(`Signup: Password entered: ${password}`);
+    console.log(`Signup: Location entered: ${currentLocation.type}, ${currentLocation.coordinates.join(', ')}`);
 
     try {
       const response = await axios.post('http://localhost:5000/users/signup', {
         email,
         password,
-        currentLocation
+        location: JSON.stringify(currentLocation),
       });
       console.log('Signup: Response from server:', response.data);
-
       const data = response.data;
-      if (data.success) {
-        console.log('Signup: Success');
-        localStorage.setItem('token', data.token);
-        navigate('/notes');
-      } else {
-        console.log('Signup: Failure. Message:', data.message);
-        alert(data.message);
-      }
+      console.log('Signup: Success');
+      localStorage.setItem('token', data.token);
+      navigate('/notes');
     } catch (error) {
       console.error('Error signing up:', error);
     }
@@ -62,7 +57,7 @@ const Signup = () => {
         <label htmlFor="currentLocation">Location:</label><br />
         <select
           id="signup-currentLocation"
-          value={currentLocation.coordinates}
+          value={`${currentLocation.coordinates[0]},${currentLocation.coordinates[1]}`}
           onChange={(event) => setLocation({
             type: 'Point',
             coordinates: event.target.value.split(',').map(x => parseFloat(x))

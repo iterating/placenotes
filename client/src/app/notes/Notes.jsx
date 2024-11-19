@@ -40,23 +40,12 @@ const Notes = () => {
         if (!response || !response.data) {
           throw new Error("No response received from server");
         }
-        if (!response.data.notes) {
-          throw new Error("No notes received from server");
-        }
         console.log("Setting notes state to:", response.data.notes);
         setNotes(response.data.notes);
         setUser(response.data.user);
       } catch (error) {
         console.error("Error fetching notes:", error);
-        if (error.response && error.response.status === 401) {
-          console.log("Unauthorized, logging out...");
-          localStorage.removeItem("token");
-          window.location.href = "/";
-        } else {
-          throw error;
-        }
       }
-      console.log("Notes received from server:", response.request.res.responseUrl);
     }
     if (token !== null) {
       fetchNotes();

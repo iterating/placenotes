@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { _id } from "../db/db.js";
+import mongoose from "mongoose";
 
 export const signup = async ({ email, password, ...userData }) => {
   try {
@@ -19,16 +20,16 @@ export const signup = async ({ email, password, ...userData }) => {
     }
 
     const newUser = new User({
-      _id: _id(),
+      _id: new mongoose.Types.ObjectId(),
       email,
       password,
       ...userData,
     });
 
     newUser.password = await newUser.encryptPassword(password);
-    await newUser.save();
+    const savedUser = await newUser.save();
 
-    return newUser;
+    return savedUser;
   } catch (error) {
     console.error(error);
     throw new Error("Error registering user");
@@ -54,3 +55,4 @@ export const login = async ({ email, password }) => {
 export const logout = async () => {
   return { successMessage: "You have been logged out" };
 };
+
