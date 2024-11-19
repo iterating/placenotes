@@ -34,7 +34,7 @@ router.get("/all", usersController.allUsers)
 router.route("/signup").get(signupForm).post(authController.signup)
 
 router
-  .route(/\/(login|signup)/)
+  .route("/login")
   .get(loginForm)
   .post(authController.login)
 //q4 reach

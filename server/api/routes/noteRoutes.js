@@ -1,7 +1,8 @@
 import express from "express";
-const router = express.Router();
 import * as notesController from "../../controllers/notes.controllers.js";
 import {  setUser } from "../middleware/auth.js";
+
+const router = express.Router();
 
 router.get("/all", notesController.allNotes);
 
@@ -10,6 +11,7 @@ router.get("/", setUser, (req, res, next) => {
   console.log("req.user:", req.user);
   notesController.getNotes(req, res, next);
 });
+
 router.route("/new").get(setUser, notesController.newNoteForm).post(setUser, notesController.newNote);
 router
   .route("/:id")

@@ -14,10 +14,15 @@ export const allNotes = async (req, res) => {
 export const getNotes = async (req, res) => {
   console.log("getNotes called");
   try {
-    const userId = req.user._id;
+    const userId = req.user?._id;
+    if (!userId) {
+      console.error("No user ID found in request");
+      return res.status(400).send({ error: "No user ID found" });
+    }
     console.log("Fetching notes for user:", userId);
     const notes = await NotesService.getNotes(userId);
-    if (!notes || notes.length === 0) {
+    console.log("Notes for user:", userId, ":", notes);
+    if (!Array.isArray(notes) || notes.length === 0) {
       console.log("No notes found for user:", userId);
     } else {
       console.log("Notes successfully retrieved for user:", userId);
@@ -25,9 +30,14 @@ export const getNotes = async (req, res) => {
     res.json(notes || []);
   } catch (err) {
     console.error("Error retrieving notes:", err);
+    if (err.name === "CastError") {
+      return res.status(400).send({ error: "Invalid user ID" });
+    }
     res.status(500).json({ error: "Error retrieving notes" });
   }
 }
+
+
 export const newNoteForm = (req, res) =>
   res.json({
     note: {

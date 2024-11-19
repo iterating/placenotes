@@ -3,8 +3,18 @@ import { _id } from "../db/db.js"
 
 export const allNotes = () => Note.find()
 
-export const getNotes = (userId) => Note.find({ userId })
-
+export const getNotes = (userId) => {
+  console.log(`Fetching notes for user with ID: ${userId}`);
+  return Note.find({ userId })
+    .then(notes => {
+      console.log(`Retrieved ${notes.length} notes for user with ID: ${userId}`);
+      return notes;
+    })
+    .catch(error => {
+      console.error(`Error fetching notes for user with ID: ${userId}`, error);
+      throw error;
+    });
+}
 export const recentNotes = (userId) =>
   Note.find({ userId }).sort({ time: -1 }).limit(20)
 

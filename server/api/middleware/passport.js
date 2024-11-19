@@ -1,6 +1,6 @@
 import passport from "passport"
 import { Strategy as LocalStrategy } from "passport-local"
-import User from "../../models/User.js"
+import * as usersService from "../../services/users.service.js"
 
 passport.use(
   "localLogin",
@@ -9,7 +9,7 @@ passport.use(
     async (email, password, done) => {
       try {
         console.log(`Passport login with email: ${email}`)
-        const user = await User.findOne({ email })
+        const user = await usersService.findByEmail(email)
         if (!user) {
           console.log("Passport: Incorrect email.")
           return done(null, false, { message: "Incorrect email." })
@@ -29,16 +29,18 @@ passport.use(
   )
 )
 
+
 passport.serializeUser((user, done) => {
   done(null, user.id)
 })
 passport.deserializeUser(async (id, done) => {
   console.log(`Deserializing user: ${id}`)
   try {
-    const user = await User.findById(id)
+    const user = await usersService.findById(id)
     done(null, user)
   } catch (err) {
     done(err)
   }
 })
+
 export default passport

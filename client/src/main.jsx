@@ -10,8 +10,8 @@ if (!container) throw new Error("No root element found")
 const root = createRoot(container)
 root.render(
   <BrowserRouter>
-  <Route path='/' component={ AppRouter } />
-</BrowserRouter>
+    <AppRouter />
+  </BrowserRouter>
 )
 
 

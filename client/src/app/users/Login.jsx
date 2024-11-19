@@ -10,12 +10,15 @@ const Login = (props) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('localhost:5000/users/login', {
+      const response = await axios.post('http://localhost:5000/users/login', {
         email,
         password,
       });
 
       if (response.data.success) {
+        // Destroy the existing token and create a new one
+        localStorage.removeItem('authToken');
+        localStorage.setItem('authToken', response.data.token);
         navigate('/notes');
       } else {
         alert('Invalid email or password');
