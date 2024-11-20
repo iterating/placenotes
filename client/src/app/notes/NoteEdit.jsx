@@ -10,10 +10,16 @@ const NotesEdit = () => {
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token") || null;
   const [note, setNote] = useState({});
+  const [coordinates, setCoordinates] = useState([]);
+  const [radius, setRadius] = useState(100);
 
   useEffect(() => {
     if (token) {
-      fetchOneNote(token, id).then((note) => setNote(note));
+      fetchOneNote(token, id).then((note) => {
+        setNote(note);
+        setCoordinates(note.location?.coordinates || []);
+        setRadius(note.radius || 100);
+      });
     }
   }, [token, id]);
 
@@ -23,31 +29,49 @@ const NotesEdit = () => {
   };
 
   const handleLocationChange = (coordinates) => {
-    setNote((prevNote) => ({ ...prevNote, location: { coordinates } }));
+    setCoordinates(coordinates);
+  };
+
+  const handleRadiusChange = (radius) => {
+    setRadius(radius);
   };
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
       try {
-        await axios.put(`http://localhost:5000/notes/${id}`, note, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        await axios.put(
+          `http://localhost:5000/notes/${id}`,
+          {
+            ...note,
+            location: { coordinates },
+            radius,
           },
-        });
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         navigate(`/notes/`);
       } catch (err) {
         console.error("Error updating note:", err);
       }
     },
-    [note, id, token, navigate]
+    [note, id, token, coordinates, radius, navigate]
   );
 
   return (
     <div>
       <h1>Edit Note</h1>
       <form onSubmit={handleSubmit}>
-        <Mapmark note={note} onLocationChange={handleLocationChange} />
+        <Mapmark
+          note={note}
+          onLocationChange={handleLocationChange}
+          onRadiusChange={handleRadiusChange}
+          coordinates={coordinates}
+          radius={radius}
+        />
         <label htmlFor="body">Note:</label>
         <textarea
           name="body"
@@ -63,4 +87,5 @@ const NotesEdit = () => {
 };
 
 export default NotesEdit;
+
 

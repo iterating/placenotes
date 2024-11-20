@@ -82,16 +82,14 @@ The Placenotes server is a RESTful API build on Express that supports the follow
 - GET /notes/location/:lat/:lon
   - Retrieves notes created at the specified latitude and longitude
 
-### Template Engine and Middleware
-
-- A _template engine_ renders views with Express
-- EJS renders UI components. It modularizes components such as the drawer UI, to keep DRY
+### Middleware
 
 - The application runs the following **middleware**:
   - `autoLogin`: checks if a user is logged in and if not attempts to log them in using a cookie if present
   - `setUser`: sets the user on the request object if the user is logged in.
   - `passport.js`: Provides authentication services. Future development will include Google OAuth.
-
+### Client
+- React client is built using Vite and React Router.
 ## System Design
 
 - The app uses the Model View Controller (MVC) architecture to separate concerns between the database, user interface, and application logic. This allows for easier maintenance and scalability of the application.
@@ -170,8 +168,8 @@ erDiagram
 
 1. `npm install` to install all dependencies
 2. `npm run seed` to seed the database with sample data
-3. `npm run dev` to start the server in development mode
-4. Open a web browser and navigate to `localhost:3000` to access the app
+3. `npm start` to start the server and client  in development mode
+4. Open a web browser and navigate to `localhost:5173` to access the app
 
 ## Todo
 

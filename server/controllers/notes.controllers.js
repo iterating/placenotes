@@ -106,6 +106,7 @@ export const updateNote = async (req, res) => {
         coordinates: req.body.location.coordinates || [-118.243685, 34.052236],
       },
       recipients: req.body.recipients || [],
+      radius: req.body.radius || 200,
     })
     if (!note) {
       return res.status(404).send("Note not found")
