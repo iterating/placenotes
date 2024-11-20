@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import "./Notes.css";
-import FetchNotes from "./FetchNotes";
+import {  fetchUsersNotes} from "../../lib/fetchNotes";
 import NotesMap from "./NotesMap"
 import NotesList from "./NotesList"
 import "leaflet/dist/leaflet.css";
@@ -8,13 +8,13 @@ import "leaflet/dist/leaflet.css";
 const Notes = () => {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId] = useState(null);
-  const token = useMemo(() => sessionStorage.getItem("token"), []);
-  const markers = useRef([]);
+  const token = sessionStorage.getItem("token") || null;
+  const markers = React.useRef([]);
 
   useEffect(() => {
     if (token) {
       console.log("Fetching notes...");
-      FetchNotes(token, setNotes, setUserId);
+      fetchUsersNotes(token, setNotes, setUserId);
     }
   }, [token]);
 

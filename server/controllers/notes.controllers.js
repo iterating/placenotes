@@ -2,6 +2,22 @@ import { marked } from "marked"
 import * as NotesService from "../services/notes.service.js"
 
 // notes
+export const getNoteById = async (req, res) => {
+  console.log("getNoteById called with req.params.id:", req.params.id)
+  try {
+    const note = await NotesService.getNoteById(req.params.id)
+    if (!note) {
+      console.log("No note found with id:", req.params.id)
+      return res.status(404).send("Note not found")
+    }
+    console.log("Note found:", note._id)
+    res.json(note)
+  } catch (err) {
+    console.error("Error retrieving note:", err)
+    res.status(500).send("Error retrieving note")
+  }
+}
+
 export const allNotes = async (req, res) => {
   try {
     const notes = await NotesService.allNotes()
@@ -12,27 +28,27 @@ export const allNotes = async (req, res) => {
   }
 }
 export const getNotes = async (req, res) => {
-  console.log("getNotes called");
+  console.log("getNotes called")
   try {
-    const userId = req.user?._id;
+    const userId = req.user?._id
     if (!userId) {
-      console.error("No user ID found in request");
-      return res.status(400).send({ error: "No user ID found" });
+      console.error("No user ID found in request")
+      return res.status(400).send({ error: "No user ID found" })
     }
-    console.log("controller fetching notes for user:", userId);
-    const notes = await NotesService.getNotes(userId);
+    console.log("controller fetching notes for user:", userId)
+    const notes = await NotesService.getNotes(userId)
     if (!Array.isArray(notes) || notes.length === 0) {
-      console.log("No notes found for user:", userId);
+      console.log("No notes found for user:", userId)
     } else {
-      console.log("controller notes successfully retrieved for user:", userId);
+      console.log("controller notes successfully retrieved for user:", userId)
     }
-    res.json(notes);
+    res.json(notes)
   } catch (err) {
-    console.error("Error retrieving notes:", err);
+    console.error("Error retrieving notes:", err)
     if (err.name === "CastError") {
-      return res.status(400).send({ error: "Invalid user ID" });
+      return res.status(400).send({ error: "Invalid user ID" })
     }
-    res.status(500).json({ error: "Error retrieving notes" });
+    res.status(500).json({ error: "Error retrieving notes" })
   }
 }
 
@@ -77,24 +93,20 @@ export const editNote = async (req, res) => {
   res.json(note)
 }
 
-export async function updateNote(req, res) {
-  console.log('controller req.body',req.body)
+export const updateNote = async (req, res) => {
+  
   try {
-    const location = JSON.parse(req.body.location)
-    const noteData = {
+    // const location = JSON.parse(req.body.location)
+
+    const note = await NotesService.updateNote({
       _id: req.params.id,
-      userId: req.user._id,
-      email: req.user.email,
+      body: req.body.body,
       location: {
         type: "Point",
-        coordinates: location.coordinates,
+        coordinates: req.body.location.coordinates || [-118.243685, 34.052236],
       },
-      radius: req.body.radius,
-      time: req.body.time,
-      body: req.body.body,
-      recipients: req.body?.recipients ? JSON.parse(req.body.recipients) : [],
-    }
-    const note = await NotesService.updateNote(noteData)
+      recipients: req.body.recipients || [],
+    })
     if (!note) {
       return res.status(404).send("Note not found")
     }
@@ -104,6 +116,7 @@ export async function updateNote(req, res) {
     res.status(500).json({ error: "Error editing note" })
   }
 }
+
 
 export const deleteNote = async (req, res) => {
   try {
@@ -118,7 +131,7 @@ export const deleteNote = async (req, res) => {
   }
 }
 
-export async function getNoteByTime(req, res) {
+export const getNoteByTime = async (req, res) => {
   try {
     const note = await NotesService.getNoteByTime({
       userId: req.user._id,
@@ -133,7 +146,7 @@ export async function getNoteByTime(req, res) {
   }
 }
 
-export async function updateNoteByTime(req, res) {
+export const updateNoteByTime = async (req, res) => {
   try {
     const note = await NotesService.updateNoteByTime({
       userId: req.user._id,
@@ -149,7 +162,7 @@ export async function updateNoteByTime(req, res) {
   }
 }
 
-export async function deleteNoteByTime(req, res) {
+export const deleteNoteByTime = async (req, res) => {
   try {
     const note = await NotesService.deleteNoteByTime({
       userId: req.user._id,
@@ -164,7 +177,7 @@ export async function deleteNoteByTime(req, res) {
   }
 }
 
-export async function recentNotes(req, res) {
+export const recentNotes = async (req, res) => {
   try {
     const notes = await NotesService.recentNotes(req.user._id)
     if (!notes || notes.length === 0) {
@@ -177,7 +190,7 @@ export async function recentNotes(req, res) {
   }
 }
 
-export async function oldestNotes(req, res) {
+export const oldestNotes = async (req, res) => {
   try {
     const notes = await NotesService.oldestNotes(req.user._id)
     if (!notes || notes.length === 0) {
@@ -190,19 +203,7 @@ export async function oldestNotes(req, res) {
   }
 }
 
-export async function getNoteById(req, res) {
-  try {
-    const note = await NotesService.getNoteById(req.params.id)
-    if (!note) {
-      return res.status(404).send("Note not found")
-    }
-    res.json(note)
-  } catch (err) {
-    res.status(500).send("Error retrieving note")
-  }
-}
-
-export async function getNotesByLocation(req, res) {
+export const getNotesByLocation = async (req, res) => {
   try {
     const { lat, lon } = req.params
     if (lat == null || lon == null) {
@@ -226,4 +227,3 @@ export async function getNotesByLocation(req, res) {
     res.status(500).send("Error retrieving notes")
   }
 }
-
