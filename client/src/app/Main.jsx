@@ -1,14 +1,13 @@
-import React from "react"
-import Signup from "./users/Signup"
-// import Notes from "./Notes"
-// import NoteForm from "./NoteForm"
+import React from 'react';
+const Signup = React.lazy(() => import("./users/Signup"));
 
-const Main = () => {
-  return (
+const Main = () => (
+  <React.Suspense fallback={<div>Loading...</div>}>
     <main>
       <Signup />
     </main>
-  )
-}
+  </React.Suspense>
+);
 
-export default Main
+export default Main;
+

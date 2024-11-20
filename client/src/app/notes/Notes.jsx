@@ -1,62 +1,155 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import "./Notes.css";
-import Note from "./Note";
+// import Note from "./Note";
 import { marked } from "marked";
-import MapWithMarkers from "./MapWithMarkers.jsx"
 import fetchNotes from "./FetchNotes";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-const Notes = () => {
-  const [notes, setNotes] = useState(null);
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(sessionStorage.getItem("token"));
-  const [userId, setUserId] = useState(null);
+const NotesMap = ({ notes, handleMouseOver, handleMouseOut }) => {
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markers = useRef([]);
 
   useEffect(() => {
-    console.log("Notes component mounted");
-    fetchNotes(token, setNotes, setUserId);
-    if (token) {
-      console.log("Fetching notes...");
-      fetchNotes();
+    if (!mapInstance.current) {
+      mapInstance.current = L.map(mapRef.current).setView(
+        [34.052235, -118.243683],
+        13
+      );
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
+        mapInstance.current
+      );
     }
-  }, [token]);
 
-  const handleNoteClick = (id) => {
-    setNotes(notes.map(note =>
-      note._id === id
-        ? { ...note, showFullNote: !note.showFullNote }
-        : note
-    ));
-  };
+    const map = mapInstance.current;
 
-  console.log("Notes:", notes);
-  console.log("User:", userId);
+    markers.current.forEach((marker) => map.removeLayer(marker));
+    markers.current = notes?.flatMap((note) => {
+      if (!note.location) return [];
+      const marker = L.marker([
+        note.location.coordinates[1],
+        note.location.coordinates[0],
+      ]).addTo(map);
+      marker.bindPopup(
+        `<div>${note.body.split('\n')[0]}</div><a href="/notes/${note._id}/edit">Edit Note</a>`
+      );
+      marker.on("mouseover", () => {
+        handleMouseOver(note._id);
+        marker.openPopup();
+      });
+      marker.on("mouseout", () => {
+        handleMouseOut(note._id);
+        marker.closePopup();
+      });
+
+      return [marker];
+    });
+
+    map.invalidateSize();
+  }, [notes, handleMouseOver, handleMouseOut]);
+
+  return <div id="map" ref={mapRef} style={{ height: "400px" }}></div>;
+};
+
+const NotesList = ({ notes, handleNoteClick, handleMouseOver, handleMouseOut }) => {
   return (
-    <div className="note-container">
-      <h1 className="title">Your Notes</h1>
-      {/* <MapWithMarkers notes={notes} /> */}
-      {notes && notes.length > 0 ? (
-        notes.map((note) =>
-          userId === note.userId ? (
-            <React.Fragment key={note._id}>
-              <div className="note" id={`note-${note._id}`} onClick={() => handleNoteClick(note._id)}>
-                <div className="note-title" dangerouslySetInnerHTML={{ __html: note.body.split("\n")[0] }} />
-                {note.showFullNote && (
-                  <div className="note-body" dangerouslySetInnerHTML={{ __html: note.body }} />
-                )}
-              </div>
-            </React.Fragment>
-          ) : null
-        )
+    <div>
+      {notes.length > 0 ? (
+        notes.map((note) => (
+          <Note
+            key={note._id}
+            note={note}
+            onClick={() => handleNoteClick(note._id)}
+            onMouseOver={() => handleMouseOver(note._id)}
+            onMouseOut={() => handleMouseOut(note._id)}
+            style={{
+              backgroundColor: note.showFullNote ? "#add8e6" : "",
+            }}
+          />
+        ))
       ) : (
         <p>You don't have any notes yet.</p>
       )}
-      <p><a href="/notes/new">Create a new note</a></p>
     </div>
   );
+};
 
+const Note = ({ note }) => {
+  const [showFullNote, setShowFullNote] = React.useState(false);
+
+  return (
+    <div>
+      <div className="note-preview" onClick={() => setShowFullNote(!showFullNote)} data-note-id={note._id}>
+        <div dangerouslySetInnerHTML={{ __html: marked(showFullNote ? note.body : note.body.split('\n')[0]) }} />
+      </div>
+      <div className="note-actions-ui">
+        <form action={`/notes/${note._id}/edit`} method="GET" className="button">
+          <button type="submit">Edit</button>
+        </form>
+        <br/>
+        <form action={`/notes/${note._id}/delete`} method="POST" className="button delete-button">
+          <button type="submit">Delete</button>
+          <input type="hidden" name="_method" value="DELETE" />
+        </form>
+      </div>
+    </div>
+  );
+};
+
+
+
+const Notes = () => {
+  const [notes, setNotes] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const token = useMemo(() => sessionStorage.getItem("token"), []);
+
+  useEffect(() => {
+    if (token) {
+      console.log("Fetching notes...");
+      fetchNotes(token, setNotes, setUserId);
+    }
+  }, [token]);
+
+  const handleNoteClick = useCallback((id) => {
+    setNotes((prevNotes) =>
+      prevNotes.map((note) =>
+        note._id === id ? { ...note, showFullNote: !note.showFullNote } : note
+      )
+    );
+  }, []);
+
+  const handleMouseOver = useCallback((id) => {
+    const noteElement = document.querySelector(`#note-${id}`);
+    const markerElement = markers.current.find((marker) => marker.getPopup()?.getContent().includes(`Edit Note`));
+    if (noteElement) noteElement.style.backgroundColor = "#add8e6";
+    if (markerElement) markerElement.openPopup();
+  }, []);
+
+  const handleMouseOut = useCallback((id) => {
+    const noteElement = document.querySelector(`#note-${id}`);
+    const markerElement = markers.current.find((marker) => marker.getPopup()?.getContent().includes(`Edit Note`));
+    if (noteElement) noteElement.style.backgroundColor = "";
+    if (markerElement) markerElement.closePopup();
+  }, []);
+
+  return (
+    <div className="note-container">
+      <h1 className="title">Your Notes</h1>
+      <div className="map-container" style={{ width: "800px", height: "400px" }}>
+        <NotesMap
+          notes={notes}
+          handleMouseOver={handleMouseOver}
+          handleMouseOut={handleMouseOut}
+        />
+      </div>
+      <NotesList notes={notes} handleNoteClick={handleNoteClick} handleMouseOver={handleMouseOver} handleMouseOut={handleMouseOut} />
+      <p>
+        <a href="/notes/new">Create a new note</a>
+      </p>
+    </div>
+  );
 };
 
 export default Notes;
-
 

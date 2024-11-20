@@ -1,38 +1,65 @@
+import React from 'react';
 import {
   Route,
   Routes,
 } from 'react-router-dom';
-// import GroupNotes from './components/GroupNotes';
-import Signup from './users/Signup.jsx';
-import Login from './users/Login.jsx';
-import Main from './Main.jsx';
-import Header from '../components/Header.jsx';
-import Notes from './notes/Notes.jsx';
-import NoteForm from './notes/NoteForm.jsx';
-import MapWithMarkers from './notes/MapWithMarkers.jsx';
-// import Note from './components/Note.jsx';
-// import NotesAtLocation from './components/NotesAtLocation';
-// import UserNotes from './components/UserNotes';
+
+const Main = React.lazy(() => import('./Main'));
+const Login = React.lazy(() => import('./users/Login'));
+const Signup = React.lazy(() => import('./users/Signup'));
+const Header = React.lazy(() => import('../components/Header'));
+const Notes = React.lazy(() => import('./notes/Notes'));
+const NoteForm = React.lazy(() => import('./notes/NoteForm'));
 
 function AppRouter() {
   return (
     <>
       <Header />
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/users/login" element={<Login />} />
-        <Route path="/users/signup" element={<Signup />} />
-        <Route path="/notes" element={<Notes />} />
-        <Route path="/notes/new" element={<NoteForm />} />
-        <Route path="/notes/map" element={<MapWithMarkers/>} />
-        {/* <Route path="/notes/:id" element={<Note />} /> */}
-        {/* <Route path="/notes/:id/edit" element={<NoteForm />} /> */}
-        {/* <Route path="/notes/location/:location" element={<NotesAtLocation />} /> */}
-        {/* <Route path="/users/:id/notes" element={<UserNotes />} /> */}
-        {/* <Route path="/groups/:id/notes" element={<GroupNotes />} /> */}
+        <Route
+          path="/"
+          element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <Main />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/users/login"
+          element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <Login />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/users/signup"
+          element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <Signup />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/notes"
+          element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <Notes />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/notes/new"
+          element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <NoteForm />
+            </React.Suspense>
+          }
+        />
     </Routes>
   </>
   );
 }
 
 export default AppRouter;
+

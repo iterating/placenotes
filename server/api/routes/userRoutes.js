@@ -12,19 +12,16 @@ const loginForm = (req, res) => {
   console.log("Entering loginForm route")
   console.log("req.session:", req.session)
   res.render("login", {
-    errorMessage: req.flash("errorMessage"),
   })
 }
 
 const signupForm = (req, res) => {
   res.render("signup", {
-    errorMessage: req.flash("errorMessage"),
   })
 }
 
 const accountSettings = (req, res) => {
   res.status(200).json({
-    errorMessage: req.flash("errorMessage"),
   });
 }
 

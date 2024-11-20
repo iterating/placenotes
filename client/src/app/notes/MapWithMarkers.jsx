@@ -1,56 +1,52 @@
 import React, { useRef, useEffect } from 'react';
 import L from 'leaflet';
+import "./Notes.css";
+import "leaflet/dist/leaflet.css"
+
 
 const MapWithMarkers = ({ notes }) => {
   const mapRef = useRef(null);
-  console.log("Notes:", notes);
 
   useEffect(() => {
-    let map;
-    if (!mapRef.current) {
-      map = L.map(mapRef.current).setView([34.052235, -118.243683], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        subdomains: ['a', 'b', 'c']
-      }).addTo(map);
-    }
+    if (!mapRef.current) return;
 
-    if (notes) {
-      notes.forEach(note => {
-        if (!note.location) {
-          return;
-        }
-        const marker = L.marker([note.location.coordinates[1], note.location.coordinates[0]]).addTo(map);
-        const noteTitle = document.querySelector(`#note-${note._id} .note-preview`)?.textContent;
-        marker.bindPopup(`${noteTitle}<br /><a href="/notes/${note._id}/edit">View Note</a>`);
-        marker.on('mouseover', function() {
-          const noteElement = document.querySelector(`#note-${note._id}`);
-          if (noteElement) {
-            noteElement.style.backgroundColor = "#add8e6";
-          }
-        });
-        marker.on('mouseout', function() {
-          const noteElement = document.querySelector(`#note-${note._id}`);
-          if (noteElement) {
-            noteElement.style.backgroundColor = "";
-          }
-        });
+    const map = L.map(mapRef.current, {
+      center: [0, 0],
+      zoom: 1,
+      layers: [
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        })
+      ]
+    });
+
+    const markers = notes?.map(note => {
+      if (!note.location || !note.location.coordinates) return null;
+      const marker = L.marker([note.location.coordinates[1], note.location.coordinates[0]])
+        .addTo(map)
+        .bindPopup(`${note.title}<br /><a href="/notes/${note._id}/edit">View Note</a>`);
+
+      marker.on('mouseover', () => {
+        document.querySelector(`#note-${note._id}`)?.style.setProperty('background-color', '#add8e6');
       });
-    }
+      marker.on('mouseout', () => {
+        document.querySelector(`#note-${note._id}`)?.style.removeProperty('background-color');
+      });
 
-    if (map) {
-      map.invalidateSize();
-    }
+      return marker;
+    }).filter(Boolean);
+
+    map.invalidateSize();
 
     return () => {
-      if (map) {
-        map.remove();
-      }
+      markers?.forEach(marker => map.removeLayer(marker));
+      map.remove();
     };
   }, [notes]);
 
   return (
-    <div className="map-container" style={{ height: "400px", width: "100%" }}>
-      <div id="map" className="map" ref={mapRef} style={{ height: "100%", width: "100%" }}></div>
+    <div className="map-container" style={{ height: "400px", width: "100%", position: "relative" }}>
+      <div id="map" className="map" ref={mapRef} style={{ height: "100%", width: "100%", position: "relative" }}></div>
     </div>
   );
 };
