@@ -1,7 +1,7 @@
 import axios from "axios"
 
 
-const fetchNotes = async (token, setNotes, setUserId) => {
+const FetchNotes = async (token, setNotes, setUserId) => {
     if (!token) return;
     const { data } = await axios.get("http://localhost:5000/notes", {
       headers: { Authorization: `Bearer ${token}` },
@@ -11,5 +11,5 @@ const fetchNotes = async (token, setNotes, setUserId) => {
     setUserId(data[0].userId);
   };
 
-export default fetchNotes
+export default FetchNotes
 
