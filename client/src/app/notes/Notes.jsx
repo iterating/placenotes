@@ -1,15 +1,13 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import "./Notes.css";
-// import Note from "./Note";
 import { marked } from "marked";
 import fetchNotes from "./FetchNotes";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-const NotesMap = ({ notes, handleMouseOver, handleMouseOut }) => {
+const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  const markers = useRef([]);
 
   useEffect(() => {
     if (!mapInstance.current) {
@@ -34,10 +32,12 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut }) => {
       marker.bindPopup(
         `<div>${note.body.split('\n')[0]}</div><a href="/notes/${note._id}/edit">Edit Note</a>`
       );
+
       marker.on("mouseover", () => {
         handleMouseOver(note._id);
         marker.openPopup();
       });
+
       marker.on("mouseout", () => {
         handleMouseOut(note._id);
         marker.closePopup();
@@ -47,12 +47,12 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut }) => {
     });
 
     map.invalidateSize();
-  }, [notes, handleMouseOver, handleMouseOut]);
+  }, [notes, handleMouseOver, handleMouseOut, markers]);
 
   return <div id="map" ref={mapRef} style={{ height: "400px" }}></div>;
 };
 
-const NotesList = ({ notes, handleNoteClick, handleMouseOver, handleMouseOut }) => {
+const NotesList = ({ notes, handleNoteClick, handleMouseOver, handleMouseOut, markers }) => {
   return (
     <div>
       {notes.length > 0 ? (
@@ -63,6 +63,7 @@ const NotesList = ({ notes, handleNoteClick, handleMouseOver, handleMouseOut }) 
             onClick={() => handleNoteClick(note._id)}
             onMouseOver={() => handleMouseOver(note._id)}
             onMouseOut={() => handleMouseOut(note._id)}
+            markers={markers}
             style={{
               backgroundColor: note.showFullNote ? "#add8e6" : "",
             }}
@@ -75,13 +76,33 @@ const NotesList = ({ notes, handleNoteClick, handleMouseOver, handleMouseOut }) 
   );
 };
 
-const Note = ({ note }) => {
-  const [showFullNote, setShowFullNote] = React.useState(false);
+const Note = ({ note, markers }) => {
+  const [showFullNote, setShowFullNote] = useState(false);
 
   return (
     <div>
-      <div className="note-preview" onClick={() => setShowFullNote(!showFullNote)} data-note-id={note._id}>
-        <div dangerouslySetInnerHTML={{ __html: marked(showFullNote ? note.body : note.body.split('\n')[0]) }} />
+      <div
+        className="note-preview"
+        onClick={() => setShowFullNote(!showFullNote)}
+        data-note-id={note._id}
+        onMouseOver={() => {
+          const markerElement = markers.current.find((marker) =>
+            marker.getPopup()?.getContent().includes(`Edit Note`)
+          );
+          if (markerElement) markerElement.openPopup();
+        }}
+        onMouseOut={() => {
+          const markerElement = markers.current.find((marker) =>
+            marker.getPopup()?.getContent().includes(`Edit Note`)
+          );
+          if (markerElement) markerElement.closePopup();
+        }}
+      >
+        <div
+          dangerouslySetInnerHTML={{
+            __html: marked(showFullNote ? note.body : note.body.split('\n')[0]),
+          }}
+        />
       </div>
       <div className="note-actions-ui">
         <form action={`/notes/${note._id}/edit`} method="GET" className="button">
@@ -97,12 +118,11 @@ const Note = ({ note }) => {
   );
 };
 
-
-
 const Notes = () => {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId] = useState(null);
   const token = useMemo(() => sessionStorage.getItem("token"), []);
+  const markers = useRef([]);
 
   useEffect(() => {
     if (token) {
@@ -120,18 +140,22 @@ const Notes = () => {
   }, []);
 
   const handleMouseOver = useCallback((id) => {
-    const noteElement = document.querySelector(`#note-${id}`);
-    const markerElement = markers.current.find((marker) => marker.getPopup()?.getContent().includes(`Edit Note`));
+    const noteElement = document.querySelector(`[data-note-id="${id}"]`);
+    const markerElement = markers.current.find((marker) =>
+      marker.getPopup()?.getContent().includes(`Edit Note`)
+    );
     if (noteElement) noteElement.style.backgroundColor = "#add8e6";
     if (markerElement) markerElement.openPopup();
-  }, []);
+  }, [markers]);
 
   const handleMouseOut = useCallback((id) => {
-    const noteElement = document.querySelector(`#note-${id}`);
-    const markerElement = markers.current.find((marker) => marker.getPopup()?.getContent().includes(`Edit Note`));
+    const noteElement = document.querySelector(`[data-note-id="${id}"]`);
+    const markerElement = markers.current.find((marker) =>
+      marker.getPopup()?.getContent().includes(`Edit Note`)
+    );
     if (noteElement) noteElement.style.backgroundColor = "";
     if (markerElement) markerElement.closePopup();
-  }, []);
+  }, [markers]);
 
   return (
     <div className="note-container">
@@ -141,9 +165,16 @@ const Notes = () => {
           notes={notes}
           handleMouseOver={handleMouseOver}
           handleMouseOut={handleMouseOut}
+          markers={markers}
         />
       </div>
-      <NotesList notes={notes} handleNoteClick={handleNoteClick} handleMouseOver={handleMouseOver} handleMouseOut={handleMouseOut} />
+      <NotesList
+        notes={notes}
+        handleNoteClick={handleNoteClick}
+        handleMouseOver={handleMouseOver}
+        handleMouseOut={handleMouseOut}
+        markers={markers}
+      />
       <p>
         <a href="/notes/new">Create a new note</a>
       </p>
@@ -152,4 +183,5 @@ const Notes = () => {
 };
 
 export default Notes;
+
 
