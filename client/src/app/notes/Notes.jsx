@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-// import Mapmark from "./Mapmark";
 import "./Notes.css";
 import Note from "./Note";
 import { marked } from "marked";
+import MapWithMarkers from "./MapWithMarkers.jsx"
+import fetchNotes from "./FetchNotes";
 
 const Notes = () => {
   const [notes, setNotes] = useState(null);
@@ -13,30 +14,7 @@ const Notes = () => {
 
   useEffect(() => {
     console.log("Notes component mounted");
-    const fetchNotes = async () => {
-      if (!token) {
-        console.log("No token found, skipping API call");
-        return;
-      }
-      console.log("Fetching notes from server...");
-      try {
-        const response = await axios.get("http://localhost:5000/notes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const { data } = response;
-        console.log("Received notes from server:", data);
-        setNotes(data.map(note => ({
-          ...note,
-          body: marked(note.body),
-          showFullNote: false
-        })));
-        setUserId(data[0].userId);
-      } catch (error) {
-        console.error("Error fetching notes:", error);
-      }
-    };
+    fetchNotes(token, setNotes, setUserId);
     if (token) {
       console.log("Fetching notes...");
       fetchNotes();
@@ -56,7 +34,7 @@ const Notes = () => {
   return (
     <div className="note-container">
       <h1 className="title">Your Notes</h1>
-      {/* <Mapmark notes={notes} /> */}
+      {/* <MapWithMarkers notes={notes} /> */}
       {notes && notes.length > 0 ? (
         notes.map((note) =>
           userId === note.userId ? (
@@ -80,4 +58,5 @@ const Notes = () => {
 };
 
 export default Notes;
+
 

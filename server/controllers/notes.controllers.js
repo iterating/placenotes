@@ -19,13 +19,12 @@ export const getNotes = async (req, res) => {
       console.error("No user ID found in request");
       return res.status(400).send({ error: "No user ID found" });
     }
-    console.log("Fetching notes for user:", userId);
+    console.log("controller fetching notes for user:", userId);
     const notes = await NotesService.getNotes(userId);
-    console.log("Notes for user:", userId, ":", notes);
     if (!Array.isArray(notes) || notes.length === 0) {
       console.log("No notes found for user:", userId);
     } else {
-      console.log("Notes successfully retrieved for user:", userId);
+      console.log("controller notes successfully retrieved for user:", userId);
     }
     res.json(notes);
   } catch (err) {

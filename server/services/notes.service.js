@@ -4,10 +4,10 @@ import { _id } from "../db/db.js"
 export const allNotes = () => Note.find()
 
 export const getNotes = (userId) => {
-  console.log(`Fetching notes for user with ID: ${userId}`);
+  console.log(`services fetching notes for user: ${userId}`);
   return Note.find({ userId })
     .then(notes => {
-      console.log(`Retrieved ${notes.length} notes for user with ID: ${userId}`);
+      console.log(`services retrieved ${notes.length} notes for user with ID: ${userId}`);
       return notes;
     })
     .catch(error => {

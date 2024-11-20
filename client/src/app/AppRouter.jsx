@@ -9,6 +9,7 @@ import Main from './Main.jsx';
 import Header from '../components/Header.jsx';
 import Notes from './notes/Notes.jsx';
 import NoteForm from './notes/NoteForm.jsx';
+import MapWithMarkers from './notes/MapWithMarkers.jsx';
 // import Note from './components/Note.jsx';
 // import NotesAtLocation from './components/NotesAtLocation';
 // import UserNotes from './components/UserNotes';
@@ -23,6 +24,7 @@ function AppRouter() {
         <Route path="/users/signup" element={<Signup />} />
         <Route path="/notes" element={<Notes />} />
         <Route path="/notes/new" element={<NoteForm />} />
+        <Route path="/notes/map" element={<MapWithMarkers/>} />
         {/* <Route path="/notes/:id" element={<Note />} /> */}
         {/* <Route path="/notes/:id/edit" element={<NoteForm />} /> */}
         {/* <Route path="/notes/location/:location" element={<NotesAtLocation />} /> */}
