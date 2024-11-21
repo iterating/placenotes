@@ -36,10 +36,6 @@ app.get("/", (req, res) => {
   res.send('Welcome to Placenotes. <a href="/users/login">Go to Login</a>')
 })
 
-app.use((err, req, res, next) => {
-  console.error(err)
-  res.status(500).send({ message: "An error occurred", error: err.message })
-})
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`)

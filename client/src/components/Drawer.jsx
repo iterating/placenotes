@@ -5,7 +5,7 @@ const DrawerContent = () => {
     <div className="drawer" id="drawer">
       <a href="/notes">Home</a>
       <a href="/notes/new">New Note</a>
-      <a href="/users/account">Settings</a>
+      <a href="/users/settings">Settings</a>
       <a
         href="/users/login"
         onClick={() => {
