@@ -23,6 +23,10 @@ This is a work in progress.
 
 ## Express server application
 
+### GraphQL API
+
+The Placenotes server includes a GraphQL API. The API is defined in the `server/models/graphqlSchema.js` file.
+
 ### RESTful API
 
 The Placenotes server is a RESTful API build on Express that supports the following actions:

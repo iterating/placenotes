@@ -61,6 +61,22 @@ const NotesEdit = () => {
     [note, id, token, coordinates, radius, navigate]
   );
 
+  const handleDelete = useCallback(
+    async () => {
+      try {
+        await axios.delete(`http://localhost:5000/notes/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        navigate(`/notes/`);
+      } catch (err) {
+        console.error("Error deleting note:", err);
+      }
+    },
+    [token, id, navigate]
+  );
+
   return (
     <div>
       <h1>Edit Note</h1>
@@ -81,11 +97,16 @@ const NotesEdit = () => {
           style={{ height: "400px", width: "800px" }}
         ></textarea>
         <button type="submit">Save Changes</button>
+        <button type="button" onClick={() => navigate(-1)}>
+          Go Back
+        </button>
+        <button type="button" onClick={handleDelete}>
+          Delete Note
+        </button>
       </form>
     </div>
   );
 };
 
 export default NotesEdit;
-
 
