@@ -1,86 +1,60 @@
-import { useState } from "react";
+import React, { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import noteSlice from "../../store/noteSlice";
-import { useCallback, useEffect } from "react";
+import axios from "axios";
 import "./Notes.css";
 import Mapmark from "./Mapmark";
-
-const NotesEdit = ({ note }) => {
+import { fetchOneNote, updateNote } from "../../store/noteStoreAction";
+const NotesEdit = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const token = useSelector((state) => state.user && state.user.token);
+  const note = useSelector((state) => state.notes[id]) || { user: "", title: "", body: "", location: { type: "Point", coordinates: [0, 0] } };
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.auth.token);
 
-  console.log("NotesEdit token:", token);
-  console.log("NotesEdit note:", note);
-
-  const [body, setBody] = useState("");
-  const [coordinates, setCoordinates] = useState([]);
-  const [radius, setRadius] = useState(0);
-
-  useEffect(() => {
-    if (note) {
-      setBody(note.body);
-      setCoordinates(note.location.coordinates);
-      setRadius(note.radius);
-    }
-  }, [note]);
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      dispatch(updateNote({ id, changes: { [name]: value } }));
+    },
+    [id, dispatch]
+  );
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
       try {
-        console.log("Updating note:", { body, location: { type: "Point", coordinates }, radius });
-        await dispatch(noteSlice.actions.updateNote({ token, id: note._id, note: { body, location: { type: "Point", coordinates }, radius } }));
-        console.log("Note updated successfully");
+        await axios.put(
+          `http://localhost:5000/notes/${id}`,
+          { ...note },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         navigate(`/notes/`);
       } catch (err) {
         console.error("Error updating note:", err);
       }
     },
-    [body, coordinates, radius, token, navigate, dispatch]
+    [id, token, navigate, dispatch, note]
   );
 
-  const handleDelete = useCallback(
-    async () => {
-      try {
-        console.log("Deleting note with id:", note._id);
-        await dispatch(noteSlice.actions.deleteNote({ token, id: note._id }));
-        console.log("Note deleted successfully");
-        navigate(`/notes/`);
-      } catch (err) {
-        console.error("Error deleting note:", err);
-      }
-    },
-    [token, navigate, dispatch]
+  const mapProps = useMemo(
+    () => ({
+      note,
+      onChange: handleChange,
+    }),
+    [note, handleChange]
   );
 
   return (
     <div>
       <h1>Edit Note</h1>
-      <form onSubmit={handleSubmit} className="edit-note-form">
-        <Mapmark
-          note={note}
-          onLocationChange={setCoordinates}
-          onRadiusChange={setRadius}
-          coordinates={coordinates}
-          radius={radius}
-        />
-        <label htmlFor="body">Note:</label>
-        <textarea
-          name="body"
-          id="body"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          style={{ height: "400px", width: "800px" }}
-        ></textarea>
+      <form onSubmit={handleSubmit}>
+        <Mapmark {...mapProps} />
         <button type="submit">Save Changes</button>
-        <button type="button" onClick={() => navigate(-1)}>
-          Go Back
-        </button>
-        <button type="button" onClick={handleDelete}>
-          Delete Note
-        </button>
       </form>
     </div>
   );

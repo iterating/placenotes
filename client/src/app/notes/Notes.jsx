@@ -4,6 +4,7 @@ import {  fetchUsersNotes} from "../../lib/fetchNotes";
 import NotesMap from "./NotesMap"
 import NotesList from "./NotesList"
 import "leaflet/dist/leaflet.css";
+import Note from "./Note";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);

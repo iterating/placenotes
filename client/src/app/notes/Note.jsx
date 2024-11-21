@@ -1,12 +1,11 @@
-import React from "react";
-import { connect } from "react-redux";
-import  noteSlice  from "../../store/noteSlice"
-import {marked} from "marked"
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import noteSlice from "../../store/noteSlice";
+import { marked } from "marked";
 
-const deleteNote = (id) => noteSlice.actions.deleteNote({ id });
-
-const Note = ({ note, markers, onDelete }) => {
-  const [showFullNote, setShowFullNote] = React.useState(false);
+const NoteEdit = ({ note, markers }) => {
+  const [showFullNote, setShowFullNote] = useState(false);
+  const dispatch = useDispatch();
 
   return (
     <div>
@@ -36,18 +35,23 @@ const Note = ({ note, markers, onDelete }) => {
         />
       </div>
       <div className="note-actions-ui">
-        <form action={`/notes/${note._id}/edit`} method="GET" className="button">
-          <button className="edit-button" type="submit">Edit</button>
-        </form>
+        <button
+          className="edit-button"
+          onClick={() => window.location.href = `/notes/${note._id}/edit`}
+        >
+          Edit
+        </button>
         <br/>
-        <button className="delete-button" onClick={() => onDelete(note._id)}>Delete</button>
+        <button
+          className="delete-button"
+          onClick={() => dispatch(noteSlice.actions.deleteNote({ id: note._id }))}
+        >
+          Delete
+        </button>
       </div>
     </div>
   );
 };
 
-const mapDispatchToProps = {
-  onDelete: deleteNote,
-};
+export default NoteEdit;
 
-export default connect(null, mapDispatchToProps)(Note);
