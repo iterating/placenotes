@@ -2,8 +2,11 @@
 import passport from "./passport.js"
 import express from "express"
 import session from "express-session"
+import {schema} from "../../models/graphqlSchema.js"
+import { createHandler } from 'graphql-http/lib/use/http';
 // import flash from "connect-flash"
 import cors from "cors"
+
 
 const middleware = (app) => {
   app.use(cors({ origin: "*" }))
@@ -20,6 +23,11 @@ const middleware = (app) => {
   app.use(passport.session())
   // app.use(flash())
 
+  app.use('/graphql', createHandler({
+    schema: schema,
+    graphiql: true,
+  }));
+
   app.use((err, req, res, next) => {
     console.error(err)
     res.status(500).send({ message: "An error occurred", error: err.message })
@@ -27,3 +35,4 @@ const middleware = (app) => {
 }
 
 export default middleware
+

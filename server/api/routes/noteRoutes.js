@@ -1,7 +1,6 @@
 import express from "express";
 import * as notesController from "../../controllers/notes.controllers.js";
 import {  setUser } from "../middleware/auth.js";
-
 const router = express.Router();
 
 router.get("/all", (req, res, next) => {
