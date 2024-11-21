@@ -1,6 +1,6 @@
 import L from "leaflet";
+import "leaflet-control-geocoder";
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
-
 
 const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null);
@@ -15,6 +15,33 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
         mapInstance.current
       );
+
+      const geocoder = L.Control.Geocoder.nominatim({
+        geocodingQueryParams: {
+          format: "json",
+          addressdetails: 1,
+        },
+      });
+      const geocoderControl = L.Control.geocoder({ geocoder }).addTo(
+        mapInstance.current
+      );
+
+      geocoderControl.on("markgeocode", (e) => {
+        const latlng = e.geocode.center;
+        const address = e.geocode.address;
+        console.log("selected address:", address);
+        const note = {
+          _id: new Date().toISOString(),
+          title: address.road + " " + address.house_number,
+          body: address.display_name,
+          location: {
+            type: "Point",
+            coordinates: [latlng.lng, latlng.lat],
+          },
+        };
+        console.log("creating new note:", note);
+        // dispatch(createNote(note));
+      });
     }
 
     const map = mapInstance.current;
@@ -49,4 +76,5 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
   return <div id="map" ref={mapRef} style={{ height: "400px" }}></div>;
 });
 
-export default NotesMap
+export default NotesMap;
+

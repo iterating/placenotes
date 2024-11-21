@@ -1,66 +1,75 @@
-import { useRef, useEffect, useState } from "react"
-import L from "leaflet"
-import "./Notes.css"
-import "leaflet/dist/leaflet.css"
+import { useSelector, useDispatch } from "react-redux";
+import noteSlice from '../../store/noteSlice';
+import { useCallback, useRef } from "react";
+import "leaflet-control-geocoder";
+import "leaflet/dist/leaflet.css";
+import "leaflet-draw";
 
-const Mapmark = ({ note = {}, onLocationChange, onRadiusChange }) => {
-  const mapRef = useRef(null)
-  const [radius, setRadius] = useState(note.radius || 100)
-  const [lat, setLat] = useState(note.location?.coordinates?.[1] || 34.052235)
-  const [lng, setLng] = useState(note.location?.coordinates?.[0] || -118.243683)
+
+const updateNote = noteSlice.actions.updateNote;
+
+const Mapmark = () => {
+  const mapRef = useRef(null);
+  const note = useSelector((state) => state.notes.currentNote);
+  const dispatch = useDispatch();
+
+  const updateLocation = useCallback(
+    (latlng) => {
+      dispatch(updateNote({ location: { type: "Point", coordinates: [latlng.lat, latlng.lng] } }));
+    },
+    [dispatch]
+  );
+
+  const updateRadius = useCallback(
+    (newRadius) => {
+      dispatch(updateNote({ radius: newRadius }));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
-    const map = L.map(mapRef.current).setView([lat, lng], 15)
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(map)
+    const map = L.map(mapRef.current).setView(note.location.coordinates, 15);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-    const marker = L.marker([lat, lng], { draggable: true }).addTo(map)
-    const circle = L.circle([lat, lng], { radius, editable: true }).addTo(map)
+    const geocoder = L.Control.Geocoder.nominatim();
+    L.Control.geocoder({ geocoder, defaultMarkGeocode: false })
+      .on("markgeocode", (e) => {
+        const latlng = e.geocode.center;
+        updateLocation(latlng);
+        map.setView(latlng, 15);
+        marker.setLatLng(latlng);
+        circle.setLatLng(latlng);
+      })
+      .addTo(map);
 
-    const handleMarkerDragEnd = () => {
-      const latlng = marker.getLatLng()
-      setLat(latlng.lat)
-      setLng(latlng.lng)
-      onLocationChange && onLocationChange([latlng.lng, latlng.lat])
-    }
+    const marker = L.marker(note.location.coordinates, { draggable: true }).addTo(map);
+    const circle = L.circle(note.location.coordinates, { radius: note.radius }).addTo(map);
 
-    const handleCircleEdit = () => {
-      const latlng = circle.getLatLng()
-      setLat(latlng.lat)
-      setLng(latlng.lng)
-      const newRadius = circle.getRadius()
-      setRadius(newRadius)
-      onRadiusChange && onRadiusChange(newRadius)
-    }
+    marker.on("dragend", () => {
+      const newLocation = marker.getLatLng();
+      updateLocation(newLocation);
+      circle.setLatLng(newLocation);
+    });
 
-    marker.on("dragend", handleMarkerDragEnd)
-    circle.on("edit", handleCircleEdit)
-    circle.on("radiuschange", handleCircleEdit)
+    circle.on("edit radiuschange", () => {
+      updateRadius(circle.getRadius());
+    });
 
-    return () => {
-      map.remove()
-    }
-  }, [note, onLocationChange, onRadiusChange])
-
-  const handleRadiusChange = (e) => {
-    const newRadius = e.target.value
-    setRadius(newRadius)
-    onRadiusChange && onRadiusChange(newRadius)
-  }
+    return () => map.remove();
+  }, [note]);
 
   return (
     <>
-      <div ref={mapRef} className="map-container" style={{ height: "400px" }} />
+      <div ref={mapRef} className="map-container" style={{ height: "400px", width: "60vw" }} />
       <input
         type="range"
-        value={radius}
-        min={10}
-        max={10000}
-        step={10}
-        onChange={handleRadiusChange}
+        min="10"
+        max="10000"
+        value={note.radius}
+        onChange={(e) => updateRadius(e.target.valueAsNumber)}
       />
     </>
-  )
-}
+  );
+};
 
-export default Mapmark
-
+export default Mapmark;

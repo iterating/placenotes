@@ -1,7 +1,11 @@
-import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import React from "react";
+import { connect } from "react-redux";
+import  noteSlice  from "../../store/noteSlice"
 import {marked} from "marked"
 
-const Note = ({ note, markers }) => {
+const deleteNote = (id) => noteSlice.actions.deleteNote({ id });
+
+const Note = ({ note, markers, onDelete }) => {
   const [showFullNote, setShowFullNote] = React.useState(false);
 
   return (
@@ -33,16 +37,17 @@ const Note = ({ note, markers }) => {
       </div>
       <div className="note-actions-ui">
         <form action={`/notes/${note._id}/edit`} method="GET" className="button">
-          <button type="submit">Edit</button>
+          <button className="edit-button" type="submit">Edit</button>
         </form>
         <br/>
-        <form action={`/notes/${note._id}/delete`} method="POST" className="button delete-button">
-          <button type="submit">Delete</button>
-          <input type="hidden" name="_method" value="DELETE" />
-        </form>
+        <button className="delete-button" onClick={() => onDelete(note._id)}>Delete</button>
       </div>
     </div>
   );
 };
 
-export default Note
+const mapDispatchToProps = {
+  onDelete: deleteNote,
+};
+
+export default connect(null, mapDispatchToProps)(Note);

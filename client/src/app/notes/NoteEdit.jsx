@@ -1,90 +1,68 @@
-import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
+import noteSlice from "../../store/noteSlice";
+import { useCallback, useEffect } from "react";
 import "./Notes.css";
-import { fetchOneNote } from "../../lib/fetchNotes";
 import Mapmark from "./Mapmark";
 
-const NotesEdit = () => {
-  const { id } = useParams();
+const NotesEdit = ({ note }) => {
   const navigate = useNavigate();
-  const token = sessionStorage.getItem("token") || null;
-  const [note, setNote] = useState({});
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
+
+  console.log("NotesEdit token:", token);
+  console.log("NotesEdit note:", note);
+
+  const [body, setBody] = useState("");
   const [coordinates, setCoordinates] = useState([]);
-  const [radius, setRadius] = useState(100);
+  const [radius, setRadius] = useState(0);
 
   useEffect(() => {
-    if (token) {
-      fetchOneNote(token, id).then((note) => {
-        setNote(note);
-        setCoordinates(note.location?.coordinates || []);
-        setRadius(note.radius || 100);
-      });
+    if (note) {
+      setBody(note.body);
+      setCoordinates(note.location.coordinates);
+      setRadius(note.radius);
     }
-  }, [token, id]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNote((prevNote) => ({ ...prevNote, [name]: value }));
-  };
-
-  const handleLocationChange = (coordinates) => {
-    setCoordinates(coordinates);
-  };
-
-  const handleRadiusChange = (radius) => {
-    setRadius(radius);
-  };
+  }, [note]);
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
       try {
-        await axios.put(
-          `http://localhost:5000/notes/${id}`,
-          {
-            ...note,
-            location: { coordinates },
-            radius,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        console.log("Updating note:", { body, location: { type: "Point", coordinates }, radius });
+        await dispatch(noteSlice.actions.updateNote({ token, id: note._id, note: { body, location: { type: "Point", coordinates }, radius } }));
+        console.log("Note updated successfully");
         navigate(`/notes/`);
       } catch (err) {
         console.error("Error updating note:", err);
       }
     },
-    [note, id, token, coordinates, radius, navigate]
+    [body, coordinates, radius, token, navigate, dispatch]
   );
 
   const handleDelete = useCallback(
     async () => {
       try {
-        await axios.delete(`http://localhost:5000/notes/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        console.log("Deleting note with id:", note._id);
+        await dispatch(noteSlice.actions.deleteNote({ token, id: note._id }));
+        console.log("Note deleted successfully");
         navigate(`/notes/`);
       } catch (err) {
         console.error("Error deleting note:", err);
       }
     },
-    [token, id, navigate]
+    [token, navigate, dispatch]
   );
 
   return (
     <div>
       <h1>Edit Note</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="edit-note-form">
         <Mapmark
           note={note}
-          onLocationChange={handleLocationChange}
-          onRadiusChange={handleRadiusChange}
+          onLocationChange={setCoordinates}
+          onRadiusChange={setRadius}
           coordinates={coordinates}
           radius={radius}
         />
@@ -92,8 +70,8 @@ const NotesEdit = () => {
         <textarea
           name="body"
           id="body"
-          value={note.body || ""}
-          onChange={handleChange}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
           style={{ height: "400px", width: "800px" }}
         ></textarea>
         <button type="submit">Save Changes</button>

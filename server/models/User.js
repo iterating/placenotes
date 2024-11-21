@@ -13,7 +13,10 @@ const userSchema = new mongoose.Schema({
     maxlength: 50,
     match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"],
   },
-  name: String,
+  name: {
+    type: String,
+    default: "",
+  },
   group: [],
   password: {
     type: String,
@@ -22,12 +25,12 @@ const userSchema = new mongoose.Schema({
   currentLocation: {
     type: {
       type: String,
-      enum: ['Point'],
+      enum: ["Point"],
     },
     coordinates: {
       type: [Number, Number],
       default: [-118.243683, 34.052235],
-    }
+    },
   },
   createdAt: {
     type: Date,
@@ -35,12 +38,14 @@ const userSchema = new mongoose.Schema({
   },
   lastActive: {
     type: Date,
+    default: Date.now,
   },
   friends: {
     added: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    default: [],
     accepted: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    default: [],
   },
-  
 })
 
 // index email
