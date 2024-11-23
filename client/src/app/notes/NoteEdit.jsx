@@ -1,64 +1,42 @@
-import React, { useMemo, useCallback, useState, useEffect, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./Notes.css";
-import Mapmark from "./Mapmark";
-import { fetchOneNote, updateNote } from "../../store/noteStoreAction";
-const NotesEdit = () => {
-  const { id } = useParams();
+import React, { useState, useEffect } from "react";
+import {  useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { updateNote, deleteNote,  } from "../../store/noteStoreAction";
+import NoteTiptap from "./NoteTiptap"
+import { fetchOneNote} from "../../lib/fetchNotes.js"
+
+const NoteEdit = ({ noteId, token }) => {
   const navigate = useNavigate();
-  const token = useSelector((state) => state.user && state.user.token);
-  const note = useSelector((state) => state.notes[id]) || { user: "", title: "", body: "", location: { type: "Point", coordinates: [0, 0] } };
   const dispatch = useDispatch();
+  const [note, setNote] = useState({});
 
-  const handleChange = useCallback(
-    (e) => {
-      const { name, value } = e.target;
-      dispatch(updateNote({ id, changes: { [name]: value } }));
-    },
-    [id, dispatch]
-  );
+  useEffect(() => {
+    console.log(noteId, "note", note);
+    fetchOneNote(token, noteId).then(setNote);
+  }, [noteId]);
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
+  const handleSubmit = React.useCallback(
+    async (event) => {
+      event.preventDefault();
       try {
-        await axios.put(
-          `http://localhost:5000/notes/${id}`,
-          { ...note },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await dispatch(updateNote({ token, id: noteId, note })).unwrap();
         navigate(`/notes/`);
-      } catch (err) {
-        console.error("Error updating note:", err);
+      } catch (error) {
+        console.error("Error updating note", error);
       }
     },
-    [id, token, navigate, dispatch, note]
-  );
-
-  const mapProps = useMemo(
-    () => ({
-      note,
-      onChange: handleChange,
-    }),
-    [note, handleChange]
+    [dispatch, token, noteId, navigate, note]
   );
 
   return (
     <div>
       <h1>Edit Note</h1>
+      <NoteTiptap note={note} />
       <form onSubmit={handleSubmit}>
-        <Mapmark {...mapProps} />
         <button type="submit">Save Changes</button>
       </form>
     </div>
   );
 };
 
-export default NotesEdit;
-
+export default NoteEdit;

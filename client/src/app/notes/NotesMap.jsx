@@ -61,12 +61,20 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
         handleMouseOver(note._id);
         marker.openPopup();
       });
-
+      
       marker.on("mouseout", () => {
         handleMouseOut(note._id);
         marker.closePopup();
       });
 
+      marker.on("click", () => {
+        const noteCardElement = document.querySelector(`.note-preview[data-note-id="${note._id}"]`);
+        if (noteCardElement) {
+          noteCardElement.click();
+        }
+      });
+      
+      
       return [marker];
     });
 

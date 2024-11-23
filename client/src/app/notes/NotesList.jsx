@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import Note from "./Note"
+import NoteCard from "./NoteCard"
 
 
 
@@ -8,7 +8,7 @@ const NotesList = React.memo(({ notes, handleNoteClick, handleMouseOver, handleM
     <div>
       {notes.length > 0 ? (
         notes.map((note) => (
-          <Note
+          <NoteCard
             key={note._id}
             note={note}
             onClick={() => handleNoteClick(note._id)}

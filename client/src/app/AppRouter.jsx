@@ -4,13 +4,13 @@ import { Route, Routes } from 'react-router-dom';
 import Main from './Main';
 import Login from './users/Login';
 import Signup from './users/Signup';
-import Header from '../components/Header.jsx';
+import Header from '../components/Header';
 import Notes from './notes/Notes';
 import NoteForm from './notes/NoteForm';
-import NotesEdit from './notes/NoteEdit';
+import NoteEdit from './notes/NoteEdit';
 import Settings from './users/Settings';
 
-function AppRouter() {
+function Router() {
   return (
     <>
       <Header />
@@ -20,12 +20,12 @@ function AppRouter() {
         <Route path="/users/signup" element={<Signup />} />
         <Route path="/notes" element={<Notes />} />
         <Route path="/users/settings" element={<Settings />} />
-        <Route path="/notes/:id/edit" element={<NotesEdit />} />
+        <Route path="/notes/:noteId/edit" element={<NoteEdit />} />
         <Route path="/notes/new" element={<NoteForm />} />
       </Routes>
     </>
   );
 }
 
-export default AppRouter;
+export default Router;
 
