@@ -6,8 +6,8 @@ import "leaflet-draw";
 
 const Mapmark = ({ note, setNote }) => {
   const { state } = useLocation();
-  console.log(JSON.stringify(state));
-  console.log(JSON.stringify(note));
+  // console.log(JSON.stringify(state));
+  // console.log(JSON.stringify(note));
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
 

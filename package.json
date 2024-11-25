@@ -17,6 +17,8 @@
   "dependencies": {
     "@graphql-tools/schema": "^10.0.8",
     "@reduxjs/toolkit": "^2.3.0",
+    "@tiptap/extension-task-item": "^2.10.2",
+    "@tiptap/extension-task-list": "^2.10.2",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",

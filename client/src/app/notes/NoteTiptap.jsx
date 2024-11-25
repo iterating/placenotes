@@ -4,10 +4,15 @@ import TextStyle from "@tiptap/extension-text-style"
 import { EditorProvider, useCurrentEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Markdown } from 'tiptap-markdown';
-import React, { useEffect, useState } from "react"
+import TaskItem from '@tiptap/extension-task-item'
+import TaskList from '@tiptap/extension-task-list'
+import React, { useCallback, useEffect, useState } from "react"
 import { marked } from "marked"
+import axios from "axios"
 
-const MenuBar = () => {
+const token = sessionStorage.getItem("token")
+
+const MenuBar = ({ onSave }) => {
   const { editor } = useCurrentEditor()
 
   if (!editor) {
@@ -154,6 +159,18 @@ const MenuBar = () => {
           Hard break
         </button>
         <button
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          className={editor.isActive("taskList") ? "is-active" : ""}
+        >
+          Task list
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleTask({ task: true }).run()}
+          className={editor.isActive("taskItem", { task: true }) ? "is-active" : ""}
+        >
+          Task item
+        </button>
+        <button
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().chain().focus().undo().run()}
         >
@@ -175,6 +192,11 @@ const MenuBar = () => {
         >
           Purple
         </button>
+        <button
+          onClick={onSave}
+        >
+          Save Changes
+        </button>
       </div>
     </div>
   )
@@ -182,6 +204,12 @@ const MenuBar = () => {
 
 const extensions = [
   Color.configure({ types: [TextStyle.name, ListItem.name] }),
+  TaskItem.configure({
+    nested: true,
+  }),
+  TaskList.configure({
+    nested: true,
+  }),
   TextStyle.configure({ types: [ListItem.name] }),
   StarterKit.configure({
     bulletList: {
@@ -195,33 +223,53 @@ const extensions = [
   }),
   Markdown.configure(),
 ]
-
+const EditorProviderMemo = React.memo(EditorProvider)
 export default ({ note, setNote }) => {
-  const [content, setContent] = useState("")
-
-  useEffect(() => {
-    if (note && note.body) {
-      setContent(marked(note.body))
+  const saveChanges = useCallback(async () => {
+    if (!token || !note._id) {
+      console.error("Missing token or note ID");
+      return;
     }
-  }, [note])
 
-  if (!content) return null
+    try {
+      console.log("Saving note:", note.body);
+      const response = await axios.put(`http://localhost:5000/notes/${note._id}/`, {
+        body: note.body,
+        location: note.location
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      console.log("Server responded:", response);
+      
+      if (response.status === 200) {
+        console.log("Changes saved to server");
+      } else {
+        console.error("Failed to save changes, server responded with:", response.status);
+      }
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
+  }, [token, note._id, note.body]);
+
+  if (!note || !note.body) return null
 
   return (
-    <EditorProvider
-      slotBefore={<MenuBar />}
+    <EditorProviderMemo
+      slotBefore={<MenuBar onSave={saveChanges} />}
       extensions={extensions}
-      content={content}
+      content={marked(note.body)}
       key={note.body}
       editorProps={{
         onUpdate: ({ editor }) => {
-          const updatedContent = editor.getMarkdown()
-          console.log("content updated", updatedContent)
-          setNote({ ...note, body: updatedContent })
+          const updatedNote = { ...note, body: editor.getHTML() };
+          setNote(updatedNote);
         },
       }}
-    ></EditorProvider>
+    >
+      <div className="edit-container" />
+    </EditorProviderMemo>
   )
 }
-
 

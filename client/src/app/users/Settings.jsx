@@ -10,10 +10,13 @@ async function getUser() {
 const Settings = ({ user }) => {
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [friends, setFriends] = useState(user?.friends || []);
+  const [friendEmail, setFriendEmail] = useState('')
 
   useEffect(() => {
     setName(user?.name || '');
     setEmail(user?.email || '');
+    setFriends(user?.friends || []);
   }, [user]);
 
   const handleUsernameChange = (e) => {
@@ -22,6 +25,21 @@ const Settings = ({ user }) => {
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
+  }
+
+  const handleFriendEmailChange = (e) => {
+    setFriendEmail(e.target.value);
+  }
+
+  const handleAddFriend = (e) => {
+    e.preventDefault();
+    axios.post('/users/friends', { friendEmail })
+    .then(res => res.data)
+    .then(data => {
+      setFriends(data.friends);
+      setFriendEmail('')
+    })
+    .catch(err => console.log(err));
   }
 
   const handleSubmit = (e) => {
@@ -43,6 +61,16 @@ const Settings = ({ user }) => {
   
         <button type="submit">Save Changes</button>
       </form>
+
+      <h2 class="title">Friends</h2>
+      <ul>
+        {friends.map(friend => <li key={friend}>{friend}</li>)}
+      </ul>
+      <form class="edit-note-form" onSubmit={handleAddFriend}>
+        <label for="friendEmail">Email:</label><br />
+        <input type="email" name="friendEmail" id="friendEmail" value={friendEmail} onChange={handleFriendEmailChange} /><br />
+        <button type="submit">Add Friend</button>
+      </form>
       <form action="/users/account/delete" method="post" class="button">
         <button type="submit">Delete Account</button>
       </form>
@@ -51,4 +79,5 @@ const Settings = ({ user }) => {
 };
 
 export default Settings;
+
 

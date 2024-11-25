@@ -47,6 +47,8 @@ const NoteEdit = () => {
 
   return (
     <>
+    <div className="edit-container">
+
       <h1>Edit Note</h1>
       {note && <NoteTiptap note={note} setNote={setNote} />}
       {note && <Mapmark note={note} setNote={setNote} />}
@@ -55,6 +57,7 @@ const NoteEdit = () => {
       </form>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
+    </div>
     </>
   );
 };

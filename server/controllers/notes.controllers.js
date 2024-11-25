@@ -97,7 +97,6 @@ export const updateNote = async (req, res) => {
   
   try {
     // const location = JSON.parse(req.body.location)
-
     const note = await NotesService.updateNote({
       _id: req.params.id,
       body: req.body.body,
@@ -114,7 +113,7 @@ export const updateNote = async (req, res) => {
     res.json(note)
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: "Error editing note" })
+    res.status(500).json({ error: "Error editing note", err })
   }
 }
 

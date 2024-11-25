@@ -40,7 +40,8 @@ export const createNote = createAsyncThunk(
   'notes/createNote',
   async ({ token, note }) => {
     console.log('CreateNote: Sending request to create note');
-    const response = await axios.post('http://localhost:5000/notes', note, {
+    console.log('CreateNote: Note contents', note);
+    const response = await axios.post('http://localhost:5000/notes/new', note, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
