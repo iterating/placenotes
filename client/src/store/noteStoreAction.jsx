@@ -26,22 +26,26 @@ export const editNote = createAsyncThunk(
 export const updateNote = createAsyncThunk(
   'notes/updateNote',
   async ({ token, id, note }) => {
+    console.log('UpdateNote: Sending request to update note', id);
     const response = await axios.put(`http://localhost:5000/notes/${id}`, note, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('UpdateNote: Response received', response.data);
     return response.data;
   }
 );
 export const createNote = createAsyncThunk(
   'notes/createNote',
   async ({ token, note }) => {
+    console.log('CreateNote: Sending request to create note');
     const response = await axios.post('http://localhost:5000/notes', note, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('CreateNote: Response received', response.data);
     return response.data;
   }
 )

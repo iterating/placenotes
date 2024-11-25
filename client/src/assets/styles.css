@@ -96,7 +96,7 @@ textarea {
 }
 
 input[type="submit"],
-button, .button {
+button, .button, .edit-button {
   width: 15rem;
   padding: 0.25rem;
   background-color: #007bff;
