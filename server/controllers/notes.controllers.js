@@ -228,3 +228,29 @@ export const getNotesByLocation = async (req, res) => {
     res.status(500).send("Error retrieving notes")
   }
 }
+
+export const getNotesByCurrentLocation = async (req, res) => {
+  try {
+    const { lat, lon } = req.query
+    if (lat == null || lon == null) {
+      return res.status(400).send("Latitude and longitude must be provided")
+    }
+    const userId = req.user?._id
+    if (!userId) {
+      return res.status(401).send("User not authenticated")
+    }
+    const notes = await NotesService.getNotesByCurrentLocation({
+      userId: userId,
+      lat: Number(lat),
+      lon: Number(lon),
+    })
+    if (!notes || notes.length === 0) {
+      return res.status(404).send("No notes found at the specified location")
+    }
+    res.json(notes)
+  } catch (err) {
+    console.error("Error retrieving notes:", err)
+    res.status(500).send("Error retrieving notes")
+  }
+}
+

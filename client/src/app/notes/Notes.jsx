@@ -1,14 +1,15 @@
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import "./Notes.css";
-import {  fetchUsersNotes} from "../../lib/fetchNotes";
-import NotesMap from "./NotesMap"
-import NotesList from "./NotesList"
+import { fetchUsersNotes } from "../../lib/fetchNotes";
+import NotesMap from "./NotesMap";
+import NotesList from "./NotesList";
 import "leaflet/dist/leaflet.css";
 import Note from "./NoteCard";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(JSON.parse(sessionStorage.getItem("currentLocation")) || null);
   const token = sessionStorage.getItem("token") || null;
   const markers = React.useRef([]);
 
@@ -18,6 +19,26 @@ const Notes = () => {
       fetchUsersNotes(token, setNotes, setUserId);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          sessionStorage.setItem("currentLocation", JSON.stringify(currentLocation));
+          console.log("Current location:", currentLocation);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   const handleNoteClick = useCallback((id) => {
     setNotes((prevNotes) =>
@@ -60,6 +81,7 @@ const Notes = () => {
           handleMouseOver={handleMouseOver}
           handleMouseOut={handleMouseOut}
           markers={markers}
+          currentLocation={currentLocation}
         />
       </div>
       <NotesList
@@ -77,3 +99,5 @@ const Notes = () => {
 };
 
 export default Notes;
+
+

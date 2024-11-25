@@ -6,7 +6,7 @@ import Login from './users/Login';
 import Signup from './users/Signup';
 import Header from '../components/Header';
 import Notes from './notes/Notes';
-import NoteForm from './notes/NoteForm';
+import NoteNew from './notes/NoteNew';
 import NoteEdit from './notes/NoteEdit';
 import Settings from './users/Settings';
 
@@ -21,7 +21,7 @@ function Router() {
         <Route path="/notes" element={<Notes />} />
         <Route path="/users/settings" element={<Settings />} />
         <Route path="/notes/:noteId/edit" element={<NoteEdit />} />
-        <Route path="/notes/new" element={<NoteForm />} />
+        <Route path="/notes/new" element={<NoteNew />} />
       </Routes>
     </>
   );

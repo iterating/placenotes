@@ -4,6 +4,7 @@ import noteSlice from "../../store/noteSlice"
 import { marked } from "marked"
 import { Link } from "react-router-dom"
 import NoteTiptap from "./NoteTiptap"
+
 const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false)
   const { noteId } = useParams()
@@ -11,7 +12,7 @@ const NoteCard = ({ note, markers }) => {
   const navigate = useNavigate()
 
   return (
-    <div>
+    <div className="notecard">
       <div
         className="note-preview"
         onClick={() => setShowFullNote(!showFullNote)}

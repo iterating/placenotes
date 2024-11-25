@@ -3,6 +3,7 @@ import ListItem from "@tiptap/extension-list-item"
 import TextStyle from "@tiptap/extension-text-style"
 import { EditorProvider, useCurrentEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
+import { Markdown } from 'tiptap-markdown';
 import React, { useEffect, useState } from "react"
 import { marked } from "marked"
 
@@ -192,6 +193,7 @@ const extensions = [
       keepAttributes: false,
     },
   }),
+  Markdown.configure(),
 ]
 
 export default ({ note, setNote }) => {
@@ -213,7 +215,7 @@ export default ({ note, setNote }) => {
       key={note.body}
       editorProps={{
         onUpdate: ({ editor }) => {
-          const updatedContent = editor.getHTML()
+          const updatedContent = editor.getMarkdown()
           console.log("content updated", updatedContent)
           setNote({ ...note, body: updatedContent })
         },
@@ -221,4 +223,5 @@ export default ({ note, setNote }) => {
     ></EditorProvider>
   )
 }
+
 

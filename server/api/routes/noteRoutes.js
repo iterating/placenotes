@@ -37,6 +37,9 @@ router
 
 router.route("/location/:lat/:lon").get(setUser, notesController.getNotesByLocation);
 
+router.route("/location/current").get(setUser, notesController.getNotesByCurrentLocation);
+
+
 router.get("/age/recent", setUser, notesController.recentNotes);
 router.get("/age/oldest", setUser, notesController.oldestNotes);
 

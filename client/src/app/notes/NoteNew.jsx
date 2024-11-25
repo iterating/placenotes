@@ -1,39 +1,58 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./Notes.css";
+import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import "./Notes.css"
+import Mapmark from "./Mapmark"
 
 const NoteNew = () => {
-  const [body, setBody] = useState("");
-  const [location, setLocation] = useState("");
-  const [radius, setRadius] = useState(200);
-  const navigate = useNavigate();
+  const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation"))
+  const [body, setBody] = useState("")
+  const [radius, setRadius] = useState(100)
+  const [note, setNote] = useState({
+    body: "",
+    location: { coordinates: [] },
+    radius: 100,
+    _id: "",
+  })
+
+  const [location, setLocation] = useState(() => {
+    const coordinates = currentLocation
+      ? currentLocation.coordinates
+      : [-118.243683, 34.052235]
+    return JSON.stringify({
+      type: "Point",
+      coordinates,
+    })
+  })
+
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      const token = sessionStorage.getItem("token"); 
-      // const response = await axios.post(
-      //   "http://localhost:5000/notes",
-      //   { body, location, radius },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
-      console.log("Note created:", response.data);
-      navigate("/notes");
+      const token = sessionStorage.getItem("token")
+      const response = await axios.post(
+        "http://localhost:5000/notes",
+        { body, location: JSON.parse(location), radius },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      console.log("Note created:", response.data)
+      navigate("/notes")
     } catch (error) {
-      console.error("Error creating note:", error);
+      console.error("Error creating note:", error)
     }
-  };
+  }
 
   return (
     <div className="edit-container">
       <h1 className="title">Create New Note</h1>
       <form onSubmit={handleSubmit} className="edit-note-form">
-        <label htmlFor="note-body">Note:</label><br />
+        <label htmlFor="note-body">Note:</label>
+        <br />
         <textarea
           name="body"
           id="note-body"
@@ -42,7 +61,16 @@ const NoteNew = () => {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required
-        ></textarea><br />
+        ></textarea>
+        <br />
+        <Mapmark
+          note={{
+            ...note,
+            location: JSON.parse(location),
+            radius,
+          }}
+          setNote={setNote}
+        />
         <input
           type="hidden"
           name="location"
@@ -53,7 +81,7 @@ const NoteNew = () => {
           type="hidden"
           name="radius"
           value={radius}
-          onChange={(e) => setRadius(e.target.value)}
+          onChange={(e) => setRadius(e.target.valueAsNumber || 100)}
         />
         <input type="submit" value="Create Note" />
         <button type="button" onClick={() => navigate("/notes")}>
@@ -61,7 +89,8 @@ const NoteNew = () => {
         </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default NoteNew;
+export default NoteNew
+

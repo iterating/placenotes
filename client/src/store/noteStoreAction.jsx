@@ -60,3 +60,10 @@ export const deleteNote = createAsyncThunk(
     return response.data;
   }
 );
+
+export const SET_CURRENT_LOCATION = 'SET_CURRENT_LOCATION';
+
+export const setCurrentLocation = (location) => ({
+  type: SET_CURRENT_LOCATION,
+  payload: location,
+});

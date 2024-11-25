@@ -27,5 +27,19 @@ const fetchUsersNotes = async (token, setNotes, setUserId) => {
   }
 };
 
-export { fetchOneNote, fetchUsersNotes };
+const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitude: lat, longitude: lon }) => {
+  if (!token) return;
+  try {
+    const response = await axios.get(`http://localhost:5000/notes/location/current?lat=${lat}&lon=${lon}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const notes = response.data.map(note => ({ ...note, showFullNote: false }));
+    setNotes(notes);
+    if (notes.length) setUserId(notes[0].userId);
+  } catch (error) {
+    console.error("Error fetching notes by current location:", error);
+  }
+};
+
+export { fetchOneNote, fetchUsersNotes, fetchNotesByCurrentLocation };
 
