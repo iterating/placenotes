@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { updateNote } from "../../store/noteStoreAction";
 import NoteTiptap from "./NoteTiptap";
 import { fetchOneNote } from "../../lib/fetchNotes.js";
+import Mapmark from "./Mapmark.jsx";
 
 const NoteEdit = () => {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ const NoteEdit = () => {
     <>
       <h1>Edit Note</h1>
       {note && <NoteTiptap note={note} setNote={setNote} />}
+      {note && <Mapmark note={note} setNote={setNote} />}
       <form onSubmit={handleSubmit}>
         <button type="submit">Save Changes</button>
       </form>

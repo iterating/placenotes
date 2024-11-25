@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Notes.css";
-import Mapmark from "./Mapmark";
 
 const NoteNew = () => {
   const [body, setBody] = useState("");
@@ -14,19 +13,16 @@ const NoteNew = () => {
     e.preventDefault();
     try {
       const token = sessionStorage.getItem("token"); 
-      const response = await axios.post(
-        "http://localhost:5000/notes",
-        { body, location, radius },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(
-        "Note created:",
-        response.data
-      )
+      // const response = await axios.post(
+      //   "http://localhost:5000/notes",
+      //   { body, location, radius },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+      console.log("Note created:", response.data);
       navigate("/notes");
     } catch (error) {
       console.error("Error creating note:", error);
@@ -47,7 +43,6 @@ const NoteNew = () => {
           onChange={(e) => setBody(e.target.value)}
           required
         ></textarea><br />
-        <Mapmark />
         <input
           type="hidden"
           name="location"
