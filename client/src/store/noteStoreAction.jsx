@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-// BASE_URL = 'http://localhost:5000';
+// BASE_URL = 'http://API_URL';
 
 // Select token from state
 const selectToken = (state) => state.auth.token;
@@ -34,7 +34,7 @@ export const fetchUsersNotes = createAsyncThunk(
       return rejectWithValue('No token available');
     }
     try {
-      const response = await axios.get(`http://localhost:5000/notes`, {
+      const response = await axios.get(`http://API_URL/notes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -54,7 +54,7 @@ export const fetchOneNote = createAsyncThunk(
       return rejectWithValue('No token available');
     }
     try {
-      const response = await axios.get(`http://localhost:5000/notes/${id}`, {
+      const response = await axios.get(`http://API_URL/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -80,7 +80,7 @@ export const editNote = createAsyncThunk(
         note.location = validateLocation(note.location);
       }
 
-      const response = await axios.patch(`http://localhost:5000/notes/${id}`, note, {
+      const response = await axios.patch(`http://API_URL/notes/${id}`, note, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -106,7 +106,7 @@ export const createNote = createAsyncThunk(
         note.location = validateLocation(note.location);
       }
 
-      const response = await axios.post(`http://localhost:5000/notes/new`, note, {
+      const response = await axios.post(`http://API_URL/notes/new`, note, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -127,7 +127,7 @@ export const deleteNote = createAsyncThunk(
     }
     console.log("Deleting note:", id);
     try {
-      const response = await axios.delete(`http://localhost:5000/notes/${id}`, {
+      const response = await axios.delete(`http://API_URL/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Deleted note:", response.data);

@@ -9,7 +9,7 @@ import TaskList from '@tiptap/extension-task-list'
 import React, { useCallback, useEffect, useState } from "react"
 import { marked } from "marked"
 import axios from "axios"
-// BASE_URL = 'http://localhost:5000';
+// BASE_URL = 'http://API_URL';
 
 const token = sessionStorage.getItem("token")
 
@@ -236,7 +236,7 @@ export default ({ note, setNote }) => {
 
     try {
       console.log("Saving note:", note.body);
-      const response = await axios.post(`http://localhost:5000/notes/${note._id}/edit`, {
+      const response = await axios.post(`http://API_URL/notes/${note._id}/edit`, {
         body: note.body,
         location: note.location
       }, {

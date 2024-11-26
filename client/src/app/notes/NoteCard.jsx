@@ -5,7 +5,7 @@ import { deleteNote } from "../../lib/fetchNotes";
 import { marked } from "marked";
 import { Link } from "react-router-dom";
 import axios from "axios";
-// BASE_URL = 'http://localhost:5000';
+// BASE_URL = 'http://API_URL';
 
 const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false);

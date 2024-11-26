@@ -1,5 +1,5 @@
 import axios from "axios";
-// BASE_URL = 'http://localhost:5000';
+// BASE_URL = 'http://API_URL';
 
 // Utility to validate coordinates
 const validateCoordinates = (latitude, longitude) => {
@@ -13,7 +13,7 @@ const validateCoordinates = (latitude, longitude) => {
 const fetchOneNote = async (token, id) => {
   if (!token) return {};
   try {
-    const { data } = await axios.get(`http://localhost:5000/notes/${id}`, {
+    const { data } = await axios.get(`http://API_URL/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return data;
@@ -27,7 +27,7 @@ const fetchOneNote = async (token, id) => {
 const fetchUsersNotes = async (token, setNotes, setUserId) => {
   if (!token) return;
   try {
-    const { data } = await axios.get(`http://localhost:5000/notes`, {
+    const { data } = await axios.get(`http://API_URL/notes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const notes = data.map(note => ({ ...note, showFullNote: false }));
@@ -45,7 +45,7 @@ const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitud
   const { latitude, longitude } = validateCoordinates(lat, lon);
 
   try {
-    const response = await axios.get(`http://localhost:5000/notes/location/current?lat=${latitude}&lon=${longitude}`, {
+    const response = await axios.get(`http://API_URL/notes/location/current?lat=${latitude}&lon=${longitude}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const notes = response.data.map(note => ({
@@ -76,7 +76,7 @@ const updateNote = async (token, id, update) => {
     // Ensure location is valid before sending
     const { latitude, longitude } = validateCoordinates(update.location.latitude, update.location.longitude);
 
-    const response = await axios.post(`http://localhost:5000/notes/${id}/edit`, {
+    const response = await axios.post(`http://API_URL/notes/${id}/edit`, {
       ...update,
       location: {
         type: "Point",
@@ -96,7 +96,7 @@ const deleteNote = async (token, id) => {
   if (!token) return;
 
   try {
-    const response = await axios.delete(`http://localhost:5000/notes/${id}`, {
+    const response = await axios.delete(`http://API_URL/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
