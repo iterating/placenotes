@@ -1,6 +1,8 @@
 import React, { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import noteSlice from "../../store/noteSlice"
+import { deleteNote } from "../../lib/fetchNotes"
+import { useSelector, useDispatch } from "react-redux"
 import { marked } from "marked"
 import { Link } from "react-router-dom"
 import NoteTiptap from "./NoteTiptap"
@@ -60,7 +62,10 @@ const NoteCard = ({ note, markers }) => {
         <br />
         <button
           className="delete-button"
-          onClick={() => noteSlice.actions.deleteNote({ id: note._id })}
+          onClick={() => {
+            console.log("Delete note:", note._id)
+            deleteNote({ id: note._id })
+          }}
         >
           Delete
         </button>

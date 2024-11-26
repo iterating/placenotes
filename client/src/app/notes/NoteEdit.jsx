@@ -12,7 +12,7 @@ const NoteEdit = () => {
   const { noteId } = useParams();
   const token = useLocation().state.token;
   console.log("NoteEdit: Received token:", token);
-  const [note, setNote] = useState({ body: "", location: { coordinates: [] }, radius: 100, _id: "" });
+  const [note, setNote] = useState({ body: "", location: { type: "Point", coordinates: [] }, radius: 100, _id: "" });
   console.log("NoteEdit: Initializing note:", note);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,10 @@ const NoteEdit = () => {
     fetchNote();
   }, [token, noteId]);
 
+  const handleMapChange = (lng, lat) => {
+    setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [lng, lat] } }));
+  };
+
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault();
@@ -57,12 +61,13 @@ console.log("Updated note:", updatedNote);
     <div className="edit-container">
       <h1>Edit Note</h1>
       {note && <NoteTiptap note={note} setNote={setNote} />}
-      {note && <Mapmark note={note} setNote={setNote} />}
+      {note && <Mapmark note={note} setNote={setNote} onMapChange={handleMapChange} />}
       <form onSubmit={handleSubmit}>
         <button type="submit">Save Changes</button>
       </form>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
+      
     </div>
     </>
   );

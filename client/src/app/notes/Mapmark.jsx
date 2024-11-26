@@ -4,7 +4,7 @@ import "leaflet-control-geocoder";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw";
 
-const Mapmark = ({ note, setNote }) => {
+const Mapmark = ({ note, setNote, onMapChange }) => {
   const { state } = useLocation();
   // console.log(JSON.stringify(state));
   // console.log(JSON.stringify(note));
@@ -13,8 +13,8 @@ const Mapmark = ({ note, setNote }) => {
 
   useEffect(() => {
     if (!mapInstance.current) {
-      const latitude = note.location?.coordinates?.[1] || 34.052235;
       const longitude = note.location?.coordinates?.[0] || -118.243683;
+      const latitude = note.location?.coordinates?.[1] || 34.052235;
       mapInstance.current = L.map(mapRef.current).setView([latitude, longitude], 15);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
 
@@ -22,7 +22,7 @@ const Mapmark = ({ note, setNote }) => {
       L.Control.geocoder({ geocoder, defaultMarkGeocode: false })
         .on("markgeocode", (e) => {
           const latlng = e.geocode.center;
-          setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [latlng.latitude, latlng.longitude] } }));
+          setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [latlng.longitude, latlng.latitude] } }));
           mapInstance.current.setView(latlng, 15);
           marker.setLatLng(latlng);
           circle.setLatLng(latlng);
@@ -34,8 +34,9 @@ const Mapmark = ({ note, setNote }) => {
 
       marker.on("dragend", () => {
         const newLocation = marker.getLatLng();
-        setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [newLocation.latitude, newLocation.longitude] } }));
+        setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [newLocation.longitude, newLocation.latitude] } }));
         circle.setLatLng(newLocation);
+        onMapChange([newLocation.longitude, newLocation.latitude]);
       });
 
       circle.on("edit radiuschange", () => {
@@ -43,13 +44,14 @@ const Mapmark = ({ note, setNote }) => {
         setNote((prev) => ({ ...prev, radius: newRadius }));
       });
     }
-  }, [note, setNote]);
+  }, [note, setNote, onMapChange]);
 
   const updateLocation = useCallback(
     (latlng) => {
-      setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [latlng.latitude, latlng.longitude] } }));
+      setNote((prev) => ({ ...prev, location: { type: "Point", coordinates: [latlng.longitude, latlng.latitude] } }));
+      onMapChange([latlng.longitude, latlng.latitude]);
     },
-    [setNote]
+    [setNote, onMapChange]
   );
 
   const updateRadius = useCallback(

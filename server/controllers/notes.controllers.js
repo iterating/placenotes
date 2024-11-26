@@ -227,8 +227,8 @@ export const getNotesByLocation = async (req, res) => {
     }
     const notes = await NotesService.getNotesByLocation({
       userId: userId,
-      "location.lat": Number(lat),
       "location.lon": Number(lon),
+      "location.lat": Number(lat),
     })
     if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found at the specified location")
@@ -252,8 +252,8 @@ export const getNotesByCurrentLocation = async (req, res) => {
     }
     const notes = await NotesService.getNotesByCurrentLocation({
       userId: userId,
-      lat: Number(lat),
       lon: Number(lon),
+      lat: Number(lat),
     })
     if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found at the specified location")

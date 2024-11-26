@@ -27,9 +27,15 @@ const noteSchema = new mongoose.Schema({
       enum: ['Point'],
     },
     coordinates: {
-      type: [Number],
-      default: [-118.243683, 34.052235],
-    }
+      type: [Number], // This will ensure that it's an array of numbers
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value.length === 2 && !isNaN(value[0]) && !isNaN(value[1]);
+        },
+        message: 'Coordinates must be a valid [longitude, latitude] pair',
+      },
+    },
   },
   radius: {
     type: Number,
