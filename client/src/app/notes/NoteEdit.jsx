@@ -1,96 +1,96 @@
-import React, { useState, useEffect, useCallback } from "react"
-import { useNavigate, useParams, useLocation } from "react-router-dom"
-import { useDispatch } from "react-redux"
-import { deleteNote } from "../../store/noteStoreAction"
-import NoteTiptap from "./NoteTiptap"
-import { fetchOneNote, updateNote } from "../../lib/fetchNotes.js"
-import Mapmark from "./Mapmark.jsx"
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { deleteNote } from "../../store/noteStoreAction";
+import { fetchOneNote, updateNote } from "../../lib/fetchNotes.js";
+import Mapmark from "./Mapmark.jsx";
+import { marked } from "marked";
+
+import "@mdxeditor/editor/style.css";
 
 const NoteEdit = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { noteId } = useParams()
-  const token = sessionStorage.getItem("token")
-  console.log("NoteEdit: Received token:", token)
-  const [note, setNote] = useState(null)
-  console.log("NoteEdit: Initializing note:", note)
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { noteId } = useParams();
+  const token = sessionStorage.getItem("token");
+  const [note, setNote] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        console.log("Fetching note:", noteId)
-        const fetchedNote = await fetchOneNote(token, noteId)
-        console.log("Fetched note:", fetchedNote)
-        setNote(fetchedNote)
+        const fetchedNote = await fetchOneNote(token, noteId);
+        setNote(fetchedNote);
       } catch (err) {
-        setError(err)
-        console.error("Error fetching note:", err)
+        setError(err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
+    };
+
+    fetchNote();
+  }, [token, noteId]);
+
+  const handleSave = async () => {
+    try {
+      const updatedNote = await updateNote(token, noteId, note);
+      setNote(updatedNote); // Update state with the latest data
+      navigate(`/notes/`);
+    } catch (err) {
+      setError(err);
     }
+  };
 
-    console.log("Fetching note")
-    fetchNote()
-  }, [token, noteId])
-
-  const handleMapChange = (lng, lat) => {
+  const handleMapChange = ([lng, lat]) => {
     setNote((prev) => ({
       ...prev,
       location: { type: "Point", coordinates: [lng, lat] },
-    }))
-  }
+    }));
+  };
 
-  const handleSubmit = useCallback(
-    async (event) => {
-      event.preventDefault()
-      try {
-        console.log("Saving changes:", note)
-        const updatedNote = await updateNote(token, noteId, note)
-        console.log("Updated note:", updatedNote)
-        navigate(`/notes/`)
-      } catch (err) {
-        setError(err)
-        console.error("Error submitting form:", err)
-      }
-    },
-    [dispatch, token, noteId, navigate, note]
-  )
+
+
 
   return (
-    <>
-      <div className="edit-container">
-        <h1>Edit Note</h1>
-        {note && <NoteTiptap note={note} setNote={setNote} />}
-        {note && (
-          <Mapmark
-            note={note}
-            setNote={setNote}
-            onMapChange={handleMapChange}
-          />
-        )}
-        <form onSubmit={handleSubmit}>
-          <button type="submit">Save Changes</button>
-        </form>
-        {loading && <p>Loading...</p>}
-        {error && <p>Error: {error.message}</p>}
-        <button
-          onClick={() => {
-            if (window.confirm("Are you sure you want to delete this note?")) {
-              dispatch(deleteNote({ id: note._id, token }))
-                .unwrap()
-                .then(() => navigate("/notes"))
-            }
-          }}
-        >
-          Delete Note
-        </button>
-      </div>
-    </>
-  )
-}
+    <div className="edit-container">
+      <h1>Edit Note</h1>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error.message}</p>}
+      {note && (
+        <>
+          <div className="note-container">
+            <textarea
+              value={note.body}
+              onChange={(e) => setNote(prev => ({ ...prev, body: e.target.value }))}
+              style={{ height: "400px" }}
+            />
+            <div className="markdown-preview">
+              <h4>Preview</h4>
+              <div
+                dangerouslySetInnerHTML={{ __html: marked(note.body) }}
+              />
+            </div>
+          </div>
+          
 
-export default NoteEdit
+          <button onClick={handleSave}>Save Changes</button>
+          <button
+            onClick={() => {
+              if (window.confirm("Are you sure you want to delete this note?")) {
+                dispatch(deleteNote({ id: note._id, token }))
+                  .unwrap()
+                  .then(() => navigate("/notes"));
+              }
+            }}
+          >
+            Delete Note
+          </button>
+          <Mapmark note={note} setNote={setNote} onMapChange={handleMapChange} style={{ width: "600px" }}/>
+        </>
+      )}
+    </div>
+  );
+};
 
+export default NoteEdit;

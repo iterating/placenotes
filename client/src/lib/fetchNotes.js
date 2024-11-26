@@ -71,18 +71,22 @@ const updateNote = async (token, id, update) => {
   }
 
   try {
-    // Validatelocation coordinates 
+    console.log("fetchNotes Starting note update process...");
+    
+    // Validate location coordinates
     if (
       !update.location ||
       !update.location.coordinates ||
       update.location.coordinates.length !== 2
     ) {
+      console.error("Location validation failed.");
       throw new Error(
         "Location coordinates are required and must contain both longitude and latitude."
       );
     }
 
-    const [longitude, latitude] = update.location.coordinates; // Extract existing coordinates
+    const [longitude, latitude] = update.location.coordinates;
+    console.log("fetchNotes Extracted coordinates:", longitude, latitude);
 
     // Validate coordinates for Geojson
     if (
@@ -91,27 +95,33 @@ const updateNote = async (token, id, update) => {
       longitude < -180 || longitude > 180 ||
       latitude < -90 || latitude > 90
     ) {
+      console.error("Coordinate validation failed.");
       throw new Error("Invalid longitude or latitude values.");
     }
 
+    console.log(" fetchNotes Sending update request to server...");
     const response = await axios.put(
       `http://localhost:5000/notes/${id}`,
       {
         ...update,
         location: {
           type: "Point",
-          coordinates: [longitude, latitude], 
+          coordinates: [longitude, latitude],
         },
+        radius: update.radius || 100,
+        recipients: update.recipients || [],
+        body: update.body || "",
       },
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
 
+    console.log("fetchNotes ote updated successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating note:", error.message || error);
-    throw error; 
+    throw error;
   }
 };
 

@@ -104,10 +104,11 @@ export const editNote = async (req, res) => {
 
 export const updateNote = async (req, res) => {
   
+  console.log("updateNote called with req.params.id:", req.params.id)
+  console.log("updateNote called with req.body:", req.body)
   try {
-    console.log("req.params.id:", req.params.id)
-    console.log("req.body:", req.body)
     // const location = JSON.parse(req.body.location)
+    // console.log("updateNote location:", location)
     const note = await NotesService.updateNote({
       _id: req.params.id,
       body: req.body.body,
@@ -119,15 +120,17 @@ export const updateNote = async (req, res) => {
       radius: req.body.radius || 200,
     })
     if (!note) {
+      console.log("No note found with id:", req.params.id)
       return res.status(404).send("Note not found")
     }
     console.log("Updated note:", note)
     res.json(note)
   } catch (err) {
-    console.error(err)
+    console.error("Error updating note:", err)
     res.status(500).json({ error: "Error editing note", err })
   }
 }
+
 
 
 export const deleteNote = async (req, res) => {

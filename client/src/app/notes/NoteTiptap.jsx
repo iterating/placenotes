@@ -12,7 +12,6 @@ import axios from "axios"
 // BASE_URL = 'http://API_URL';
 
 const token = sessionStorage.getItem("token")
-
 const MenuBar = ({ onSave }) => {
   const { editor } = useCurrentEditor()
 
@@ -215,12 +214,16 @@ const extensions = [
 ]
 const NoteTiptap = ({ note, setNote }) => {
   const saveChanges = useCallback(async () => {
+    console.log("Saving changes to server...")
+    let editor = useCurrentEditor()
+    
     try {
+      console.log("Editor:", editor.getHTML());
       const response = await axios.post(
         `http://localhost:5000/notes/${note._id}/edit`,
         {
           body: note.body,
-
+          location: note.location,
         },
         {
           headers: {
@@ -232,12 +235,15 @@ const NoteTiptap = ({ note, setNote }) => {
 
       if (response.status === 200) {
         console.log("Changes saved to server")
+        console.log("Updated note:", response.data)
         setNote({ ...note, body: response.data.body }) // Update the note body in the parent component
       } else {
         console.error("Failed to save changes, server responded with:", response.status)
       }
     } catch (error) {
       console.error("Error saving changes:", error)
+    } finally {
+      console.log("Save changes request finished")
     }
   }, [note, setNote])
 
@@ -245,11 +251,12 @@ const NoteTiptap = ({ note, setNote }) => {
 
   return (
     <EditorProvider
-      content={marked(note.body)} 
+      content={note.body} 
       extensions={extensions}
       editorProps={{
         onUpdate: ({ editor }) => {
           const updatedNote = { ...note, body: editor.getHTML() }
+          console.log("Updated note:", editor.getHTML());
           setNote(updatedNote) // Update  parent component state with the new content
         },
       }}

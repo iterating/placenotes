@@ -30,7 +30,6 @@
     "graphql": "^16.9.0",
     "graphql-http": "^1.22.3",
     "graphql-tools": "^9.0.4",
-    "immer": "^10.1.1",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "leaflet-control-geocoder": "^2.4.0",
@@ -41,12 +40,9 @@
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "quill": "^2.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-markdown": "^9.0.1",
     "react-redux": "^9.1.2",
-    "tiptap-markdown": "^0.8.10",
     "vite": "^6.0.0"
   },
   "devDependencies": {

@@ -70,19 +70,32 @@ export const editNote = createAsyncThunk(
   'notes/editNote',
   async ({ id, note }, { getState, rejectWithValue }) => {
     const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
+    if (!token) return rejectWithValue('No token available');
 
     try {
       // Validate and format the location field
-      if (note.location) {
-        note.location = validateLocation(note.location);
+      if (note?.location) {
+        const validatedLocation = validateLocation(note.location);
+        if (!validatedLocation) {
+          return rejectWithValue('Invalid location');
+        }
+        note.location = validatedLocation;
       }
 
-      const response = await axios.patch(`http://localhost:5000/notes/${id}`, note, {
+      // Set default values and add id to note
+      const updatedNote = {
+        ...note,
+        _id: id,
+        body: note?.body || '',
+        radius: note?.radius || 100,
+        recipients: note?.recipients || [],
+      };
+
+      // Send the patch request to the server
+      const response = await axios.patch(`http://localhost:5000/notes/${id}`, updatedNote, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       return response.data;
     } catch (error) {
       console.error('Error editing note:', error);
