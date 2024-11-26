@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+BASE_URL= 'http://localhost:5000';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/users/login', {
+      const response = await axios.post('${BASE_URL}/users/login', {
         email,
         password,
       });

@@ -1,17 +1,29 @@
-import React, { useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import noteSlice from "../../store/noteSlice"
-import { deleteNote } from "../../lib/fetchNotes"
-import { useSelector, useDispatch } from "react-redux"
-import { marked } from "marked"
-import { Link } from "react-router-dom"
-import NoteTiptap from "./NoteTiptap"
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { deleteNote } from "../../lib/fetchNotes";
+import { marked } from "marked";
+import { Link } from "react-router-dom";
+BASE_URL = 'http://localhost:5000';
 
 const NoteCard = ({ note, markers }) => {
-  const [showFullNote, setShowFullNote] = useState(false)
-  const { noteId } = useParams()
-  const token = sessionStorage.getItem("token")
-  const navigate = useNavigate()
+  const [showFullNote, setShowFullNote] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { noteId } = useParams();
+  const navigate = useNavigate();
+
+  
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteNote({ id: note._id });
+      navigate("/notes");
+    } catch (error) {
+      console.error("Error deleting note", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="notecard">
@@ -21,25 +33,25 @@ const NoteCard = ({ note, markers }) => {
         data-note-id={note._id}
         onMouseOver={() => {
           const markerElement = markers.current.find((marker) => {
-            const popupContent = marker.getPopup()?.getContent()
+            const popupContent = marker.getPopup()?.getContent();
             return (
               popupContent &&
               popupContent.includes(`Edit Note`) &&
               popupContent.includes(note._id)
-            )
-          })
-          if (markerElement) markerElement.openPopup()
+            );
+          });
+          if (markerElement) markerElement.openPopup();
         }}
         onMouseOut={() => {
           const markerElement = markers.current.find((marker) => {
-            const popupContent = marker.getPopup()?.getContent()
+            const popupContent = marker.getPopup()?.getContent();
             return (
               popupContent &&
               popupContent.includes(`Edit Note`) &&
               popupContent.includes(note._id)
-            )
-          })
-          if (markerElement) markerElement.closePopup()
+            );
+          });
+          if (markerElement) markerElement.closePopup();
         }}
       >
         <div
@@ -50,28 +62,36 @@ const NoteCard = ({ note, markers }) => {
         />
       </div>
       <div className="note-actions-ui">
-        <button
+        <button 
           className="edit-button"
-          onClick={() => {
-            console.log("Navigate to edit note:", note._id)
-            navigate(`/notes/${note._id}/edit`, { state: { token } })
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`/notes/${note._id}/edit`);
           }}
+          aria-label={`Edit note ${note._id}`}
         >
           Edit
         </button>
         <br />
         <button
           className="delete-button"
-          onClick={() => {
-            console.log("Delete note:", note._id)
-            deleteNote({ id: note._id })
+          onClick={async (e) => {
+            e.preventDefault();
+            try {
+              await axios.delete(`${BASE_URL}/notes/${note._id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              dispatch(deleteNote(note._id));
+            } catch (error) {
+              console.error("Error deleting note:", error);
+            }
           }}
+          aria-label={`Delete note ${note._id}`}
         >
-          Delete
-        </button>
+          </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default NoteCard
+export default NoteCard;

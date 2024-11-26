@@ -9,6 +9,7 @@ import TaskList from '@tiptap/extension-task-list'
 import React, { useCallback, useEffect, useState } from "react"
 import { marked } from "marked"
 import axios from "axios"
+BASE_URL = 'http://localhost:5000';
 
 const token = sessionStorage.getItem("token")
 
@@ -166,7 +167,9 @@ const MenuBar = ({ onSave }) => {
         </button>
         <button
           onClick={() => editor.chain().focus().toggleTask({ task: true }).run()}
-          className={editor.isActive("taskItem", { task: true }) ? "is-active" : ""}
+          className={
+            editor.isActive("taskItem", { task: true }) ? "is-active" : ""
+          }
         >
           Task item
         </button>
@@ -233,7 +236,7 @@ export default ({ note, setNote }) => {
 
     try {
       console.log("Saving note:", note.body);
-      const response = await axios.post(`http://localhost:5000/notes/${note._id}/edit`, {
+      const response = await axios.post(`${BASE_URL}/notes/${note._id}/edit`, {
         body: note.body,
         location: note.location
       }, {
@@ -245,13 +248,14 @@ export default ({ note, setNote }) => {
       
       if (response.status === 200) {
         console.log("Changes saved to server");
+        setNote({ ...note, body: response.data.body });
       } else {
         console.error("Failed to save changes, server responded with:", response.status);
       }
     } catch (error) {
       console.error("Error saving changes:", error);
     }
-  }, [token, note._id, note.body]);
+  }, [token, note._id, note.body, setNote]);
 
   if (!note || !note.body) return null
 

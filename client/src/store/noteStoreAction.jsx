@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-const BASE_URL = 'http://localhost:5000';
+BASE_URL = 'http://localhost:5000';
 
 // Select token from state
 const selectToken = (state) => state.auth.token;

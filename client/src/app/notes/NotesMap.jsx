@@ -12,8 +12,8 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
       const initialView = currentLocation
         ? [currentLocation.latitude, currentLocation.longitude]
         : [34.052235, -118.243683]; // Default to LA if no location is found
-      mapInstance.current = L.map(mapRef.current).setView(initialView, 13);
-      
+      mapInstance.current = L.map(mapRef.current).setView(initialView, currentLocation ? 15 : 13);
+
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
 
       const geocoder = L.Control.Geocoder.nominatim({
@@ -34,7 +34,7 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
           body: address.display_name,
           location: {
             type: "Point",
-            coordinates: [latlng.lng, latlng.lat],
+            coordinates: [latlng.lat, latlng.lng],
           },
         };
         console.log("creating new note:", note);
@@ -46,7 +46,7 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
 
     // Clear previous markers
     markers.current.forEach((marker) => map.removeLayer(marker));
-    markers.current = [];
+    markers.current = []; // Clear the markers array
 
     // Add new markers based on the current notes
     notes?.forEach((note) => {
@@ -83,7 +83,6 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
     // Cleanup function to remove markers when the component is unmounted or notes change
     return () => {
       markers.current.forEach((marker) => map.removeLayer(marker));
-      markers.current = []; // Clear the markers array
     };
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation]);
 
@@ -91,3 +90,4 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
 });
 
 export default NotesMap;
+
