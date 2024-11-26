@@ -5,7 +5,7 @@ import "./Notes.css"
 import Mapmark from "./Mapmark"
 import { useDispatch } from "react-redux"
 import { createNote } from "../../store/noteStoreAction"
-BASE_URL = 'http://localhost:5000';
+// BASE_URL = 'http://localhost:5000';
 
 const NoteNew = () => {
   const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation"))
@@ -45,7 +45,7 @@ const NoteNew = () => {
       email,  
     };
   
-    axios.post('${BASE_URL}/notes/new', newNote)
+    axios.post('http://localhost:5000/notes/new', newNote)
     .then(response => {
       console.log("Note created:", response.data);
       navigate("/notes");

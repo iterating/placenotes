@@ -1,1 +1,1 @@
-export const SERVER = '${BASE_URL}/'
+export const SERVER = 'http://localhost:5000//'

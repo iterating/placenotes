@@ -4,24 +4,22 @@ import { useDispatch } from "react-redux";
 import { deleteNote } from "../../lib/fetchNotes";
 import { marked } from "marked";
 import { Link } from "react-router-dom";
-BASE_URL = 'http://localhost:5000';
+import axios from "axios";
+// BASE_URL = 'http://localhost:5000';
 
 const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false);
-  const [loading, setLoading] = useState(false);
   const { noteId } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  
+
   const handleDelete = async () => {
-    setLoading(true);
     try {
-      await deleteNote({ id: note._id });
+      await dispatch(deleteNote({ id: note._id }));
       navigate("/notes");
     } catch (error) {
       console.error("Error deleting note", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -75,23 +73,16 @@ const NoteCard = ({ note, markers }) => {
         <br />
         <button
           className="delete-button"
-          onClick={async (e) => {
-            e.preventDefault();
-            try {
-              await axios.delete(`${BASE_URL}/notes/${note._id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              dispatch(deleteNote(note._id));
-            } catch (error) {
-              console.error("Error deleting note:", error);
-            }
-          }}
+          onClick={handleDelete}
           aria-label={`Delete note ${note._id}`}
         >
-          </button>
+          Delete Note
+        </button>
+
       </div>
     </div>
   );
 };
 
 export default NoteCard;
+

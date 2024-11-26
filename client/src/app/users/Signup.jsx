@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-BASE_URL = 'http://localhost:5000';
+// BASE_URL = 'http://localhost:5000';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const Signup = () => {
     console.log(`Signup: Location entered: ${currentLocation.type}, ${currentLocation.coordinates.join(', ')}`);
 
     try {
-      const response = await axios.post('${BASE_URL}/users/signup', {
+      const response = await axios.post('http://localhost:5000//users/signup', {
         email,
         password,
         location: JSON.stringify(currentLocation),
