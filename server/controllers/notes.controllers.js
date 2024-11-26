@@ -66,20 +66,29 @@ export const newNoteForm = (req, res) =>
   })
 
 export const newNote = async (req, res) => {
+  console.log("newNote called with request:", req.body)
   try {
-    const location = JSON.parse(req.body.location)
+    const location = req.body.location
+    console.log("newNote location:", location)
+    const userId = req.body?.userId
+    console.log("newNote userId:", userId)
+    const email = req.body?.email
+    console.log("newNote email:", email)
+    const radius = req.body?.radius ?? 200
+    console.log("newNote radius:", radius)
+    const body = req.body.body
+    console.log("newNote body:", body)
+    const recipients = req.body?.recipients || []
+    console.log("newNote recipients:", recipients)
     const note = await NotesService.newNote({
-      userId: req.user._id,
-      email: req.user.email,
-      location: {
-        type: "Point",
-        coordinates: location.coordinates,
-      },
-      radius: req.body?.radius ?? 200,
-      body: req.body.body,
-      // `recipients:req.body?.recipients??[]` creates empty string, not array
-      recipients: req.body?.recipients ? JSON.parse(req.body.recipients) : [],
+      userId,
+      email,
+      location,
+      radius,
+      body,
+      recipients,
     })
+    console.log("newNote note successfully created:", note)
     res.json(note)
   } catch (err) {
     console.error(err)

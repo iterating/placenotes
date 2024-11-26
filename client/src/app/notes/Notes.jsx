@@ -7,10 +7,16 @@ import "leaflet/dist/leaflet.css";
 import { getCurrentLocation } from "../../lib/Location";
 
 const Notes = () => {
-  const [notes, setNotes] = useState([]);
-  const [userId, setUserId] = useState(null);
-  const [currentLocation, setCurrentLocation] = useState(JSON.parse(sessionStorage.getItem("currentLocation")) || null);
   const token = sessionStorage.getItem("token") || null;
+  const [notes, setNotes] = useState([]);
+  const [userId, setUserId] = useState(() => {
+    if (token) {
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      return decoded._id;
+    }
+    return null;
+  });
+  const [currentLocation, setCurrentLocation] = useState(JSON.parse(sessionStorage.getItem("currentLocation")) || null);
   const markers = React.useRef([]);
 
   useEffect(() => {
@@ -20,24 +26,17 @@ const Notes = () => {
     }
   }, [token]);
 
-  // getCurrentLocation()
-  //   .then((location) => {
-  //     setCurrentLocation(location);
-  //   })
-  //   .catch((error) => {
-  //     console.error("Error getting current location:", error);
-  //   });
-  // Get Location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCurrentLocation({
+          const newLocation = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-          });
-          sessionStorage.setItem("currentLocation", JSON.stringify(currentLocation));
-          console.log("Current location:", currentLocation);
+          };
+          setCurrentLocation(newLocation);
+          sessionStorage.setItem("currentLocation", JSON.stringify(newLocation));
+          console.log("Current location:", newLocation);
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -107,5 +106,4 @@ const Notes = () => {
 };
 
 export default Notes;
-
 

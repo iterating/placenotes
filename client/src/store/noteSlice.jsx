@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchOneNote, updateNote, deleteNote } from "./noteStoreAction"
+import { fetchOneNote, editNote, deleteNote } from "./noteStoreAction"
 
 const initialState = {
   notes: {},
   loading: false,
   error: null,
 };
+
 
 const noteSlice = createSlice({
   name: 'notes',
@@ -22,7 +23,7 @@ const noteSlice = createSlice({
       state.loading = false;
       state.error = action.payload.error;
     },
-    updateNote(state, action) {
+    editNote(state, action) {
       state.loading = true;
       state.notes[action.payload.id] = action.payload.note;
     },

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import "./Notes.css"
 import Mapmark from "./Mapmark"
-import { useDispatch } from "react-redux";
-import { createNote } from "../../store/noteStoreAction";
+import { useDispatch } from "react-redux"
+import { createNote } from "../../store/noteStoreAction"
 
 const NoteNew = () => {
   const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation"))
@@ -15,38 +15,55 @@ const NoteNew = () => {
   const [body, setBody] = useState("")
   const [radius, setRadius] = useState(100)
   const [location, setLocation] = useState(() => {
-    console.log("initial coordinates:", coordinates);
-    return JSON.stringify({
+    console.log("initial coordinates:", coordinates)
+    return {
       type: "Point",
       coordinates,
-    })
+    }
   })
 
   const navigate = useNavigate()
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
+  const tokenPayload = JSON.parse(atob(sessionStorage.getItem("token").split(".")[1]))
+  const userId = tokenPayload._id
+  const email = tokenPayload.email
+  console.log("email:", email)
+  console.log("userId:", userId)
 
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("submitting new note:", body, location, radius);
+  
     const newNote = {
       body,
       location,
       radius,
+      recipients: [],
+      time: Date.now(),
+      userId, 
+      email,  
     };
-
-    console.log("new note:", newNote);
-    dispatch(createNote({ token: sessionStorage.getItem("token"), note: newNote }));
-    navigate("/notes");
+  
+    axios.post('http://localhost:5000/notes/new', newNote)
+    .then(response => {
+      console.log("Note created:", response.data);
+      navigate("/notes");
+    })
+    .catch(error => {
+      console.error("Error creating note:", error);
+    });
   };
+  
 
   const handleMapChange = (newNote) => {
-    console.log("new note from map:", newNote);
+    console.log("new note from map:", newNote)
     if (newNote && newNote.body && newNote.location && newNote.radius) {
-      setBody(newNote.body);
-      setLocation(JSON.stringify(newNote.location));
-      setRadius(newNote.radius);
+      console.log("updating new note:", newNote)
+      setBody(newNote.body)
+      setLocation(newNote.location)
+      setRadius(newNote.radius)
     }
-  };
+  }
 
   return (
     <div className="edit-container">
@@ -67,7 +84,7 @@ const NoteNew = () => {
         <Mapmark
           note={{
             body,
-            location: JSON.parse(location),
+            location,
             radius,
           }}
           setNote={handleMapChange}

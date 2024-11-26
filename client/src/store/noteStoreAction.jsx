@@ -2,17 +2,15 @@ import { createSelector } from '@reduxjs/toolkit';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const selectToken = createSelector(
-  (state) => state.auth.token,
-  (token) => token,
-);
+const selectToken = (state) => state.auth.token;
 
 export const fetchUsersNotes = createAsyncThunk(
   'notes/fetchUsersNotes',
-  async ({ token }, { getState }) => {
+  async (_, { getState }) => {
+    const token = selectToken(getState());
     console.log('FetchUsersNotes: Fetching notes');
     console.log('FetchUsersNotes: Using token', token);
-    const response = await axios.get('http://localhost:5000/notes', {
+    const response = await axios.get('/notes', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -37,6 +35,7 @@ export const fetchOneNote = createAsyncThunk(
     return response.data;
   }
 );
+
 export const editNote = createAsyncThunk(
   'notes/editNote',
   async ({ id, note }, { getState }) => {
@@ -44,7 +43,7 @@ export const editNote = createAsyncThunk(
     console.log('EditNote: Note contents', note);
     const token = selectToken(getState());
     console.log('EditNote: Using token', token);
-    const response = await axios.post(`http://localhost:5000/notes/${id}/edit`, note, {
+    const response = await axios.patch(`http://localhost:5000/notes/${id}`, note, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -52,31 +51,24 @@ export const editNote = createAsyncThunk(
     console.log('EditNote: Response received', response.data);
     return response.data;
   }
-)
-export const updateNote = createAsyncThunk(
-  'notes/updateNote',
-  async ({ id, note }, { getState }) => {
-    console.log('UpdateNote: Sending request to update note', id);
-    console.log('UpdateNote: Note contents', note);
-    const token = selectToken(getState());
-    console.log('UpdateNote: Using token', token);
-    const response = await axios.p(`http://localhost:5000/notes/${id}/edit`, note, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log('UpdateNote: Response received', response.data);
-    return response.data;
-  }
 );
+
 export const createNote = createAsyncThunk(
   'notes/createNote',
   async ({ note }, { getState }) => {
     console.log('CreateNote: Sending request to create note');
     console.log('CreateNote: Note contents', note);
+    console.log('CreateNote: Note location', note.longitude, note.latitude);
+    console.log('CreateNote: Note radius', note.radius);
+    console.log('CreateNote: Note email', note.email);
+    console.log('CreateNote: Note userId', note.userId);
+    console.log('CreateNote: Note time', note.time);
     const token = selectToken(getState());
     console.log('CreateNote: Using token', token);
-    const response = await axios.post('http://localhost:5000/notes/new', note, {
+  
+    const response = await axios.post('http://localhost:5000/notes/new', {
+      ...note,
+    }, { 
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -84,7 +76,8 @@ export const createNote = createAsyncThunk(
     console.log('CreateNote: Response received', response.data);
     return response.data;
   }
-)
+);
+
 export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
   async ({ id }, { getState }) => {
@@ -107,5 +100,4 @@ export const setCurrentLocation = (location) => ({
   type: SET_CURRENT_LOCATION,
   payload: location,
 });
-
 
