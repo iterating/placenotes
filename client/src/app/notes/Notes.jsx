@@ -4,7 +4,7 @@ import { fetchUsersNotes } from "../../lib/fetchNotes";
 import NotesMap from "./NotesMap";
 import NotesList from "./NotesList";
 import "leaflet/dist/leaflet.css";
-import Note from "./NoteCard";
+import { getCurrentLocation } from "../../lib/Location";
 
 const Notes = () => {
   const [notes, setNotes] = useState([]);
@@ -20,6 +20,14 @@ const Notes = () => {
     }
   }, [token]);
 
+  // getCurrentLocation()
+  //   .then((location) => {
+  //     setCurrentLocation(location);
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error getting current location:", error);
+  //   });
+  // Get Location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

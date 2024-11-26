@@ -96,6 +96,8 @@ export const editNote = async (req, res) => {
 export const updateNote = async (req, res) => {
   
   try {
+    console.log("req.params.id:", req.params.id)
+    console.log("req.body:", req.body)
     // const location = JSON.parse(req.body.location)
     const note = await NotesService.updateNote({
       _id: req.params.id,
@@ -110,6 +112,7 @@ export const updateNote = async (req, res) => {
     if (!note) {
       return res.status(404).send("Note not found")
     }
+    console.log("Updated note:", note)
     res.json(note)
   } catch (err) {
     console.error(err)

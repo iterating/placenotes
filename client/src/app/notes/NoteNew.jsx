@@ -57,7 +57,7 @@ const NoteNew = () => {
         <textarea
           name="body"
           id="note-body"
-          rows="8"
+          rows="20"
           cols="80"
           value={body}
           onChange={(e) => setBody(e.target.value)}

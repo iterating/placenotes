@@ -25,8 +25,19 @@ export const newNote = (noteData) =>
   Note.insertMany([{ _id: _id(), ...noteData }])
 export const editNote = (id) => Note.findById(id)
 
-export const updateNote = (note) =>
-  Note.findOneAndUpdate({ _id: note._id }, { $set: { ...note } }, { new: true })
+export const updateNote = (note) => {
+  console.log(`services updating note with ID: ${note._id}`);
+  return Note
+    .findOneAndUpdate({ _id: note._id }, { $set: { ...note } }, { new: true })
+    .then(updatedNote => {
+      console.log(`services updated note with ID: ${updatedNote._id}`);
+      return updatedNote;
+    })
+    .catch(error => {
+      console.error(`Error updating note with ID: ${note._id}`, error);
+      throw error;
+    });
+}
 
 export const deleteNote = (id) => Note.findByIdAndDelete(id)
 

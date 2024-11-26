@@ -10,7 +10,7 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
   useEffect(() => {
     if (!mapInstance.current) {
       const initialView = currentLocation
-        ? [currentLocation.latitude, currentLocation.longitide]
+        ? [currentLocation.latitude, currentLocation.longitude]
         : [34.052235, -118.243683];
       mapInstance.current = L.map(mapRef.current).setView(initialView, 13);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(

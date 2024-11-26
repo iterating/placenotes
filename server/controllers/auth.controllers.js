@@ -17,7 +17,7 @@ export const generateToken = (user) => {
     throw new Error("User payload cannot be null")
   }
   const secret = process.env.JWT_SECRET || "defaultSecretKey"
-  const options = { expiresIn: "1h" }
+  const options = { expiresIn: "6h" }
   const token = jwt.sign(payload, secret, options)
   console.log("Token generated:", token)
   return token

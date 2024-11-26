@@ -1,33 +1,66 @@
+import { createSelector } from '@reduxjs/toolkit';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const fetchOneNote = createAsyncThunk(
-  'notes/fetchOneNote',
-  async ({ token, id }) => {
-    const response = await axios.get(`http://localhost:5000/notes/${id}`, {
+const selectToken = createSelector(
+  (state) => state.auth.token,
+  (token) => token,
+);
+
+export const fetchUsersNotes = createAsyncThunk(
+  'notes/fetchUsersNotes',
+  async ({ token }, { getState }) => {
+    console.log('FetchUsersNotes: Fetching notes');
+    console.log('FetchUsersNotes: Using token', token);
+    const response = await axios.get('http://localhost:5000/notes', {
       headers: {
-        Authorization: `${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
+    console.log('FetchUsersNotes: Response received', response.data);
+    return response.data;
+  }
+);
+
+export const fetchOneNote = createAsyncThunk(
+  'notes/fetchOneNote',
+  async ({ id }, { getState }) => {
+    console.log('FetchOneNote: Fetching note', id);
+    const token = selectToken(getState());
+    console.log('FetchOneNote: Using token', token);
+    const response = await axios.get(`http://localhost:5000/notes/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('FetchOneNote: Response received', response.data);
     return response.data;
   }
 );
 export const editNote = createAsyncThunk(
   'notes/editNote',
-  async ({ token, id, note }) => {
-    const response = await axios.put(`http://localhost:5000/notes/${id}`, note, {
+  async ({ id, note }, { getState }) => {
+    console.log('EditNote: Sending request to edit note', id);
+    console.log('EditNote: Note contents', note);
+    const token = selectToken(getState());
+    console.log('EditNote: Using token', token);
+    const response = await axios.post(`http://localhost:5000/notes/${id}/edit`, note, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('EditNote: Response received', response.data);
     return response.data;
   }
 )
 export const updateNote = createAsyncThunk(
   'notes/updateNote',
-  async ({ token, id, note }) => {
+  async ({ id, note }, { getState }) => {
     console.log('UpdateNote: Sending request to update note', id);
-    const response = await axios.put(`http://localhost:5000/notes/${id}`, note, {
+    console.log('UpdateNote: Note contents', note);
+    const token = selectToken(getState());
+    console.log('UpdateNote: Using token', token);
+    const response = await axios.p(`http://localhost:5000/notes/${id}/edit`, note, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -38,9 +71,11 @@ export const updateNote = createAsyncThunk(
 );
 export const createNote = createAsyncThunk(
   'notes/createNote',
-  async ({ token, note }) => {
+  async ({ note }, { getState }) => {
     console.log('CreateNote: Sending request to create note');
     console.log('CreateNote: Note contents', note);
+    const token = selectToken(getState());
+    console.log('CreateNote: Using token', token);
     const response = await axios.post('http://localhost:5000/notes/new', note, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -52,12 +87,16 @@ export const createNote = createAsyncThunk(
 )
 export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
-  async ({ token, id }) => {
+  async ({ id }, { getState }) => {
+    console.log('DeleteNote: Sending request to delete note', id);
+    const token = selectToken(getState());
+    console.log('DeleteNote: Using token', token);
     const response = await axios.delete(`http://localhost:5000/notes/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('DeleteNote: Response received', response.data);
     return response.data;
   }
 );
@@ -68,3 +107,5 @@ export const setCurrentLocation = (location) => ({
   type: SET_CURRENT_LOCATION,
   payload: location,
 });
+
+

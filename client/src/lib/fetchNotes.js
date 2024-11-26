@@ -41,5 +41,16 @@ const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitud
   }
 };
 
-export { fetchOneNote, fetchUsersNotes, fetchNotesByCurrentLocation };
+const updateNote = async (token, id, update) => {
+  if (!token) return;
+  try {
+    const response = await axios.post(`http://localhost:5000/notes/${id}/edit`, update, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating note:", error);
+  }
+}
+export { fetchOneNote, fetchUsersNotes, fetchNotesByCurrentLocation, updateNote };
 

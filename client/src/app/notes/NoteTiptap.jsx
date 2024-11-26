@@ -233,7 +233,7 @@ export default ({ note, setNote }) => {
 
     try {
       console.log("Saving note:", note.body);
-      const response = await axios.put(`http://localhost:5000/notes/${note._id}/`, {
+      const response = await axios.post(`http://localhost:5000/notes/${note._id}/edit`, {
         body: note.body,
         location: note.location
       }, {
