@@ -60,7 +60,6 @@ const NoteEdit = () => {
   )
 
   return (
-    
     <>
       <div className="edit-container">
         <h1>Edit Note</h1>
@@ -94,3 +93,4 @@ const NoteEdit = () => {
 }
 
 export default NoteEdit
+

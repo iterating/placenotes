@@ -20,7 +20,7 @@ export const setUser = (req, res, next) => {
   }
   jwt.verify(
     token,
-    process.env.JWT_SECRET || "your_secret_key_here",
+    process.env.JWT_SECRET || "secret",
     (err, decoded) => {
       if (err) {
         console.error("Error verifying token:", err);

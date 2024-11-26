@@ -91,13 +91,16 @@ const Notes = () => {
           currentLocation={currentLocation}
         />
       </div>
+      <br />
+      <>
       <NotesList
         notes={notes}
         handleNoteClick={handleNoteClick}
         handleMouseOver={handleMouseOver}
         handleMouseOut={handleMouseOut}
         markers={markers}
-      />
+        />
+        </>
       <p>
         <a href="/notes/new">Create a new note</a>
       </p>

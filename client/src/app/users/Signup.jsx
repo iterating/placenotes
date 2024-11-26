@@ -20,7 +20,7 @@ const Signup = () => {
     console.log(`Signup: Location entered: ${currentLocation.type}, ${currentLocation.coordinates.join(', ')}`);
 
     try {
-      const response = await axios.post('http://API_URL//users/signup', {
+      const response = await axios.post('http://localhost:5000//users/signup', {
         email,
         password,
         location: JSON.stringify(currentLocation),

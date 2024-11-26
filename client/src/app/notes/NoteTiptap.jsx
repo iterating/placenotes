@@ -3,9 +3,9 @@ import ListItem from "@tiptap/extension-list-item"
 import TextStyle from "@tiptap/extension-text-style"
 import { EditorProvider, useCurrentEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import { Markdown } from 'tiptap-markdown';
-import TaskItem from '@tiptap/extension-task-item'
-import TaskList from '@tiptap/extension-task-list'
+import { Markdown } from "tiptap-markdown"
+import TaskItem from "@tiptap/extension-task-item"
+import TaskList from "@tiptap/extension-task-list"
 import React, { useCallback, useEffect, useState } from "react"
 import { marked } from "marked"
 import axios from "axios"
@@ -51,14 +51,10 @@ const MenuBar = ({ onSave }) => {
         >
           Code
         </button>
-        <button
-          onClick={() => editor.chain().focus().unsetAllMarks().run()}
-        >
+        <button onClick={() => editor.chain().focus().unsetAllMarks().run()}>
           Clear marks
         </button>
-        <button
-          onClick={() => editor.chain().focus().clearNodes().run()}
-        >
+        <button onClick={() => editor.chain().focus().clearNodes().run()}>
           Clear nodes
         </button>
         <button
@@ -166,7 +162,9 @@ const MenuBar = ({ onSave }) => {
           Task list
         </button>
         <button
-          onClick={() => editor.chain().focus().toggleTask({ task: true }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleTask({ task: true }).run()
+          }
           className={
             editor.isActive("taskItem", { task: true }) ? "is-active" : ""
           }
@@ -195,17 +193,14 @@ const MenuBar = ({ onSave }) => {
         >
           Purple
         </button>
-        <button
-          onClick={onSave}
-        >
-          Save Changes
-        </button>
+        <button onClick={onSave}>Save Changes</button>
       </div>
     </div>
   )
 }
 
 const extensions = [
+  
   Color.configure({ types: [TextStyle.name, ListItem.name] }),
   TaskItem.configure({
     nested: true,
@@ -214,66 +209,56 @@ const extensions = [
     nested: true,
   }),
   TextStyle.configure({ types: [ListItem.name] }),
-  StarterKit.configure({
-    bulletList: {
-      keepMarks: true,
-      keepAttributes: false,
-    },
-    orderedList: {
-      keepMarks: true,
-      keepAttributes: false,
-    },
-  }),
+  StarterKit,
   Markdown.configure(),
+  
 ]
-const EditorProviderMemo = React.memo(EditorProvider)
-export default ({ note, setNote }) => {
+const NoteTiptap = ({ note, setNote }) => {
   const saveChanges = useCallback(async () => {
-    if (!token || !note._id) {
-      console.error("Missing token or note ID");
-      return;
-    }
-
     try {
-      console.log("Saving note:", note.body);
-      const response = await axios.post(`http://API_URL/notes/${note._id}/edit`, {
-        body: note.body,
-        location: note.location
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.post(
+        `http://localhost:5000/notes/${note._id}/edit`,
+        {
+          body: note.body,
+
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
         }
-      });
-      console.log("Server responded:", response);
-      
+      )
+      console.log("Server responded:", response)
+
       if (response.status === 200) {
-        console.log("Changes saved to server");
-        setNote({ ...note, body: response.data.body });
+        console.log("Changes saved to server")
+        setNote({ ...note, body: response.data.body }) // Update the note body in the parent component
       } else {
-        console.error("Failed to save changes, server responded with:", response.status);
+        console.error("Failed to save changes, server responded with:", response.status)
       }
     } catch (error) {
-      console.error("Error saving changes:", error);
+      console.error("Error saving changes:", error)
     }
-  }, [token, note._id, note.body, setNote]);
+  }, [note, setNote])
 
   if (!note || !note.body) return null
 
   return (
-    <EditorProviderMemo
-      slotBefore={<MenuBar onSave={saveChanges} />}
+    <EditorProvider
+      content={marked(note.body)} 
       extensions={extensions}
-      content={marked(note.body)}
-      key={note.body}
       editorProps={{
         onUpdate: ({ editor }) => {
-          const updatedNote = { ...note, body: editor.getHTML() };
-          setNote(updatedNote);
+          const updatedNote = { ...note, body: editor.getHTML() }
+          setNote(updatedNote) // Update  parent component state with the new content
         },
       }}
     >
-      <div className="edit-container" />
-    </EditorProviderMemo>
+      <div className="editor-container">
+        <button onClick={saveChanges}>Save Changes</button>
+      </div>
+    </EditorProvider>
   )
 }
 
+export default NoteTiptap

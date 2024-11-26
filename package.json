@@ -15,12 +15,12 @@
   "author": "Jonathan Young",
   "license": "ISC",
   "dependencies": {
-    "@graphql-tools/schema": "^10.0.8",
+    "@graphql-tools/schema": "^10.0.9",
     "@reduxjs/toolkit": "^2.3.0",
-    "@tiptap/extension-task-item": "^2.10.2",
-    "@tiptap/extension-task-list": "^2.10.2",
-    "@vitejs/plugin-react": "^4.3.3",
-    "axios": "^1.7.7",
+    "@tiptap/extension-task-item": "^2.10.3",
+    "@tiptap/extension-task-list": "^2.10.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "axios": "^1.7.8",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -29,14 +29,14 @@
     "express-session": "^1.18.1",
     "graphql": "^16.9.0",
     "graphql-http": "^1.22.3",
-    "graphql-tools": "^9.0.3",
+    "graphql-tools": "^9.0.4",
     "immer": "^10.1.1",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "leaflet-control-geocoder": "^2.4.0",
     "leaflet-draw": "^1.0.4",
     "marked": "^15.0.2",
-    "mongoose": "^8.8.2",
+    "mongoose": "^8.8.3",
     "passport": "^0.7.0",
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.1",
@@ -47,7 +47,7 @@
     "react-markdown": "^9.0.1",
     "react-redux": "^9.1.2",
     "tiptap-markdown": "^0.8.10",
-    "vite": "^5.4.11"
+    "vite": "^6.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"
