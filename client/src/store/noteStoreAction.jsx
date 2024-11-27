@@ -3,8 +3,7 @@ import axios from 'axios';
 // BASE_URL = 'http://API_URL';
 
 // Select token from state
-const selectToken = (state) => state.auth.token;
-
+const selectToken = () => sessionStorage.getItem('token');
 // Utility to validate and format the location coordinates
 const validateLocation = (location) => {
   if (!location || !location.coordinates || location.coordinates.length !== 2) {
@@ -110,18 +109,24 @@ export const createNote = createAsyncThunk(
   async ({ note }, { getState, rejectWithValue }) => {
     const token = selectToken(getState());
     if (!token) {
+      console.error('No token available');
       return rejectWithValue('No token available');
     }
 
     try {
+      console.log('Creating note with data:', note);
+
       // Validate and format the location field
       if (note.location) {
         note.location = validateLocation(note.location);
+        console.log('Validated location:', note.location);
       }
 
       const response = await axios.post(`http://localhost:5000/notes/new`, note, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      console.log('Note created successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error creating note:', error);

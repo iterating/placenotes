@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "leaflet-control-geocoder";
 import "leaflet/dist/leaflet.css";
@@ -10,6 +10,7 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
   const markerRef = useRef(null);
   const circleRef = useRef(null);
   const mapInstance = useRef(null);
+  const [radius, setRadius] = useState(note.radius || 100);
 
   useEffect(() => {
     if (!mapInstance.current) {
@@ -27,12 +28,12 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
           }));
           mapInstance.current.setView(latlng, 15);
           markerRef.current.setLatLng(latlng);
-          circleRef.current.setLatLng(latlng);
+          circleRef.current.setLatLng(markerRef.current.getLatLng());
         })
         .addTo(mapInstance.current);
 
         const marker = L.marker([latitude, longitude], { draggable: true }).addTo(mapInstance.current);
-        const circle = L.circle([latitude, longitude], { radius: note.radius || 100 }).addTo(mapInstance.current);
+        const circle = L.circle([latitude, longitude], { radius: radius }).addTo(mapInstance.current);
     
         markerRef.current = marker;
         circleRef.current = circle;
@@ -47,17 +48,26 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
             },
           }));
           onMapChange([newLatLng.lng, newLatLng.lat]);
+          circleRef.current.setLatLng(newLatLng);
         };
     
         const radiusChangeHandler = () => {
           const newRadius = circleRef.current.getRadius();
-          setNote((prev) => ({ ...prev, radius: newRadius }));
+          setRadius(newRadius);
         };
     
         markerRef.current.on("dragend", dragEndHandler);
         circleRef.current.on("edit radiuschange", radiusChangeHandler);
+        markerRef.current.on("drag", (e) => {
+          circleRef.current.setLatLng(e.latlng);
+        });
       }
-    }, [coordinates, note, setNote, onMapChange]);
+    }, [coordinates, note, setNote, onMapChange, radius]);
+
+  const handleRadiusChange = (e) => {
+    setRadius(e.target.valueAsNumber);
+    circleRef.current.setRadius(e.target.valueAsNumber);
+  };
 
   return (
     <>
@@ -66,12 +76,13 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
         type="range"
         min="10"
         max="10000"
-        value={note.radius || 100}
-        onChange={(e) => setNote((prev) => ({ ...prev, radius: e.target.valueAsNumber }))}
+        value={radius}
+        onChange={handleRadiusChange}
       />
     </>
   );
 };
 
 export default Mapmark;
+
 

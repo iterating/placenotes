@@ -4,66 +4,86 @@ import axios from "axios"
 import "./Notes.css"
 import Mapmark from "./Mapmark"
 import { useDispatch } from "react-redux"
-import { createNote } from "../../store/noteStoreAction"
-// BASE_URL = 'http://API_URL';
+import { createNote, deleteNote } from "../../store/noteStoreAction"
 
 const NoteNew = () => {
-  const [coordinates, setCoordinates] = useState([])
-  const [body, setBody] = useState("")
-  const [radius, setRadius] = useState(100)
-  const [location, setLocation] = useState({ type: "Point", coordinates: [] })
-
+  const [token, setToken] = useState(sessionStorage.getItem("token"));
+  const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+  const userId = tokenPayload._id;
+  const email = tokenPayload.email;
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const tokenPayload = JSON.parse(
-    atob(sessionStorage.getItem("token").split(".")[1])
-  )
-  const userId = tokenPayload._id
-  const email = tokenPayload.email
+  const [body, setBody] = useState("")
+  const [radius, setRadius] = useState(100)
+  const [location, setLocation] = useState(null)
+  const [note, setNote] = useState({})
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setCoordinates([position.coords.longitude, position.coords.latitude])
+        setLocation({
+          type: "Point",
+          coordinates: [position.coords.longitude, position.coords.latitude],
+        })
       },
       (error) => console.error("Geolocation error:", error),
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     )
   }, [])
 
-  const handleMapChange = (lng, lat) => {
-    setCoordinates([lng, lat])
-    setLocation({ type: "Point", coordinates: [lng, lat] })
+  useEffect(() => {
+    if (location) return
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        setLocation({
+          type: "Point",
+          coordinates: [position.coords.longitude, position.coords.latitude],
+        }),
+      (error) => console.error("Geolocation error:", error),
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    )
+  }, [location])
+
+  const handleMapChange = (lat, lng) => {
+    setLocation({
+      type: "Point",
+      coordinates: [lng, lat],
+    })
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
     console.log("submitting new note:", body, location, radius)
 
-    const newNote = {
-      userId,
-      email,
-      location: {
-        type: "Point",
-        coordinates: coordinates,
-      },
-      radius,
-      time: Date.now(),
-      body,
-      recipients: [],
-      type: "note",
-      status: "active",
-    }
+    if (
+      location &&
+      location.type === "Point" &&
+      Array.isArray(location.coordinates) &&
+      location.coordinates.length === 2
+    ) {
+      const newNote = {
+        userId,
+        email,
+        location,
+        radius,
+        time: Date.now(),
+        body,
+        recipients: [],
+        type: "note",
+        status: "active",
+      }
 
-    axios
-      .post("http://localhost:5000/notes/new", newNote)
-      .then((response) => {
-        console.log("Note created:", response.data)
-        navigate("/notes")
-      })
-      .catch((error) => {
-        console.error("Error creating note:", error)
-      })
+      dispatch(createNote({ note: newNote }))
+        .unwrap()
+        .then(() => {
+          navigate("/notes")
+        })
+        .catch((error) => {
+          console.error("Error creating note:", error)
+        })
+    } else {
+      console.error("Invalid location:", location)
+    }
   }
 
   return (
@@ -88,8 +108,9 @@ const NoteNew = () => {
             location,
             radius,
           }}
-          setNote={handleMapChange}
-          coordinates={coordinates}
+          setNote={setNote}
+          onMapChange={handleMapChange}
+          coordinates={location?.coordinates}
         />
         <input type="submit" value="Create Note" />
         <button type="button" onClick={() => navigate("/notes")}>
@@ -101,3 +122,4 @@ const NoteNew = () => {
 }
 
 export default NoteNew
+
