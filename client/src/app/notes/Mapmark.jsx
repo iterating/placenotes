@@ -19,7 +19,7 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
 
       const geocoder = L.Control.Geocoder.nominatim();
-      L.Control.geocoder({ geocoder })
+      const geocoderControl = L.Control.geocoder({ geocoder })
         .on("markgeocode", (e) => {
           const latlng = e.geocode.center;
           setNote((prev) => ({
@@ -31,6 +31,10 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
           circleRef.current.setLatLng(markerRef.current.getLatLng());
         })
         .addTo(mapInstance.current);
+    
+      geocoderControl.getContainer().classList.add("address-list");
+      geocoderControl.getContainer().style.maxHeight = "300px";
+      geocoderControl.getContainer().style.overflowY = "scroll";
 
         const marker = L.marker([latitude, longitude], { draggable: true }).addTo(mapInstance.current);
         const circle = L.circle([latitude, longitude], { radius: radius }).addTo(mapInstance.current);
@@ -84,5 +88,4 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
 };
 
 export default Mapmark;
-
 
