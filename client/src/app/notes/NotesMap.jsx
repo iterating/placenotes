@@ -2,7 +2,7 @@ import L from "leaflet";
 import "leaflet-control-geocoder";
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 
-const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }) => {
+const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation")) || null;
@@ -86,8 +86,8 @@ const NotesMap = React.memo(({ notes, handleMouseOver, handleMouseOut, markers }
     };
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation]);
 
-  return <div id="map" ref={mapRef} style={{ height: "400px" }}></div>;
-});
+  return <div id="map" ref={mapRef} style={{ height: "500px" }}></div>;
+};
 
 export default NotesMap;
 

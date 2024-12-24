@@ -82,7 +82,7 @@ const Notes = () => {
   return (
     <div className="note-container">
       <h1 className="title">Your Notes</h1>
-      <div className="map-container" style={{ width: "800px", height: "400px" }}>
+      <div className="map-container" style={{ width: "900px", height: "400px" }}>
         <NotesMap
           notes={notes}
           handleMouseOver={handleMouseOver}
