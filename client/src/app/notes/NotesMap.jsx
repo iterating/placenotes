@@ -22,23 +22,47 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
           addressdetails: 1,
         },
       });
-      const geocoderControl = L.Control.geocoder({ geocoder }).addTo(mapInstance.current);
+
+      const geocoderControl = L.Control.geocoder({
+        geocoder,
+        defaultMarkGeocode: false,
+        placeholder: 'Search location...',
+        collapsed: false,
+        showResultIcons: false,
+        position: 'topleft'
+      }).addTo(mapInstance.current);
+
+      // Remove default icon and style
+      const geocoderContainer = geocoderControl.getContainer();
+      geocoderContainer.className = 'custom-geocoder-control';
+      
+      const searchInput = geocoderContainer.querySelector('input');
+      if (searchInput) {
+        searchInput.className = 'custom-geocoder-input';
+      }
+
+      // Remove the geocoder icon
+      const iconElement = geocoderContainer.querySelector('.leaflet-control-geocoder-icon');
+      if (iconElement) {
+        iconElement.remove();
+      }
 
       geocoderControl.on("markgeocode", (e) => {
         const latlng = e.geocode.center;
-        const address = e.geocode.address;
+        const address = e.geocode.properties;
         console.log("selected address:", address);
         const note = {
           _id: new Date().toISOString(),
-          title: address.road + " " + address.house_number,
+          title: address.address?.road 
+            ? `${address.address.road} ${address.address.house_number || ''}`
+            : address.display_name,
           body: address.display_name,
           location: {
             type: "Point",
-            coordinates: [latlng.lat, latlng.lng],
+            coordinates: [latlng.lng, latlng.lat],
           },
         };
         console.log("creating new note:", note);
-        // dispatch(createNote(note)); // Uncomment to actually dispatch the action
       });
     }
 
@@ -55,7 +79,11 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
       const marker = L.marker([note.location.coordinates[1], note.location.coordinates[0]])
         .addTo(map)
         .bindPopup(
-          `<div>${note.body.split('\n')[0]}</div><a href="/notes/${note._id}/edit">Edit Note</a>`
+          `<div class="popup-content">
+            <div class="popup-title">${note.title || 'Untitled Note'}</div>
+            <div class="popup-body">${note.body?.split('\n')[0]}</div>
+            <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
+          </div>`
         );
 
       marker.on("mouseover", () => {
@@ -75,19 +103,17 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         }
       });
 
-      markers.current.push(marker); // Store the marker for future cleanup
+      markers.current.push(marker);
     });
 
-    map.invalidateSize(); // Ensure the map size is correctly adjusted after marker updates
+    map.invalidateSize();
 
-    // Cleanup function to remove markers when the component is unmounted or notes change
     return () => {
       markers.current.forEach((marker) => map.removeLayer(marker));
     };
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation]);
 
-  return <div id="map" ref={mapRef} style={{ height: "500px" }}></div>;
+  return <div ref={mapRef} className="map-container" />;
 };
 
 export default NotesMap;
-

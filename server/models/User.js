@@ -48,8 +48,7 @@ const userSchema = new mongoose.Schema({
   },
 })
 
-// index email
-userSchema.index({ email: 1 }, { unique: true })
+
 
 userSchema.index({ currentLocation: "2dsphere" })
 
