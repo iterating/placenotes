@@ -29,23 +29,8 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         placeholder: 'Search location...',
         collapsed: false,
         showResultIcons: false,
-        position: 'topleft'
+        position: 'topright'
       }).addTo(mapInstance.current);
-
-      // Remove default icon and style
-      const geocoderContainer = geocoderControl.getContainer();
-      geocoderContainer.className = 'custom-geocoder-control';
-      
-      const searchInput = geocoderContainer.querySelector('input');
-      if (searchInput) {
-        searchInput.className = 'custom-geocoder-input';
-      }
-
-      // Remove the geocoder icon
-      const iconElement = geocoderContainer.querySelector('.leaflet-control-geocoder-icon');
-      if (iconElement) {
-        iconElement.remove();
-      }
 
       geocoderControl.on("markgeocode", (e) => {
         const latlng = e.geocode.center;
