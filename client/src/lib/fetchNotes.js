@@ -1,7 +1,43 @@
 import axios from "axios";
 
 // API base URL - will work both in development and production
-const BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://placenotes.onrender.com';
+
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add a request interceptor for authentication
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add a response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Utility to validate coordinates
 const validateCoordinates = (latitude, longitude) => {
@@ -12,12 +48,9 @@ const validateCoordinates = (latitude, longitude) => {
 };
 
 // Fetch a single note
-const fetchOneNote = async (token, id) => {
-  if (!token) return {};
+const fetchOneNote = async (id) => {
   try {
-    const { data } = await axios.get(`${BASE_URL}/notes/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const { data } = await api.get(`/notes/${id}`);
     return data;
   } catch (error) {
     console.error("Error fetching note:", error);
@@ -26,12 +59,9 @@ const fetchOneNote = async (token, id) => {
 };
 
 // Fetch all notes for the user
-const fetchUsersNotes = async (token, setNotes, setUserId) => {
-  if (!token) return;
+const fetchUsersNotes = async (setNotes, setUserId) => {
   try {
-    const { data } = await axios.get(`${BASE_URL}/notes`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const { data } = await api.get(`/notes`);
     const notes = data.map(note => ({ ...note, showFullNote: false }));
     setNotes(notes);
     if (notes.length) setUserId(notes[0].userId);
@@ -41,15 +71,11 @@ const fetchUsersNotes = async (token, setNotes, setUserId) => {
 };
 
 // Fetch notes by current location
-const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitude: lat, longitude: lon }) => {
-  if (!token) return;
-
+const fetchNotesByCurrentLocation = async (setNotes, setUserId, { latitude: lat, longitude: lon }) => {
   const { latitude, longitude } = validateCoordinates(lat, lon);
 
   try {
-    const response = await axios.get(`http://localhost:5000/notes/location/current?lat=${latitude}&lon=${longitude}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await api.get(`/notes/location/current?lat=${latitude}&lon=${longitude}`);
     const notes = response.data.map(note => ({
       ...note,
       showFullNote: false,
@@ -66,12 +92,7 @@ const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitud
 };
 
 // Update a note
-const updateNote = async (token, id, update) => {
-  if (!token) {
-    console.error("Token is required for authentication.");
-    return;
-  }
-
+const updateNote = async (id, update) => {
   try {
     console.log("fetchNotes Starting note update process...");
     
@@ -102,8 +123,8 @@ const updateNote = async (token, id, update) => {
     }
 
     console.log(" fetchNotes Sending update request to server...");
-    const response = await axios.put(
-      `${BASE_URL}/notes/${id}`,
+    const response = await api.put(
+      `/notes/${id}`,
       {
         ...update,
         location: {
@@ -113,9 +134,6 @@ const updateNote = async (token, id, update) => {
         radius: update.radius || 100,
         recipients: update.recipients || [],
         body: update.body || "",
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
       }
     );
 
@@ -128,13 +146,9 @@ const updateNote = async (token, id, update) => {
 };
 
 
-const deleteNote = async (token, id) => {
-  if (!token) return;
-
+const deleteNote = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}/notes/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await api.delete(`/notes/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting note:", error);
