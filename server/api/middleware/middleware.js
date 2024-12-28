@@ -5,11 +5,9 @@ import session from "express-session"
 import {schema} from "../../models/graphqlSchema.js"
 import { createHandler } from 'graphql-http/lib/use/http';
 // import flash from "connect-flash"
-import cors from "cors"
 
-
+// CORS is configured in server.js
 const middleware = (app) => {
-  app.use(cors({ origin: "*" }))
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
   app.use(
