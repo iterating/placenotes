@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: placenotes
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true

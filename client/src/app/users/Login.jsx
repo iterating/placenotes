@@ -2,74 +2,91 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// API base URL - will work both in development and production
+const BASE_URL = import.meta.env.MODE === 'production' 
+  ? '/api'  // In production, use relative path since frontend and backend are served from same origin
+  : 'http://localhost:5000/api';
+
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log('Login: Handling submit');
-
-    if (!email) {
-      console.log('Login: No email provided');
-      alert('Please enter your email address');
-      return;
-    }
-
-    if (!password) {
-      console.log('Login: No password provided');
-      alert('Please enter your password');
-      return;
-    }
+    setError('');
+    setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/users/login', {
+      const response = await api.post('/users/login', {
         email,
-        password,
+        password
       });
 
-      console.log('Login: Response from server:', response.data);
-
       if (response.data && response.data.token) {
-        console.log('Login: Success');
-        sessionStorage.token = response.data.token;
-        location.href = '/notes';
+        localStorage.setItem('token', response.data.token);
+        navigate('/notes');
+      } else {
+        setError('Invalid response from server');
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      alert(error.response?.data?.message || 'An error occurred, please try again.');
+      if (error.response) {
+        setError(error.response.data?.message || 'Login failed');
+      } else if (error.request) {
+        setError('No response from server. Please try again later.');
+      } else {
+        setError('An error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div id="form" className="form">
       <h1 className="title">Login</h1>
+      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
         <input
           type="email"
-          name="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
           required
-        /><br />
+        />
         <label htmlFor="password">Password</label>
         <input
           type="password"
-          name="password"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
           required
-        /><br />
-        <input type="submit" value="Submit" />
-        <a href="/users/signup">Sign Up For Account</a>
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
+      <p>
+        Don't have an account? <a href="/users/register">Register</a>
+      </p>
     </div>
   );
 };
 
 export default Login;
-
