@@ -9,6 +9,8 @@
     "start": "concurrently \"pnpm run client\" \"pnpm run server\"",
     "seed": "node ./server/db/seed.js",
     "dev": "nodemon ./server/server.js",
+    "build": "cd client && pnpm install && pnpm run build",
+    "vercel-build": "cd client && pnpm install && pnpm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
