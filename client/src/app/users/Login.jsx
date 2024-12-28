@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // API base URL - will work both in development and production
 const BASE_URL = import.meta.env.MODE === 'production' 
-  ? 'https://placenotes.onrender.com'
+  ? 'https://placenotes-api.onrender.com'
   : 'http://localhost:5000';
 
 // Create axios instance with default config
