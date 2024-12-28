@@ -2,29 +2,43 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// API base URL - will work both in development and production
+const BASE_URL = import.meta.env.MODE === 'production' 
+  ? 'https://placenotes.onrender.com'
+  : 'http://localhost:5000';
+
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setError('');
     console.log('Login: Handling submit');
 
     if (!email) {
-      console.log('Login: No email provided');
-      alert('Please enter your email address');
+      setError('Please enter your email address');
       return;
     }
 
     if (!password) {
-      console.log('Login: No password provided');
-      alert('Please enter your password');
+      setError('Please enter your password');
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/users/login', {
+      const response = await api.post('/users/login', {
         email,
         password,
       });
@@ -33,43 +47,43 @@ const Login = () => {
 
       if (response.data && response.data.token) {
         console.log('Login: Success');
-        sessionStorage.token = response.data.token;
-        location.href = '/notes';
+        localStorage.setItem('token', response.data.token);
+        navigate('/notes');
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      alert(error.response?.data?.message || 'An error occurred, please try again.');
+      setError(error.response?.data?.message || 'An error occurred, please try again.');
     }
   };
 
   return (
     <div id="form" className="form">
       <h1 className="title">Login</h1>
+      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
         <input
           type="email"
-          name="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        /><br />
+        />
         <label htmlFor="password">Password</label>
         <input
           type="password"
-          name="password"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br />
-        <input type="submit" value="Submit" />
-        <a href="/users/signup">Sign Up For Account</a>
+        />
+        <button type="submit">Login</button>
       </form>
+      <p>
+        Don't have an account? <a href="/users/register">Register</a>
+      </p>
     </div>
   );
 };
 
 export default Login;
-
