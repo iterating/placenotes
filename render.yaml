@@ -1,8 +1,8 @@
 services:
   - type: web
-    name: placenotes
+    name: placenotes-api
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -11,5 +11,5 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-    healthCheckPath: /api/health
+    healthCheckPath: /health
     autoDeploy: true
