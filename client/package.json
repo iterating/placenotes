@@ -11,14 +11,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.5.0",
     "@tiptap/extension-color": "^2.10.4",
     "@tiptap/extension-list-item": "^2.10.4",
     "@tiptap/extension-text-style": "^2.10.4",
     "@tiptap/react": "^2.10.4",
     "@tiptap/starter-kit": "^2.10.4",
+    "axios": "^1.6.5",
     "leaflet": "^1.9.4",
     "leaflet-control-geocoder": "^3.1.0",
     "leaflet-draw": "^1.0.4",
+    "marked": "^15.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",

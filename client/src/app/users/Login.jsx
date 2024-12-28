@@ -4,8 +4,8 @@ import axios from 'axios';
 
 // API base URL - will work both in development and production
 const BASE_URL = import.meta.env.MODE === 'production' 
-  ? '/api'  // In production, use relative path since frontend and backend are served from same origin
-  : 'http://localhost:5000/api';
+  ? 'https://placenotes.onrender.com'
+  : 'http://localhost:5000';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -44,10 +44,14 @@ const Login = () => {
     } catch (error) {
       console.error('Error logging in:', error);
       if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
         setError(error.response.data?.message || 'Login failed');
       } else if (error.request) {
+        // The request was made but no response was received
         setError('No response from server. Please try again later.');
       } else {
+        // Something happened in setting up the request that triggered an Error
         setError('An error occurred. Please try again.');
       }
     } finally {

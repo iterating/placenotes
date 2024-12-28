@@ -2,8 +2,8 @@ import axios from "axios";
 
 // API base URL - will work both in development and production
 const BASE_URL = import.meta.env.MODE === 'production' 
-  ? '/api'  // In production, use relative path since frontend and backend are served from same origin
-  : 'http://localhost:5000/api';
+  ? 'https://placenotes.onrender.com'
+  : 'http://localhost:5000';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -32,6 +32,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.error('API Error:', error);
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';

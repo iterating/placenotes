@@ -1,4 +1,5 @@
-[Live Site](https://placenotes.onrender.com/users/login)
+[Check it out](https://placenotes.vercel.app/)
+(Allow a few seconds for the backend deployed on Render to wake up)
 
 A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:
 

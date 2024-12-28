@@ -12,16 +12,34 @@ import cors from 'cors'
 dotenv.config()
 
 const app = express()
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // CORS configuration
-app.use(cors())
+const allowedOrigins = ['http://localhost:5173', 'https://placenotes.vercel.app'];
+const corsOptions = {
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']
+};
+
+app.use(cors(corsOptions));
+
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Middleware
 middleware(app)
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/dist')))
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Make css available
 app.use("/assets", express.static(path.join(__dirname, "./views/assets")))
@@ -31,18 +49,16 @@ app.set("views", path.join(__dirname, "./views"))
 app.engine(".ejs", ejs.renderFile)
 app.set("view engine", "ejs")
 
-// API Routes
-app.use("/api/users", users)
-app.use("/api/notes", notes)
-
 // Health check endpoint
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.status(200).json({ status: 'healthy' })
 })
 
-// Serve React app for all other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'))
+// Routes
+app.use("/users", users)
+app.use("/notes", notes)
+app.get("/", (req, res) => {
+  res.json({ message: 'Welcome to Placenotes API' })
 })
 
 // Error handling middleware
