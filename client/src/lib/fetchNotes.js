@@ -1,5 +1,7 @@
 import axios from "axios";
-// BASE_URL = 'http://API_URL';
+
+// API base URL - will work both in development and production
+const BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000';
 
 // Utility to validate coordinates
 const validateCoordinates = (latitude, longitude) => {
@@ -13,7 +15,7 @@ const validateCoordinates = (latitude, longitude) => {
 const fetchOneNote = async (token, id) => {
   if (!token) return {};
   try {
-    const { data } = await axios.get(`http://localhost:5000/notes/${id}`, {
+    const { data } = await axios.get(`${BASE_URL}/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return data;
@@ -27,7 +29,7 @@ const fetchOneNote = async (token, id) => {
 const fetchUsersNotes = async (token, setNotes, setUserId) => {
   if (!token) return;
   try {
-    const { data } = await axios.get(`http://localhost:5000/notes`, {
+    const { data } = await axios.get(`${BASE_URL}/notes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const notes = data.map(note => ({ ...note, showFullNote: false }));
@@ -101,7 +103,7 @@ const updateNote = async (token, id, update) => {
 
     console.log(" fetchNotes Sending update request to server...");
     const response = await axios.put(
-      `http://localhost:5000/notes/${id}`,
+      `${BASE_URL}/notes/${id}`,
       {
         ...update,
         location: {
@@ -130,7 +132,7 @@ const deleteNote = async (token, id) => {
   if (!token) return;
 
   try {
-    const response = await axios.delete(`http://localhost:5000/notes/${id}`, {
+    const response = await axios.delete(`${BASE_URL}/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -140,4 +142,3 @@ const deleteNote = async (token, id) => {
   }
 }
 export { fetchOneNote, fetchUsersNotes, fetchNotesByCurrentLocation, updateNote, deleteNote};
-
