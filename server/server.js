@@ -7,7 +7,6 @@ import middleware from "./api/middleware/middleware.js"
 import users from "./api/routes/userRoutes.js"
 import notes from "./api/routes/noteRoutes.js"
 import db from "./db/conn.js"
-const PORT = process.env.PORT || 5000
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -19,22 +18,25 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Make css available
 app.use("/assets", express.static(path.join(__dirname, "./views/assets")))
-// Make components available
 
 // View Engine
 app.set("views", path.join(__dirname, "./views"))
 app.engine(".ejs", ejs.renderFile)
 app.set("view engine", "ejs")
 
-//Routes
-app.use("/users", users)
-app.use("/notes", notes)
-app.get("/", (req, res) => {
-  res.send('Welcome to Placenotes. <a href="/users/login">Go to Login</a>')
+// Routes
+app.use("/api/users", users)
+app.use("/api/notes", notes)
+app.get("/api", (req, res) => {
+  res.json({ message: 'Welcome to Placenotes API' })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server listening at http://localhost:${PORT}`)
-})
+// Only start the server if we're not in a serverless environment
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000
+  app.listen(PORT, () => {
+    console.log(`Server listening at http://localhost:${PORT}`)
+  })
+}
 
-// take export default app into ./loaders
+export default app;
