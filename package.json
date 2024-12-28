@@ -6,9 +6,10 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "build": "cd client && npm install && npm run build",
-    "dev": "concurrently \"nodemon server/server.js\" \"cd client && npm run dev\"",
-    "install-all": "npm install && cd client && npm install"
+    "build": "cd client && pnpm install --no-frozen-lockfile && pnpm run build",
+    "dev": "nodemon server/server.js",
+    "client": "cd client && pnpm run dev",
+    "dev:all": "concurrently \"pnpm run dev\" \"pnpm run client\""
   },
   "engines": {
     "node": ">=18.0.0"
@@ -21,14 +22,36 @@
   "author": "Jonathan Young",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/schema": "^10.0.14",
+    "@reduxjs/toolkit": "^2.5.0",
+    "@tiptap/extension-task-item": "^2.10.4",
+    "@tiptap/extension-task-list": "^2.10.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "graphql": "^16.10.0",
+    "graphql-http": "^1.22.3",
+    "graphql-tools": "^9.0.9",
+    "immer": "^10.1.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.2"
+    "leaflet": "^1.9.4",
+    "leaflet-control-geocoder": "^3.1.0",
+    "leaflet-draw": "^1.0.4",
+    "marked": "^15.0.4",
+    "mongoose": "^8.9.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
+    "vite": "^6.0.6"
   },
   "devDependencies": {
     "concurrently": "^9.1.1",
