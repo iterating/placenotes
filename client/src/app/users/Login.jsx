@@ -12,7 +12,8 @@ const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 });
 
@@ -21,38 +22,40 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
-    console.log('Login: Handling submit');
-
-    if (!email) {
-      setError('Please enter your email address');
-      return;
-    }
-
-    if (!password) {
-      setError('Please enter your password');
-      return;
-    }
+    setLoading(true);
 
     try {
       const response = await api.post('/users/login', {
         email,
-        password,
+        password
       });
 
-      console.log('Login: Response from server:', response.data);
-
       if (response.data && response.data.token) {
-        console.log('Login: Success');
         localStorage.setItem('token', response.data.token);
         navigate('/notes');
+      } else {
+        setError('Invalid response from server');
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      setError(error.response?.data?.message || 'An error occurred, please try again.');
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError(error.response.data?.message || 'Login failed');
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please try again later.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError('An error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +70,7 @@ const Login = () => {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
           required
         />
         <label htmlFor="password">Password</label>
@@ -75,9 +79,12 @@ const Login = () => {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
           required
         />
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
       <p>
         Don't have an account? <a href="/users/register">Register</a>

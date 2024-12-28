@@ -12,7 +12,8 @@ const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 });
 
@@ -25,6 +26,7 @@ const Signup = () => {
     username: ''
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -36,9 +38,11 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      setLoading(false);
       return;
     }
 
@@ -48,16 +52,24 @@ const Signup = () => {
         password: formData.password,
         username: formData.username
       });
-
-      console.log('Signup successful:', response.data);
       
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         navigate('/notes');
+      } else {
+        setError('Invalid response from server');
       }
     } catch (error) {
       console.error('Signup error:', error);
-      setError(error.response?.data?.message || 'An error occurred during signup');
+      if (error.response) {
+        setError(error.response.data?.message || 'Signup failed');
+      } else if (error.request) {
+        setError('No response from server. Please try again later.');
+      } else {
+        setError('An error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,6 +85,7 @@ const Signup = () => {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          disabled={loading}
           required
         />
         
@@ -83,6 +96,7 @@ const Signup = () => {
           name="username"
           value={formData.username}
           onChange={handleChange}
+          disabled={loading}
           required
         />
         
@@ -93,6 +107,7 @@ const Signup = () => {
           name="password"
           value={formData.password}
           onChange={handleChange}
+          disabled={loading}
           required
         />
         
@@ -103,10 +118,13 @@ const Signup = () => {
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
+          disabled={loading}
           required
         />
         
-        <button type="submit">Sign Up</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Signing up...' : 'Sign Up'}
+        </button>
       </form>
       <p>
         Already have an account? <a href="/users/login">Login</a>

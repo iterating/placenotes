@@ -14,12 +14,18 @@ dotenv.config()
 const app = express()
 
 // CORS configuration
-app.use(cors({
+const corsOptions = {
   origin: ['http://localhost:5173', 'https://placenotes.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}))
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']
+};
+
+app.use(cors(corsOptions));
+
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Middleware
 middleware(app)
