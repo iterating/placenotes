@@ -10,59 +10,98 @@ if (!connectionString) {
   process.exit(1)
 }
 
+// Parse connection string to get cluster info
+const getClusterInfo = (uri) => {
+  try {
+    const match = uri.match(/mongodb\+srv:\/\/(.*?):(.*?)@(.*?)\//);
+    return match ? match[3] : null;
+  } catch (err) {
+    console.error('Error parsing MongoDB URI:', err);
+    return null;
+  }
+};
+
+const clusterName = getClusterInfo(connectionString);
+console.log('Connecting to MongoDB cluster:', clusterName);
+
 const options = {
   dbName,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  autoIndex: true,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
-  family: 4
-}
+  connectTimeoutMS: 30000,
+  heartbeatFrequencyMS: 2000,
+  maxPoolSize: 10,
+  minPoolSize: 5
+};
 
-mongoose
-  .connect(connectionString, options)
-  .then(() => {
-    console.log("MongoDB connected to database:", dbName)
-    // Ensure the users collection exists
-    const db = mongoose.connection.db
-    return db.listCollections({ name: 'users' }).next().then(collInfo => {
-      if (!collInfo) {
-        console.log('Creating users collection...')
-        return db.createCollection('users')
+const connectWithRetry = async (retries = 5, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`MongoDB connection attempt ${i + 1} of ${retries}...`);
+      await mongoose.connect(connectionString, options);
+      
+      console.log("MongoDB connected successfully to database:", dbName);
+      
+      // Ensure the users collection exists
+      const db = mongoose.connection.db;
+      const collections = await db.listCollections().toArray();
+      if (!collections.some(coll => coll.name === 'users')) {
+        console.log('Creating users collection...');
+        await db.createCollection('users');
       }
-    })
-  })
-  .catch((error) => {
-    console.error("MongoDB connection error:", error)
-    // Don't exit in production, just log the error
-    if (process.env.NODE_ENV !== 'production') {
-      process.exit(1)
+      
+      return true;
+    } catch (error) {
+      console.error(`MongoDB connection attempt ${i + 1} failed:`, error.message);
+      if (i < retries - 1) {
+        console.log(`Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
-  })
+  }
+  throw new Error(`Failed to connect to MongoDB after ${retries} attempts`);
+};
 
+// Initial connection
+connectWithRetry()
+  .catch((error) => {
+    console.error("MongoDB connection error:", error);
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(1);
+    }
+  });
+
+// Connection event handlers
 mongoose.connection.on("connected", () => {
-  console.log("Mongoose connected to MongoDB")
-})
+  console.log("Mongoose connected to MongoDB");
+});
 
 mongoose.connection.on("disconnected", () => {
-  console.log("Mongoose disconnected from MongoDB")
-})
+  console.log("Mongoose disconnected from MongoDB");
+  if (process.env.NODE_ENV === 'production') {
+    console.log("Attempting to reconnect...");
+    connectWithRetry();
+  }
+});
 
 mongoose.connection.on("error", (error) => {
-  console.error("Mongoose connection error:", error)
-})
+  console.error("Mongoose connection error:", error);
+  if (process.env.NODE_ENV === 'production') {
+    console.log("Attempting to reconnect after error...");
+    connectWithRetry();
+  }
+});
 
 // Handle application termination
 process.on('SIGINT', async () => {
   try {
-    await mongoose.connection.close()
-    console.log('MongoDB connection closed through app termination')
-    process.exit(0)
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed through app termination');
+    process.exit(0);
   } catch (err) {
-    console.error('Error closing MongoDB connection:', err)
-    process.exit(1)
+    console.error('Error closing MongoDB connection:', err);
+    process.exit(1);
   }
-})
+});
 
-export default mongoose
+export default mongoose;
