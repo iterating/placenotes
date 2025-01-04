@@ -7,8 +7,8 @@
     "dev:client": "cd client && vite",
     "dev:server": "node server/server.js",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build": "cd client && vite build",
-    "vercel-build": "cd client && vite build --outDir dist",
+    "build": "cd client && vite build && mv dist ../dist",
+    "vercel-build": "cd client && vite build && mv dist ../dist",
     "start": "node server/server.js",
     "lint": "eslint .",
     "preview": "cd client && vite preview"

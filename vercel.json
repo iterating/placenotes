@@ -9,7 +9,8 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "cd client && vite build && mv dist ../dist"
       }
     }
   ],
