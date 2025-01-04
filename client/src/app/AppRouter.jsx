@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import Main from './Main';
 import Login from './users/Login';
 import Signup from './users/Signup';
-import Header from '@/components/Header';
+import Heading from '../components/Heading';
 import Notes from './notes/Notes';
 import NoteNew from './notes/NoteNew';
 import NoteEdit from './notes/NoteEdit';
@@ -14,7 +14,7 @@ import Settings from './users/Settings';
 function Router() {
   return (
     <>
-      <Header />
+      <Heading />
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/users/login" element={<Login />} />

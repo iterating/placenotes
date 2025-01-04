@@ -15,8 +15,8 @@ const app = express()
 
 // CORS configuration
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:4173',
+  'http://localhost:5173',  // Vite dev server
+  'http://localhost:4173',  // Vite preview
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   'https://placenotes.vercel.app'
 ].filter(Boolean)
@@ -39,6 +39,7 @@ app.options('*', cors(corsOptions))
 
 // Middleware
 middleware(app)
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Make css available
@@ -50,14 +51,16 @@ app.engine(".ejs", ejs.renderFile)
 app.set("view engine", "ejs")
 
 // Health check endpoint
-// app.get("/api/health", (req, res) => {
-//   res.json({ status: "healthy" })
-// })
+app.get("/api/health", (req, res) => {
+  res.json({ status: "healthy" })
+})
 
-// Routes - no /api prefix needed as it's handled by Vercel
-app.use("/users", users)
-app.use("/notes", notes)
-app.get("/", (req, res) => {
+// API Routes with /api prefix
+app.use("/api/users", users)
+app.use("/api/notes", notes)
+
+// Root route
+app.get("/api", (req, res) => {
   res.json({ message: 'Welcome to Placenotes API' })
 })
 
@@ -78,5 +81,4 @@ if (process.env.NODE_ENV !== 'production') {
   })
 }
 
-// Export for Vercel
 export default app
