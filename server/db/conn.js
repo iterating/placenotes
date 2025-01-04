@@ -25,7 +25,6 @@ const addConnectionParams = (uri) => {
 };
 
 const enhancedConnectionString = addConnectionParams(connectionString);
-console.log('Connecting to MongoDB with enhanced connection string...');
 
 const options = {
   dbName,
@@ -59,14 +58,21 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-const connectWithRetry = async (retries = 5, delay = 5000) => {
+// Export connection state checker
+export const isConnectedToDb = () => isConnected;
+
+// Export connection function
+export const connectWithRetry = async (retries = 5, delay = 5000) => {
   for (let i = 0; i < retries; i++) {
     try {
+      console.log(`MongoDB connection attempt ${i + 1} of ${retries}...`);
       await mongoose.connect(enhancedConnectionString, options);
       console.log('MongoDB connected successfully');
+      isConnected = true;
       return mongoose.connection;
     } catch (error) {
       console.error(`Connection attempt ${i + 1} failed:`, error.message);
+      isConnected = false;
       if (i < retries - 1) {
         console.log(`Retrying in ${delay / 1000} seconds...`);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -75,15 +81,5 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
   }
   throw new Error('Failed to connect to MongoDB after multiple attempts');
 };
-
-// Export connection state checker
-export const isConnectedToDb = () => isConnected;
-
-// Initial connection
-connectWithRetry()
-  .catch((error) => {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
-  });
 
 export default mongoose.connection;

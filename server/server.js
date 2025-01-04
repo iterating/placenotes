@@ -5,7 +5,7 @@ import { dirname } from "path"
 import middleware from "./api/middleware/middleware.js"
 import users from "./api/routes/userRoutes.js"
 import notes from "./api/routes/noteRoutes.js"
-import mongoose from "./db/conn.js"
+import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
 import dotenv from "dotenv"
 import cors from 'cors'
 dotenv.config()
@@ -73,7 +73,7 @@ app.get("/api/health", (req, res) => {
   res.json({ 
     status: "healthy",
     environment: process.env.NODE_ENV,
-    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    mongodb: isConnectedToDb() ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString()
   });
 });
@@ -94,13 +94,24 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Start the server
-const port = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
-    console.log('Node environment:', process.env.NODE_ENV);
-  });
-}
+// Database connection and server start
+const startServer = async () => {
+  try {
+    // Wait for database connection
+    await connectWithRetry();
+    console.log('Database connection established');
 
-export default app;
+    // Start the server
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => {
+      console.log(`Server is running on port: ${port}`);
+      console.log(`Database connection status: ${isConnectedToDb() ? 'connected' : 'disconnected'}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Start the server
+startServer();
