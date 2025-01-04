@@ -1,8 +1,25 @@
 import { useRef, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import L from "leaflet";
 import "leaflet-control-geocoder";
 import "leaflet/dist/leaflet.css";
+import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Set up default icon
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
   const { state } = useLocation();
@@ -88,4 +105,3 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
 };
 
 export default Mapmark;
-

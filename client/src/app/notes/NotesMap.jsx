@@ -1,6 +1,22 @@
 import L from "leaflet";
 import "leaflet-control-geocoder";
+import "leaflet/dist/leaflet.css";
+import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Set up default icon
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null);
