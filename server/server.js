@@ -51,7 +51,7 @@ app.engine(".ejs", ejs.renderFile)
 app.set("view engine", "ejs")
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({ status: "healthy" })
 })
 
@@ -60,7 +60,7 @@ app.use("/api/users", users)
 app.use("/api/notes", notes)
 
 // Root route
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.json({ message: 'Welcome to Placenotes API' })
 })
 
