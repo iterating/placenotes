@@ -12,6 +12,7 @@ import cors from 'cors'
 dotenv.config()
 
 const app = express()
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // CORS configuration
 const allowedOrigins = [
@@ -40,45 +41,62 @@ app.options('*', cors(corsOptions))
 // Middleware
 middleware(app)
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+// API Routes
+app.use("/api/users", users)
+app.use("/api/notes", notes)
 
-// Make css available
-app.use("/assets", express.static(path.join(__dirname, "./views/assets")))
+// Static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React/Vite app
+  const clientDistPath = path.join(__dirname, '../../client/dist')
+  app.use(express.static(clientDistPath))
 
-// View Engine
-app.set("views", path.join(__dirname, "./views"))
-app.engine(".ejs", ejs.renderFile)
-app.set("view engine", "ejs")
+  // Handle React/Vite routing
+  app.get('*', (req, res, next) => {
+    if (req.url.startsWith('/api')) {
+      // Let API routes be handled by the API router
+      return next()
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'))
+  })
+} else {
+  // Development static files
+  app.use("/assets", express.static(path.join(__dirname, "./views/assets")))
+  app.set("views", path.join(__dirname, "./views"))
+  app.engine(".ejs", ejs.renderFile)
+  app.set("view engine", "ejs")
+}
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "healthy" })
 })
 
-// API Routes with /api prefix
-app.use("/api/users", users)
-app.use("/api/notes", notes)
-
 // Root route
 app.get("/api", (req, res) => {
   res.json({ message: 'Welcome to Placenotes API' })
 })
 
-// Error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack)
-  res.status(500).json({
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err : {}
   })
 })
 
-// Only start server in development
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000
-  app.listen(PORT, () => {
-    console.log(`Server listening at http://localhost:${PORT}`)
-  })
-}
+// 404 handler
+app.use((req, res) => {
+  console.log('404 Not Found:', req.method, req.url)
+  res.status(404).json({ message: 'Not Found' })
+})
+
+const port = process.env.PORT || 5000
+app.listen(port, () => {
+  console.log(`Server is running on port: ${port}`)
+  console.log('Node environment:', process.env.NODE_ENV)
+  console.log('Vercel URL:', process.env.VERCEL_URL || 'not set')
+})
 
 export default app

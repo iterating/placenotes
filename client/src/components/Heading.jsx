@@ -29,11 +29,11 @@ const Heading = () => {
 
   return (
     <div>
-      <heading>
+      <header>
         <span className="drawer-icon" id="sidebar-icon">&#9776;</span>
         <Drawer/>
         <div className="overlay" id="overlay"></div>
-      </heading>
+      </header>
     </div>
   );
 };
