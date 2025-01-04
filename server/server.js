@@ -1,5 +1,4 @@
 import express from "express"
-import ejs from "ejs"
 import path from "path"
 import { fileURLToPath } from "url"
 import { dirname } from "path"
@@ -16,11 +15,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // CORS configuration
 const allowedOrigins = [
-  'http://localhost:5173',  // Vite dev server
-  'http://localhost:4173',  // Vite preview
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+  'http://localhost:5173',
+  'http://localhost:4173',
   'https://placenotes.vercel.app'
-].filter(Boolean)
+]
 
 const corsOptions = {
   origin: function(origin, callback) {
@@ -51,7 +49,7 @@ app.get("/api/health", (req, res) => {
   res.json({ 
     status: "healthy",
     environment: process.env.NODE_ENV,
-    vercelUrl: process.env.VERCEL_URL || 'not set'
+    timestamp: new Date().toISOString()
   })
 })
 
@@ -59,32 +57,9 @@ app.get("/api/health", (req, res) => {
 app.get("/api", (req, res) => {
   res.json({ 
     message: 'Welcome to Placenotes API',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV
+    version: '1.0.0'
   })
 })
-
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  const clientDistPath = path.join(__dirname, '../../client/dist')
-  
-  // Serve static files
-  app.use(express.static(clientDistPath))
-  
-  // Serve index.html for client routes
-  app.get('*', (req, res, next) => {
-    if (req.url.startsWith('/api')) {
-      return next()
-    }
-    res.sendFile(path.join(clientDistPath, 'index.html'))
-  })
-} else {
-  // Development static files
-  app.use("/assets", express.static(path.join(__dirname, "./views/assets")))
-  app.set("views", path.join(__dirname, "./views"))
-  app.engine(".ejs", ejs.renderFile)
-  app.set("view engine", "ejs")
-}
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -104,12 +79,13 @@ app.use('/api/*', (req, res) => {
   })
 })
 
-// Start server
-const port = process.env.PORT || 5000
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`)
-  console.log('Node environment:', process.env.NODE_ENV)
-  console.log('Vercel URL:', process.env.VERCEL_URL || 'not set')
-})
+// Start the server if we're not in Vercel
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 5000
+  app.listen(port, () => {
+    console.log(`Server is running on port: ${port}`)
+    console.log('Node environment:', process.env.NODE_ENV)
+  })
+}
 
 export default app
