@@ -46,6 +46,8 @@
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  touch-action: pan-x pan-y;
+  min-height: 300px;
 }
 
 .notecard {
@@ -115,6 +117,19 @@
 .button-group > button {
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
+}
+
+.map-controls {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.radius-slider {
+  width: 100%;
+  margin: 0.5rem 0;
 }
 
 /* Scrollbar styling */
@@ -198,4 +213,39 @@
   width: 100%;
   max-height: 300px;
   overflow-y: auto;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .map-section {
+    position: relative;
+    height: 50vh;
+    min-height: 300px;
+    margin-bottom: 1rem;
+  }
+
+  .map-container {
+    border-radius: 0;
+  }
+
+  .leaflet-control-geocoder {
+    max-width: calc(100% - 20px);
+  }
+
+  .address-list {
+    max-height: 200px !important;
+    width: 100% !important;
+  }
+
+  .leaflet-touch .leaflet-control-layers,
+  .leaflet-touch .leaflet-bar {
+    border: none;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  }
+
+  .leaflet-touch .leaflet-control-zoom a {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+  }
 }

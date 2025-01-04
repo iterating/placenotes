@@ -92,14 +92,17 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
 
   return (
     <>
-      <div ref={mapRef} className="map-container" style={{ height: "400px", width: "60vw" }} />
-      <input
-        type="range"
-        min="10"
-        max="10000"
-        value={radius}
-        onChange={handleRadiusChange}
-      />
+      <div ref={mapRef} className="map-container" />
+      <div className="map-controls">
+        <input
+          type="range"
+          min="10"
+          max="10000"
+          value={radius}
+          onChange={handleRadiusChange}
+          className="radius-slider"
+        />
+      </div>
     </>
   );
 };
