@@ -23,108 +23,137 @@ export const generateToken = (user) => {
   return token
 }
 
-// export const refreshToken = async (token) => {
-//   console.log("Refreshing token", token)
-//   if (!token) {
-//     throw new Error("Token cannot be null")
-//   }
-//   try {
-//     const decoded = jwt.decode(token)
-//     if (!decoded) {
-//       throw new Error("Token is invalid")
-//     }
-//     const { _id, email } = decoded
-//     if (!_id || !email) {
-//       throw new Error("Decoded token is invalid")
-//     }
-//     const newToken = generateToken({ _id, email })
-//     console.log("Refreshed token:", newToken)
-//     return newToken
-//   } catch (err) {
-//     console.error("Error refreshing token", err)
-//     return null
-//   }
-// }
-
 export const signup = async (req, res) => {
-  console.log(
-    "Signup request received. Email:",
-    req.body.email,
-    "Location:",
-    req.body.location
-  )
+  console.log("Signup request received:", req.body)
   try {
-    const currentLocation = JSON.parse(req.body.location)
-    const user = await AuthService.signup({
-      email: req.body.email,
-      password: req.body.password,
-      name: "",
-      currentLocation: {
-        type: "Point",
-        coordinates: currentLocation.coordinates || [-118.243683, 34.052235],
-      },
-      createdAt: Date.now(),
-      lastActive: Date.now(),
-      friends: {
-        added: [],
-        accepted: [],
-      },
-      group: [],
-    })
-    console.log("User created:", user);
-    req.logIn(user, (err) => {
+    const { email, password, ...userData } = req.body
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required"
+      })
+    }
+
+    const result = await AuthService.signup({ email, password, ...userData })
+    
+    if (result.errorMessage) {
+      return res.status(400).json({
+        success: false,
+        errors: result.errorMessage
+      })
+    }
+
+    // Log the user in after successful signup
+    req.login(result, (err) => {
       if (err) {
-        console.error("Error during req.logIn", err);
-        return res.status(500).send("Error during req.logIn");
+        console.error("Error logging in after signup:", err)
+        return res.status(500).json({
+          success: false,
+          message: "Error logging in after signup"
+        })
       }
-      const token = generateToken({ _id: user._id, email: user.email });
-      req.session.user = user;
-      req.session.token = token;
-      console.log("User logged in. Token:", token);
-      return res.json({ user, token });
-    });
-  } catch (err) {
-    console.error("Error during signup", err);
-    res.status(500).send("Error during signup");
+
+      const token = generateToken(result)
+      return res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+        user: {
+          _id: result._id,
+          email: result.email
+        },
+        token
+      })
+    })
+  } catch (error) {
+    console.error("Error in signup controller:", error)
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error registering user"
+    })
   }
 }
 
-export const login = async (req, res, next) => {
-  console.log("Login request received. Email:", req.body.email)
+export const login = (req, res, next) => {
+  console.log("Login request received:", req.body)
   passport.authenticate("localLogin", (err, user, info) => {
     if (err) {
-      console.error("Error during authentication", err)
-      return next(err)
+      console.error("Error in passport authentication:", err)
+      return res.status(500).json({
+        success: false,
+        message: "Authentication error"
+      })
     }
+
     if (!user) {
-      console.log("User not found")
-      return res.status(404).send("User not found")
+      return res.status(401).json({
+        success: false,
+        message: info?.message || "Authentication failed"
+      })
     }
-    req.logIn(user, (err) => {
+
+    req.login(user, (err) => {
       if (err) {
-        console.error("Error during req.logIn", err)
-        return next(err)
+        console.error("Error logging in:", err)
+        return res.status(500).json({
+          success: false,
+          message: "Error establishing session"
+        })
       }
-      const token = generateToken({ _id: user._id, email: user.email })
-      req.session.user = user
-      req.session.token = token
-      console.log("User logged in. Token:", token)
-      return res.json({ user, token })
+
+      const token = generateToken(user)
+      return res.json({
+        success: true,
+        message: "Login successful",
+        user: {
+          _id: user._id,
+          email: user.email
+        },
+        token
+      })
     })
   })(req, res, next)
 }
 
 export const logout = (req, res) => {
   console.log("Logout request received")
-  if (!req.session) {
-    console.error("Session was not found")
-    return res.redirect("/users/login")
+  try {
+    req.logout((err) => {
+      if (err) {
+        console.error("Error during logout:", err)
+        return res.status(500).json({
+          success: false,
+          message: "Error during logout"
+        })
+      }
+      
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Error destroying session:", err)
+          return res.status(500).json({
+            success: false,
+            message: "Error clearing session"
+          })
+        }
+        
+        res.clearCookie("connect.sid")
+        return res.json({
+          success: true,
+          message: "Logged out successfully"
+        })
+      })
+    })
+  } catch (error) {
+    console.error("Unexpected error during logout:", error)
+    res.status(500).json({
+      success: false,
+      message: "Error during logout"
+    })
   }
-  req.logout()
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error destroying session", err)
-    }
-    res.redirect("/users/login")
-  })
 }
+
+export default {
+  signup,
+  login,
+  logout
+};
