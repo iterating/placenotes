@@ -1,4 +1,4 @@
-[Live Site](https://placenotes.onrender.com/users/login)
+[Try Placenotes](https://placenotes.vercel.app/)
 
 A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:
 
