@@ -1,9 +1,10 @@
 import Note from "../models/Note.js"
 import { _id } from "../db/db.js"
 import mongoose from "mongoose"
+import { isConnectedToDb } from "../db/conn.js"
 
 const checkConnection = () => {
-  if (mongoose.connection.readyState !== 1) {
+  if (!isConnectedToDb()) {
     throw new Error('Database connection is not ready');
   }
 };
@@ -19,15 +20,10 @@ export const getNotes = async (userId) => {
     checkConnection();
     
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new Error('Invalid user ID format');
+      throw new Error('Invalid user ID');
     }
 
-    const notes = await Note.find({ userId })
-      .sort({ updatedAt: -1 })
-      .lean()
-      .exec();
-    
-    console.log(`services retrieved ${notes.length} notes for user with ID: ${userId}`);
+    const notes = await Note.find({ userId }).sort({ createdAt: -1 });
     return notes;
   } catch (error) {
     console.error(`Error fetching notes for user with ID: ${userId}:`, error.message);
