@@ -1,5 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit';
-import {produce} from 'immer';
 import authSlice from './authSlice';
 import noteSlice from './noteSlice';
 

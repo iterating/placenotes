@@ -5,9 +5,10 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  root: './client', // Set the root to the client directory
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './client/src'),
     },
   },
   server: {
@@ -29,20 +30,18 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            '@reduxjs/toolkit',
-            'react-redux'
-          ]
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('@reduxjs/toolkit')) return 'redux';
+            if (id.includes('react')) return 'react';
+            if (id.includes('axios')) return 'axios';
+            return 'vendor';
+          }
         }
       }
     }
   },
-  define: {
-    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || ''),
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+  optimizeDeps: {
+    include: ['@reduxjs/toolkit', 'react-redux']
   }
 });
