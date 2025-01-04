@@ -9,7 +9,7 @@ import { marked } from "marked"
 const NoteEdit = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { noteId } = useParams()
+  const { id } = useParams()
   const token = sessionStorage.getItem("token")
   const [note, setNote] = useState(null)
   const [error, setError] = useState(null)
@@ -17,26 +17,45 @@ const NoteEdit = () => {
 
   useEffect(() => {
     const fetchNote = async () => {
+      if (!id) {
+        setError(new Error("Note ID is required"))
+        setLoading(false)
+        return
+      }
+
       try {
-        const fetchedNote = await fetchOneNote(token, noteId)
+        const fetchedNote = await fetchOneNote(token, id)
+        if (!fetchedNote || !fetchedNote._id) {
+          throw new Error("Note not found")
+        }
         setNote(fetchedNote)
       } catch (err) {
         setError(err)
+        console.error("Error fetching note:", err)
       } finally {
         setLoading(false)
       }
     }
 
     fetchNote()
-  }, [token, noteId])
+  }, [token, id])
 
   const handleSave = async () => {
+    if (!id || !note) {
+      setError(new Error("Note data is missing"))
+      return
+    }
+
     try {
-      const updatedNote = await updateNote(token, noteId, note)
+      const updatedNote = await updateNote(token, id, note)
+      if (!updatedNote || !updatedNote._id) {
+        throw new Error("Failed to update note")
+      }
       setNote(updatedNote) // Update state with the latest data
       navigate(`/notes/`)
     } catch (err) {
       setError(err)
+      console.error("Error updating note:", err)
     }
   }
 
@@ -47,51 +66,53 @@ const NoteEdit = () => {
     }))
   }
 
+  if (loading) return <div className="edit-container"><p>Loading...</p></div>
+  if (error) return <div className="edit-container"><p>Error: {error.message}</p></div>
+  if (!note) return <div className="edit-container"><p>Note not found</p></div>
+
   return (
     <div className="edit-container">
       <h1>Edit Note</h1>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error.message}</p>}
-      {note && (
-        <>
-          <textarea
-            value={note.body}
-            onChange={(e) =>
-              setNote((prev) => ({ ...prev, body: e.target.value }))
-            }
-            style={{ height: "400px" }}
-          />
+      <textarea
+        value={note.body || ""}
+        onChange={(e) =>
+          setNote((prev) => ({ ...prev, body: e.target.value }))
+        }
+        style={{ height: "400px" }}
+      />
 
-          <div className="button-group">
-            <button onClick={handleSave}>Save Changes</button>
-            <button onClick={() => navigate("/notes")}>
-              Go Back Without Saving
-            </button>
-            <button
-              onClick={() => {
-                if (
-                  window.confirm("Are you sure you want to delete this note?")
-                ) {
-                  dispatch(deleteNote({ id: note._id, token }))
-                    .unwrap()
-                    .then(() => navigate("/notes"))
-                }
-              }}
-            >
-              Delete Note
-            </button>
-          </div>
-          <Mapmark
-            note={note}
-            setNote={setNote}
-            onMapChange={handleMapChange}
-          />
-          <div className="markdown-preview">
-            <h4>Preview</h4>
-            <div dangerouslySetInnerHTML={{ __html: marked(note.body) }} />
-          </div>
-        </>
-      )}
+      <div className="button-group">
+        <button onClick={handleSave}>Save Changes</button>
+        <button onClick={() => navigate("/notes")}>
+          Go Back Without Saving
+        </button>
+        <button
+          onClick={() => {
+            if (
+              window.confirm("Are you sure you want to delete this note?")
+            ) {
+              dispatch(deleteNote({ id: note._id }))
+                .unwrap()
+                .then(() => navigate("/notes"))
+                .catch(err => {
+                  console.error("Error deleting note:", err)
+                  setError(err)
+                })
+            }
+          }}
+        >
+          Delete Note
+        </button>
+      </div>
+      <Mapmark
+        note={note}
+        setNote={setNote}
+        onMapChange={handleMapChange}
+      />
+      <div className="markdown-preview">
+        <h4>Preview</h4>
+        <div dangerouslySetInnerHTML={{ __html: marked(note.body || "") }} />
+      </div>
     </div>
   )
 }

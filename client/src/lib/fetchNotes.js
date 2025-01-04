@@ -11,36 +11,58 @@ const validateCoordinates = (latitude, longitude) => {
 
 // Fetch a single note
 const fetchOneNote = async (token, id) => {
-  if (!token) return {};
+  if (!token || !id) {
+    console.error("Token and note ID are required");
+    throw new Error("Missing required parameters");
+  }
+
   try {
     const { data } = await axios.get(`${SERVER}/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (!data || !data._id) {
+      throw new Error("Note not found");
+    }
+
     return data;
   } catch (error) {
     console.error("Error fetching note:", error);
-    return {};
+    throw error;
   }
 };
 
 // Fetch all notes for the user
 const fetchUsersNotes = async (token, setNotes, setUserId) => {
-  if (!token) return;
+  if (!token) {
+    console.error("Token is required");
+    throw new Error("Authentication required");
+  }
+
   try {
     const { data } = await axios.get(`${SERVER}/notes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid response format");
+    }
+
     const notes = data.map(note => ({ ...note, showFullNote: false }));
     setNotes(notes);
     if (notes.length) setUserId(notes[0].userId);
   } catch (error) {
     console.error("Error fetching user notes:", error);
+    throw error;
   }
 };
 
 // Fetch notes by current location
 const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitude: lat, longitude: lon }) => {
-  if (!token) return;
+  if (!token) {
+    console.error("Token is required");
+    throw new Error("Authentication required");
+  }
 
   const { latitude, longitude } = validateCoordinates(lat, lon);
 
@@ -48,95 +70,65 @@ const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitud
     const response = await axios.get(`${SERVER}/notes/location/current?lat=${latitude}&lon=${longitude}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (!Array.isArray(response.data)) {
+      throw new Error("Invalid response format");
+    }
+
     const notes = response.data.map(note => ({
       ...note,
       showFullNote: false,
-      location: {
-        type: "Point",
-        coordinates: [note.location?.coordinates?.[0] || longitude, note.location?.coordinates?.[1] || latitude], // validate point
-      },
     }));
+
     setNotes(notes);
-    if (notes.length) setUserId(notes[0].userId);
+    if (notes.length > 0) {
+      setUserId(notes[0].userId);
+    }
   } catch (error) {
-    console.error("Error fetching notes by current location:", error);
+    console.error("Error fetching notes by location:", error);
+    throw error;
   }
 };
 
 // Update a note
 const updateNote = async (token, id, update) => {
-  if (!token) {
-    console.error("Token is required for authentication.");
-    return;
+  if (!token || !id || !update) {
+    console.error("Token, note ID, and update data are required");
+    throw new Error("Missing required parameters");
   }
 
   try {
-    console.log("fetchNotes Starting note update process...");
-    
-    // Validate location coordinates
-    if (
-      !update.location ||
-      !update.location.coordinates ||
-      update.location.coordinates.length !== 2
-    ) {
-      console.error("Location validation failed.");
-      throw new Error(
-        "Location coordinates are required and must contain both longitude and latitude."
-      );
+    const { data } = await axios.put(`${SERVER}/notes/${id}`, update, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!data || !data._id) {
+      throw new Error("Failed to update note");
     }
 
-    const [longitude, latitude] = update.location.coordinates;
-    console.log("fetchNotes Extracted coordinates:", longitude, latitude);
-
-    // Validate coordinates for Geojson
-    if (
-      typeof longitude !== "number" ||
-      typeof latitude !== "number" ||
-      longitude < -180 || longitude > 180 ||
-      latitude < -90 || latitude > 90
-    ) {
-      console.error("Coordinate validation failed.");
-      throw new Error("Invalid longitude or latitude values.");
-    }
-
-    console.log(" fetchNotes Sending update request to server...");
-    const response = await axios.put(
-      `${SERVER}/notes/${id}`,
-      {
-        ...update,
-        location: {
-          type: "Point",
-          coordinates: [longitude, latitude],
-        },
-        radius: update.radius || 100,
-        recipients: update.recipients || [],
-        body: update.body || "",
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    console.log("fetchNotes Note updated successfully:", response.data);
-    return response.data;
+    return data;
   } catch (error) {
-    console.error("Error updating note:", error.message || error);
+    console.error("Error updating note:", error);
     throw error;
   }
 };
 
+// Delete a note
 const deleteNote = async (token, id) => {
-  if (!token) return;
+  if (!token || !id) {
+    console.error("Token and note ID are required");
+    throw new Error("Missing required parameters");
+  }
 
   try {
-    const response = await axios.delete(`${SERVER}/notes/${id}`, {
+    const { data } = await axios.delete(`${SERVER}/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data;
+    return data;
   } catch (error) {
     console.error("Error deleting note:", error);
     throw error;
   }
-}
+};
 
 export { fetchOneNote, fetchUsersNotes, fetchNotesByCurrentLocation, updateNote, deleteNote };

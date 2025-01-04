@@ -91,7 +91,7 @@ export const editNote = createAsyncThunk(
         recipients: note?.recipients || [],
       };
 
-      // Send the patch request to the server
+      // Send the update request to the server
       const response = await axios.put(`${SERVER}/notes/${id}`, updatedNote, {
         headers: { Authorization: `Bearer ${token}` },
       });
