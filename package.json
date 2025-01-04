@@ -4,14 +4,14 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev:client": "vite",
+    "dev:client": "cd client && vite",
     "dev:server": "node server/server.js",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "build": "vite build",
-    "vercel-build": "vite build",
+    "build": "cd client && vite build",
+    "vercel-build": "cd client && vite build",
     "start": "node server/server.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "cd client && vite preview"
   },
   "dependencies": {
     "@mdxeditor/editor": "^1.13.5",
