@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd client && pnpm install && pnpm run build",
-  "outputDirectory": "client/dist",
+  "buildCommand": "pnpm install && cd client && pnpm install && pnpm build",
   "installCommand": "pnpm install",
   "builds": [
     {
@@ -19,14 +18,14 @@
       "dest": "/server/server.js"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/client/dist/assets/$1"
     },
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
+      "src": "/((?!api/.*).*)",
       "dest": "/client/dist/index.html"
     }
   ],

@@ -7,9 +7,9 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && pnpm dev",
     "dev:server": "cross-env NODE_ENV=development nodemon server/server.js",
-    "build": "cd client && pnpm install && pnpm build",
-    "preview": "cd client && pnpm preview",
-    "start": "node server/server.js"
+    "build": "node build.js",
+    "start": "cross-env NODE_ENV=production node server/server.js",
+    "preview": "cd client && pnpm preview"
   },
   "keywords": [],
   "author": "",
