@@ -1,61 +1,31 @@
 {
   "name": "placenotes",
   "version": "1.0.0",
-  "description": "A location-based note-taking application",
+  "description": "",
   "type": "module",
   "scripts": {
-    "dev:client": "cd client && pnpm run dev",
-    "dev:server": "nodemon server/server.js",
-    "dev": "concurrently \"pnpm run dev:server\" \"pnpm run dev:client\"",
-    "build": "cd client && pnpm install && pnpm run build",
-    "start": "node server/server.js",
-    "vercel-build": "pnpm run build",
-    "seed": "node ./server/db/seed.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd client && pnpm dev",
+    "dev:server": "cross-env NODE_ENV=development nodemon server/server.js",
+    "build": "cd client && pnpm install && pnpm build",
+    "preview": "cd client && pnpm preview",
+    "start": "node server/server.js"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "keywords": [
-    "notes",
-    "location",
-    "maps"
-  ],
-  "author": "Jonathan Young",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphql-tools/schema": "^10.0.14",
-    "@reduxjs/toolkit": "^2.5.0",
-    "@tiptap/extension-task-item": "^2.10.4",
-    "@tiptap/extension-task-list": "^2.10.4",
-    "@vitejs/plugin-react": "^4.3.4",
-    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "ejs": "^3.1.10",
-    "express": "^4.21.2",
-    "express-session": "^1.18.1",
-    "graphql": "^16.10.0",
-    "graphql-http": "^1.22.3",
-    "graphql-tools": "^9.0.9",
-    "immer": "^10.1.1",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "leaflet": "^1.9.4",
-    "leaflet-control-geocoder": "^3.1.0",
-    "leaflet-draw": "^1.0.4",
-    "marked": "^15.0.4",
-    "mongoose": "^8.9.2",
-    "passport": "^0.7.0",
-    "passport-google-oauth": "^2.0.0",
-    "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-redux": "^9.2.0",
-    "vite": "^6.0.6"
+    "mongodb": "^6.3.0"
   },
   "devDependencies": {
-    "concurrently": "^9.1.1"
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.0.2"
   }
 }

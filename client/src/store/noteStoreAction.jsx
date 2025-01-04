@@ -1,9 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-// BASE_URL = 'http://API_URL';
+import { SERVER } from '../app/config';
 
 // Select token from state
-const selectToken = () => sessionStorage.getItem('token');
+const selectToken = (state) => state.auth.token;
+
 // Utility to validate and format the location coordinates
 const validateLocation = (location) => {
   if (!location || !location.coordinates || location.coordinates.length !== 2) {
@@ -33,7 +34,7 @@ export const fetchUsersNotes = createAsyncThunk(
       return rejectWithValue('No token available');
     }
     try {
-      const response = await axios.get(`http://localhost:5000/notes`, {
+      const response = await axios.get(`${SERVER}/notes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -53,7 +54,7 @@ export const fetchOneNote = createAsyncThunk(
       return rejectWithValue('No token available');
     }
     try {
-      const response = await axios.get(`http://localhost:5000/notes/${id}`, {
+      const response = await axios.get(`${SERVER}/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -91,7 +92,7 @@ export const editNote = createAsyncThunk(
       };
 
       // Send the patch request to the server
-      const response = await axios.patch(`http://localhost:5000/notes/${id}`, updatedNote, {
+      const response = await axios.put(`${SERVER}/notes/${id}`, updatedNote, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -122,7 +123,7 @@ export const createNote = createAsyncThunk(
         console.log('Validated location:', note.location);
       }
 
-      const response = await axios.post(`http://localhost:5000/notes/new`, note, {
+      const response = await axios.post(`${SERVER}/notes/new`, note, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -145,7 +146,7 @@ export const deleteNote = createAsyncThunk(
     }
     console.log("Deleting note:", id);
     try {
-      const response = await axios.delete(`http://localhost:5000/notes/${id}`, {
+      const response = await axios.delete(`${SERVER}/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Deleted note:", response.data);

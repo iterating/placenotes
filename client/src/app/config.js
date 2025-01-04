@@ -1,4 +1,5 @@
 // API URL configuration
-const API_URL = '/api'  // Always use /api, handled by Vercel rewrites in prod and Vite proxy in dev
+const DEV_API_URL = 'http://localhost:5000/api'
+const PROD_API_URL = '/api'
 
-export const SERVER = API_URL
+export const SERVER = import.meta.env.PROD ? PROD_API_URL : DEV_API_URL
