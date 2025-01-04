@@ -17,16 +17,31 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:4173',
-  'https://placenotes.vercel.app'
+  'https://placenotes.vercel.app',
+  'https://placenotes-git-vercel-iterating.vercel.app',
+  /^https:\/\/placenotes.*\.vercel\.app$/
 ]
 
 const corsOptions = {
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true)
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if the origin matches any allowed origins
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return allowedOrigin === origin;
+    });
+
+    if (isAllowed) {
+      callback(null, true);
     } else {
-      console.log('Origin not allowed:', origin)
-      callback(new Error('Not allowed by CORS'))
+      console.log('Origin not allowed:', origin);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
