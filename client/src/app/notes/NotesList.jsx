@@ -1,11 +1,14 @@
-import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import NoteCard from "./NoteCard"
+import React from "react";
+import NoteCard from "./NoteCard";
 
+const NotesList = React.memo(({ notes = [], handleNoteClick, handleMouseOver, handleMouseOut, markers }) => {
+  if (!Array.isArray(notes)) {
+    console.warn('Notes prop is not an array:', notes);
+    return <p>Error: Unable to display notes.</p>;
+  }
 
-
-const NotesList = React.memo(({ notes, handleNoteClick, handleMouseOver, handleMouseOut, markers }) => {
   return (
-    <div>
+    <div className="notes-list">
       {notes.length > 0 ? (
         notes.map((note) => (
           <NoteCard
@@ -27,4 +30,6 @@ const NotesList = React.memo(({ notes, handleNoteClick, handleMouseOver, handleM
   );
 });
 
-export default NotesList
+NotesList.displayName = 'NotesList';
+
+export default NotesList;

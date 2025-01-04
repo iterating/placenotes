@@ -1,4 +1,5 @@
 import * as AuthService from "../services/auth.service.js"
+import * as NotesService from "../services/notes.service.js"
 import passport from "../api/middleware/passport.js"
 import jwt from "jsonwebtoken"
 
@@ -74,9 +75,9 @@ export const signup = async (req, res) => {
   }
 }
 
-export const login = (req, res, next) => {
+export const login = async (req, res, next) => {
   console.log("Login request received:", req.body)
-  passport.authenticate("localLogin", (err, user, info) => {
+  passport.authenticate("localLogin", async (err, user, info) => {
     if (err) {
       console.error("Error in passport authentication:", err)
       return res.status(500).json({
@@ -92,26 +93,39 @@ export const login = (req, res, next) => {
       })
     }
 
-    req.login(user, (err) => {
-      if (err) {
-        console.error("Error logging in:", err)
-        return res.status(500).json({
-          success: false,
-          message: "Error establishing session"
-        })
-      }
+    try {
+      // Fetch user's notes
+      const notes = await NotesService.getNotes(user._id.toString())
+      console.log(`Retrieved ${notes.length} notes for user ${user._id}`)
 
-      const token = generateToken(user)
-      return res.json({
-        success: true,
-        message: "Login successful",
-        user: {
-          _id: user._id,
-          email: user.email
-        },
-        token
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Error logging in:", err)
+          return res.status(500).json({
+            success: false,
+            message: "Error establishing session"
+          })
+        }
+
+        const token = generateToken(user)
+        return res.json({
+          success: true,
+          message: "Login successful",
+          user: {
+            _id: user._id,
+            email: user.email
+          },
+          token,
+          notes
+        })
       })
-    })
+    } catch (error) {
+      console.error("Error fetching user notes:", error)
+      return res.status(500).json({
+        success: false,
+        message: "Error fetching user notes"
+      })
+    }
   })(req, res, next)
 }
 
