@@ -1,68 +1,90 @@
-header {
-    padding: 2px;
-    border-radius: 8px; /* rounded corners */
-    box-shadow: 0 0 8px black;
-    height: 2rem;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    /* display: flex; */
-  }
-  header > .drawer-icon {
-    text-align: left;
-    cursor: pointer;
-    font-size: 25px;
-    margin: 0px 25px 0px 5px;
-  }
-  /* Opens drawer */
-  .drawer {
-    height: 100%;
-    width: 200px;
-    position: fixed;
-    top: 0;
-    left: -200px; /* Keeps drawer hidden */
-    background-color: #ffffff;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-    transition: left 0.3s ease;
-    padding-top: 20px;
-    z-index: 1000;
-  }
-  .drawer.open {
-    left: 0;
-  }
-  .drawer a {
-    text-decoration: none;
-    color: #333;
-    display: block;
-    padding: 15px 25px;
-    transition: background-color 0.3s ease;
-  }
-  /* Highlights selection in drawer when clicked */
-  .drawer a:hover {
-    background-color: #eeeeee;
-  }
-  /* Invisible part that hides drawer when clicked, usually hidden */
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-  .overlay.open {
-    opacity: 1;
-    visibility: visible;
-  }
-  /* Moves content aside when drawer opens */
-  .drawer-open {
-    margin-left: 200px;
-  }
-  .content {
-    padding: 20px;
-    transition: margin-left 0.3s ease;
-  }
+.header-container {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-header {
+  padding: 2px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  height: 2rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  margin: 8px;
+}
+
+.app-header > .drawer-icon {
+  text-align: left;
+  cursor: pointer;
+  font-size: 25px;
+  margin: 0px 25px 0px 5px;
+  transition: transform 0.2s ease;
+}
+
+.app-header > .drawer-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Opens drawer */
+.drawer {
+  height: 100%;
+  width: 200px;
+  position: fixed;
+  top: 0;
+  left: -200px; /* Keeps drawer hidden */
+  background-color: #ffffff;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: left 0.3s ease;
+  padding-top: 20px;
+  z-index: 1000;
+}
+
+.drawer.open {
+  left: 0;
+}
+
+.drawer a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  padding: 15px 25px;
+  transition: background-color 0.3s ease;
+}
+
+/* Highlights selection in drawer when clicked */
+.drawer a:hover {
+  background-color: #eeeeee;
+}
+
+/* Invisible part that hides drawer when clicked, usually hidden */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 999;
+}
+
+.overlay.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Moves content aside when drawer opens */
+.drawer-open {
+  margin-left: 200px;
+}
+
+.content {
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
