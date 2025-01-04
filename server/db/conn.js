@@ -10,19 +10,22 @@ if (!connectionString) {
   process.exit(1)
 }
 
-// Parse connection string to get cluster info
-const getClusterInfo = (uri) => {
-  try {
-    const match = uri.match(/mongodb\+srv:\/\/(.*?):(.*?)@(.*?)\//);
-    return match ? match[3] : null;
-  } catch (err) {
-    console.error('Error parsing MongoDB URI:', err);
-    return null;
-  }
+// Add required parameters to connection string if they're missing
+const addConnectionParams = (uri) => {
+  const params = new URLSearchParams();
+  if (!uri.includes('retryWrites=')) params.append('retryWrites', 'true');
+  if (!uri.includes('w=')) params.append('w', 'majority');
+  if (!uri.includes('replicaSet=')) params.append('replicaSet', 'atlas-11bmvx-shard-0');
+  if (!uri.includes('authSource=')) params.append('authSource', 'admin');
+  
+  const paramString = params.toString();
+  if (!paramString) return uri;
+  
+  return uri + (uri.includes('?') ? '&' : '?') + paramString;
 };
 
-const clusterName = getClusterInfo(connectionString);
-console.log('Connecting to MongoDB cluster:', clusterName);
+const enhancedConnectionString = addConnectionParams(connectionString);
+console.log('Connecting to MongoDB with enhanced connection string...');
 
 const options = {
   dbName,
@@ -31,14 +34,20 @@ const options = {
   connectTimeoutMS: 30000,
   heartbeatFrequencyMS: 2000,
   maxPoolSize: 10,
-  minPoolSize: 5
+  minPoolSize: 5,
+  autoIndex: true,
+  serverApi: {
+    version: '1',
+    strict: true,
+    deprecationErrors: true
+  }
 };
 
 const connectWithRetry = async (retries = 5, delay = 5000) => {
   for (let i = 0; i < retries; i++) {
     try {
       console.log(`MongoDB connection attempt ${i + 1} of ${retries}...`);
-      await mongoose.connect(connectionString, options);
+      await mongoose.connect(enhancedConnectionString, options);
       
       console.log("MongoDB connected successfully to database:", dbName);
       
@@ -53,6 +62,12 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       return true;
     } catch (error) {
       console.error(`MongoDB connection attempt ${i + 1} failed:`, error.message);
+      if (error.message.includes('ENOTFOUND')) {
+        console.error('DNS lookup failed. Check your connection string and network.');
+      } else if (error.message.includes('Authentication failed')) {
+        console.error('Authentication failed. Check your username and password.');
+      }
+      
       if (i < retries - 1) {
         console.log(`Retrying in ${delay/1000} seconds...`);
         await new Promise(resolve => setTimeout(resolve, delay));
