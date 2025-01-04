@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import Drawer from './Drawer';
-import './Header.css';
+import './Heading.css';
 
-const Header = () => {
+const Heading = () => {
   useEffect(() => {
     const drawerIcon = document.querySelector(".drawer-icon");
     const overlay = document.querySelector(".overlay");
@@ -29,14 +29,14 @@ const Header = () => {
 
   return (
     <div>
-      <header>
+      <heading>
         <span className="drawer-icon" id="sidebar-icon">&#9776;</span>
         <Drawer/>
         <div className="overlay" id="overlay"></div>
-      </header>
+      </heading>
     </div>
   );
 };
 
-export default Header;
+export default Heading;
 
