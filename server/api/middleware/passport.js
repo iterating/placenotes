@@ -1,6 +1,7 @@
 import passport from "passport"
 import { Strategy as LocalStrategy } from "passport-local"
 import * as usersService from "../../services/users.service.js"
+import * as AuthService from "../../services/auth.service.js"
 
 passport.use(
   "localLogin",
@@ -29,7 +30,6 @@ passport.use(
   )
 )
 
-
 passport.serializeUser((user, done) => {
   if (user && user._id) {
     done(null, user._id.toString());
@@ -37,10 +37,9 @@ passport.serializeUser((user, done) => {
     done(new Error("User object is invalid or missing _id property"));
   }
 });
+
 passport.deserializeUser((id, done) => {
-  AuthService.getUserById(id, (err, user) => {
-    done(err, user);
-  });
+  AuthService.getUserByIdCallback(id, done);
 });
 
 export default passport

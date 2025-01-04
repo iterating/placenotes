@@ -28,34 +28,67 @@ export const signup = async ({ email, password, ...userData }) => {
 
     newUser.password = await newUser.encryptPassword(password);
     const savedUser = await newUser.save();
-
     return savedUser;
   } catch (error) {
-    console.error(error);
-    throw new Error("Error registering user");
+    console.error('Error in signup:', error);
+    throw error;
   }
 };
 
-// Log In/using passport instead
 export const login = async ({ email, password }) => {
-  console.log(`service Login attempt from ${email}`);
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error("service: Incorrect email.");
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      throw new Error('Invalid password');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Error in login:', error);
+    throw error;
   }
-  const isMatch = await user.matchPassword(password);
-  if (!isMatch) {
-    throw new Error("Incorrect password.");
-  }
-  return user;
 };
 
-// Log Out
-export const logout = async () => {
-  return Promise.resolve().then(() => {
-    sessionStorage.removeItem("token");
-    window.location = "/users/login";
+export const logout = () => {
+  return new Promise((resolve) => {
+    resolve({ success: true });
   });
 };
 
+export const getUserById = async (id) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error('Invalid user ID format');
+    }
+    
+    const user = await User.findById(id).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Error in getUserById:', error);
+    throw error;
+  }
+};
+
+// Callback style for passport compatibility
+export const getUserByIdCallback = (id, done) => {
+  getUserById(id)
+    .then(user => done(null, user))
+    .catch(error => done(error));
+};
+
+export default {
+  signup,
+  login,
+  logout,
+  getUserById,
+  getUserByIdCallback
+};

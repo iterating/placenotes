@@ -1,78 +1,97 @@
 import mongoose from "mongoose"
-import bcrypt from "bcrypt"
-
-const pointSchema = new mongoose.Schema({
-  location: {
-    type: {
-      type: String,
-      enum: ['Point'],
-    },
-    coordinates: {
-      type: [Number, Number],
-      default: [-118.243683, 34.052235],
-    }
-  },
-})
 
 const noteSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
-  userId: String,
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+    index: true
+  },
   email: {
     type: String,
     required: true,
+    index: true
+  },
+  title: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  body: {
+    type: String,
+    required: true
   },
   location: {
     type: {
       type: String,
       enum: ['Point'],
+      default: 'Point'
     },
     coordinates: {
-      type: [Number], // This will ensure that it's an array of numbers
+      type: [Number],
       required: true,
       validate: {
-        validator: function (value) {
-          return value.length === 2 && !isNaN(value[0]) && !isNaN(value[1]);
+        validator: function(v) {
+          return Array.isArray(v) && v.length === 2 &&
+                 v[0] >= -180 && v[0] <= 180 && // longitude
+                 v[1] >= -90 && v[1] <= 90;     // latitude
         },
-        message: 'Coordinates must be a valid [longitude, latitude] pair',
-      },
-    },
+        message: 'Coordinates must be a valid [longitude, latitude] pair'
+      }
+    }
   },
   radius: {
     type: Number,
-    min: 1,
-    max: 100000,
-    default: 200,
+    default: 1000, // Default radius in meters
+    min: [0, 'Radius cannot be negative']
   },
-  time: {
+  tags: [{
+    type: String,
+    trim: true
+  }],
+  createdAt: {
     type: Date,
     default: Date.now,
+    index: true
   },
-  body: {
-    type: String,
-    required: true,
-    maxlength: 1500000,
-  },
-  recipients: [
-    {
-      userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-      readAt: Date,
-    },
-  ],
-  type: {
-    type: String,
-    enum: ["note", "reminder", "event"],
-    default: "note",
-  },
-  status: {
-    type: String,
-    enum: ["active", "unseen", "seen", "archived"],
-    default: "active",
-  },
-})
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
 
-noteSchema.index({ location: "2dsphere" })
+// Indexes
+noteSchema.index({ location: '2dsphere' });
+noteSchema.index({ userId: 1, createdAt: -1 });
+noteSchema.index({ email: 1, createdAt: -1 });
 
-export default mongoose.model("Note", noteSchema)
+// Update timestamps on save
+noteSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+// Ensure location type is set
+noteSchema.pre('save', function(next) {
+  if (this.location && !this.location.type) {
+    this.location.type = 'Point';
+  }
+  next();
+});
+
+const Note = mongoose.model("Note", noteSchema);
+
+// Create indexes
+Note.createIndexes().catch(err => {
+  console.error('Error creating indexes:', err);
+});
+
+export default Note;

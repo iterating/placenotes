@@ -14,8 +14,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
+        secure: process.env.NODE_ENV === 'production',
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
@@ -25,19 +26,22 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            '@reduxjs/toolkit',
-            'react-redux'
-          ]
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('@reduxjs/toolkit')) return 'redux';
+            if (id.includes('react')) return 'react';
+            if (id.includes('axios')) return 'axios';
+            return 'vendor';
+          }
         }
       }
     }
+  },
+  optimizeDeps: {
+    include: ['@reduxjs/toolkit', 'react-redux']
   }
 });
