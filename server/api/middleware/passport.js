@@ -1,6 +1,7 @@
 import passport from "passport"
 import { Strategy as LocalStrategy } from "passport-local"
 import * as usersService from "../../services/users.service.js"
+import * as AuthService from "../../services/auth.service.js"
 
 passport.use(
   "localLogin",
