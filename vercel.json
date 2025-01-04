@@ -1,15 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install && cd client && pnpm install && pnpm build",
-  "installCommand": "pnpm install",
   "builds": [
     {
       "src": "server/server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "client/dist/**",
-      "use": "@vercel/static"
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
     }
   ],
   "routes": [
@@ -21,15 +20,8 @@
       "handle": "filesystem"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/client/dist/assets/$1"
-    },
-    {
-      "src": "/((?!api/.*).*)",
+      "src": "/(.*)",
       "dest": "/client/dist/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
