@@ -80,7 +80,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
       const marker = L.marker([note.location.coordinates[1], note.location.coordinates[0]])
         .addTo(map)
         .bindPopup(
-          `<div class="popup-content">
+          `<div class="popup-content" data-note-id="${note._id}">
             <div class="popup-body">${note.body?.split('\n')[0]}</div>
             <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
           </div>`
@@ -93,7 +93,6 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
 
       marker.on("mouseout", () => {
         handleMouseOut(note._id);
-        marker.closePopup();
       });
 
       marker.on("click", () => {

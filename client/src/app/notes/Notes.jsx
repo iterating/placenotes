@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./Notes.css";
 import NotesMap from "./NotesMap";
@@ -60,11 +60,24 @@ const Notes = () => {
 
   const handleMouseOver = useCallback((id) => {
     const noteElement = document.querySelector(`[data-note-id="${id}"]`);
-    const markerElement = markers.current.find((marker) =>
-      marker.getPopup()?.getContent().includes(`Edit Note`)
+    const markerElement = markers.current.find((marker) => 
+      marker._popup && marker._popup._content.includes(id)
     );
-    if (noteElement) noteElement.style.backgroundColor = "#add8e6";
+    
+    if (noteElement) {
+      noteElement.style.backgroundColor = "#add8e6";
+      setTimeout(() => {
+        if (noteElement) {
+          noteElement.style.backgroundColor = "";
+        }
+      }, 1000);
+    }
+    
     if (markerElement) {
+      const map = markerElement._map;
+      if (map) {
+        map.setView(markerElement.getLatLng(), map.getZoom());
+      }
       markerElement.openPopup();
       markerElement.setPopupContent(markerElement.getPopup().getContent());
     }
@@ -72,13 +85,17 @@ const Notes = () => {
 
   const handleMouseOut = useCallback((id) => {
     const noteElement = document.querySelector(`[data-note-id="${id}"]`);
-    const markerElement = markers.current.find((marker) =>
-      marker.getPopup()?.getContent().includes(`Edit Note`)
+    const markerElement = markers.current.find((marker) => 
+      marker._popup && marker._popup._content.includes(id)
     );
-    if (noteElement) noteElement.style.backgroundColor = "";
+    
+    if (noteElement) {
+      noteElement.style.backgroundColor = "";
+    }
+    
     if (markerElement) {
       markerElement.closePopup();
-      markerElement.setPopupContent("");
+      markerElement.setPopupContent(markerElement.getPopup().getContent());
     }
   }, [markers]);
 
@@ -133,7 +150,7 @@ const Notes = () => {
           markers={markers}
         />
         <p>
-          <a href="/notes/new">Create a new note</a>
+          <Link to="/notes/new" className="create-note-link">Create a new note</Link>
         </p>
       </div>
     </div>
