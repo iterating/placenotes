@@ -1,25 +1,48 @@
-[Try Placenotes](https://placenotes.vercel.app/)
+Imagine this:
 
-A loved one arrives at the imposing corporate tower where they are having thier interview, and gets a message:
+Your daughter is about to walk into her dream job interview at a towering office building in downtown Seattle. As she approaches the entrance, her phone buzzes with a note you left just for this moment:
 
-"You've got this! You're not just qualified for this role; you're the perfect fit. Go in there and show them the incredible person I see every day. I'm so proud of you and I'm cheering you on all the way. 💖"
+"You've got this, sweetheart! You're not just qualified for this role; you're the perfect fit. Remember how you led that project at your last job? That's exactly what they're looking for. Take a deep breath, stand tall, and show them the incredible person I see every day. I'm so proud of you! 💖 - Mom"
 
-You arrive at Costco, and get a message:
+Later that day, you pull into Costco's parking lot, and Placenotes automatically surfaces your family's shared shopping list:
 
-" 2024.10.25 out of paper towel rolls
+"📝 Family Costco Run (last updated: 2 hours ago)
+- [ ] Eggs (the 24-pack was on sale!)
+- [ ] Milk (both regular and almond)
+- [ ] Steel-cut oatmeal
+- [x] Sharp cheddar (got the big pack, we're set for the month!)
+- [ ] That Malbec wine Dad loves
+- [ ] Paper towels (we're almost out!)
+Note from Sarah: Don't forget to use the new membership card!"
 
-- [ ] eggs
-- [ ] milk
-- [ ] oatmeal
-- [x] cheese got xl pack 10-15
-- [ ] malbec wine "
+This is Placenotes - your messages and notes, exactly where and when you need them.
 
-It's your Costco shopping list, and it pops up when you arrive at Costco.
+**Placenotes** is a powerful location-aware messaging and note-taking platform that brings context to your communications. By combining the convenience of messaging with location intelligence, it helps you share the right information at the right place and time.
 
-**Placenotes** is a powerful messaging and notetaking app that adds the element of location to your messages. Supporting Markdown formatting, it can be used as a notetaking app or a messaging app.
+### Key Features
 
-Built with Express and Mongodb
-This is a work in progress.
+ **Location-Aware Messages**
+- Messages appear when you arrive at specific locations
+- Set custom radius for message triggers
+- Perfect for location-specific reminders and notes
+
+ **Smart Note-Taking**
+- Full Markdown support for rich formatting
+- Organize notes by location and time
+- Search and filter notes easily
+
+ **Social Features**
+- Share notes with specific friends
+- Send location-based messages to loved ones
+- Find and connect with friends
+- Real-time updates
+
+ **Privacy & Security**
+- Control over location sharing
+- Private and shared note options
+- Secure authentication system
+
+Built with Express and MongoDB, featuring both GraphQL and REST APIs.
 
 ## Express server application
 
@@ -182,5 +205,3 @@ erDiagram
 
   2024.11.01
 - [x] one file does one thing
-
-
