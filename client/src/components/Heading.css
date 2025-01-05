@@ -8,9 +8,9 @@
 .app-header {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--white);
+  box-shadow: var(--shadow-sm);
   position: fixed;
   top: 0;
   left: 0;
@@ -19,22 +19,23 @@
   height: 64px;
 }
 
-.header-left, .header-right {
+.header-left, 
+.header-right {
   display: flex;
   align-items: center;
   min-width: 48px;
 }
 
-.app-header > .drawer-icon {
+.drawer-icon {
   cursor: pointer;
-  font-size: 24px;
-  padding: 8px;
-  color: #333;
+  font-size: 1.5rem;
+  padding: var(--spacing-sm);
+  color: var(--text-primary);
   transition: color 0.2s ease;
 }
 
-.app-header > .drawer-icon:hover {
-  color: #000;
+.drawer-icon:hover {
+  color: var(--text-primary);
 }
 
 /* Drawer styles */
@@ -43,9 +44,9 @@
   width: 250px;
   position: fixed;
   top: 0;
-  left: -250px; /* Keeps drawer hidden */
-  background-color: #ffffff;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  left: -250px;
+  background-color: var(--white);
+  box-shadow: var(--shadow-md);
   transition: left 0.3s ease;
   padding-top: 60px;
   z-index: 1000;
@@ -57,14 +58,14 @@
 
 .drawer a {
   display: block;
-  padding: 15px 25px;
+  padding: var(--spacing-md) var(--spacing-lg);
   text-decoration: none;
-  color: #333;
+  color: var(--text-primary);
   transition: background-color 0.2s;
 }
 
 .drawer a:hover {
-  background-color: #f5f5f5;
+  background-color: var(--gray-100);
 }
 
 /* Overlay styles */
@@ -91,7 +92,7 @@
   margin-top: 64px;
   transition: margin-left 0.3s ease;
   min-height: 100vh;
-  padding: 20px;
+  padding: var(--spacing-lg);
 }
 
 #content.drawer-open {
@@ -106,6 +107,6 @@
 }
 
 .content {
-  padding: 20px;
+  padding: var(--spacing-lg);
   transition: margin-left 0.3s ease;
 }

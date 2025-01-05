@@ -1,8 +1,8 @@
 .notecard {
-  background: white;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  background: var(--white);
+  padding: 1rem 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease;
 }
 
@@ -16,41 +16,4 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
-}
-
-.button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.button-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.button-group > button {
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.delete-button {
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: 1px solid #dc3545;
-  background: white;
-  color: #dc3545;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  min-width: 100px;
-}
-
-.delete-button:hover {
-  background: #dc3545;
-  color: white;
 }

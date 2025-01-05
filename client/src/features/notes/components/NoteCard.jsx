@@ -61,7 +61,7 @@ const NoteCard = ({ note, markers }) => {
       </div>
       <div className="note-actions-ui">
         <button 
-          className="edit-button"
+          className="btn btn-primary"
           onClick={(e) => {
             e.preventDefault();
             navigate(`/notes/${note._id}/edit`);
@@ -72,7 +72,7 @@ const NoteCard = ({ note, markers }) => {
         </button>
         <br />
         <button
-          className="delete-button"
+          className="btn btn-outline-danger"
           onClick={handleDelete}
           aria-label={`Delete note ${note._id}`}
         >

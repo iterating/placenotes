@@ -31,26 +31,6 @@
   flex-wrap: wrap;
 }
 
-.editor-menu button {
-  border: none;
-  background: none;
-  padding: 4px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #4a5568;
-  transition: all 0.2s;
-}
-
-.editor-menu button:hover {
-  background-color: #e2e8f0;
-}
-
-.editor-menu button.is-active {
-  background-color: #e2e8f0;
-  color: #2d3748;
-}
-
 .editor-menu > div {
   display: flex;
   gap: 2px;
@@ -60,6 +40,11 @@
 
 .editor-menu > div:last-child {
   border-right: none;
+}
+
+.editor-menu .is-active {
+  background-color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .ProseMirror {
@@ -121,6 +106,22 @@
   margin: 1em 0;
 }
 
+.ProseMirror h3 {
+  font-size: 1.25em;
+  margin: 1em 0;
+}
+
+.ProseMirror h4 {
+  font-size: 1.1em;
+  margin: 1em 0;
+}
+
+.ProseMirror h5,
+.ProseMirror h6 {
+  font-size: 1em;
+  margin: 1em 0;
+}
+
 .ProseMirror ul[data-type="taskList"] {
   list-style: none;
   padding: 0;
@@ -128,8 +129,7 @@
 
 .ProseMirror ul[data-type="taskList"] li {
   display: flex;
-  align-items: flex-start;
-  margin: 0.5em 0;
+  align-items: center;
 }
 
 .ProseMirror ul[data-type="taskList"] li > label {

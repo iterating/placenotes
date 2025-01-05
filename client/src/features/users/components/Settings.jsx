@@ -55,25 +55,45 @@ const Settings = ({ user }) => {
     <div className="edit-container">
       <h1 className="title">User Settings</h1>
       <form action="/users/account" method="post" className="edit-note-form" onSubmit={handleSubmit}>
-        <label for="name">Username:</label><br />
-        <input type="text" name="name" id="name" value={name} onChange={handleUsernameChange} /><br />
-        <label for="email">Email:</label><br />
-        <input type="email" name="email" id="email" value={email} onChange={handleEmailChange} /><br />
-  
-        <button type="submit">Save Changes</button>
+        <label htmlFor="name">Username:</label>
+        <input 
+          type="text" 
+          name="name" 
+          id="name" 
+          value={name} 
+          onChange={handleUsernameChange}
+          className="form-input"
+        />
+        <label htmlFor="email">Email:</label>
+        <input 
+          type="email" 
+          name="email" 
+          id="email" 
+          value={email} 
+          onChange={handleEmailChange}
+          className="form-input"
+        />
+        <button type="submit" className="btn btn-primary">Save Changes</button>
       </form>
 
       <h2 className="title">Friends</h2>
-      <ul>
+      <ul className="friends-list">
         {friends.map(friend => <li key={friend}>{friend}</li>)}
       </ul>
       <form className="edit-note-form" onSubmit={handleAddFriend}>
-        <label for="friendEmail">Email:</label><br />
-        <input type="email" name="friendEmail" id="friendEmail" value={friendEmail} onChange={handleFriendEmailChange} /><br />
-        <button type="submit">Add Friend</button>
+        <label htmlFor="friendEmail">Email:</label>
+        <input 
+          type="email" 
+          name="friendEmail" 
+          id="friendEmail" 
+          value={friendEmail} 
+          onChange={handleFriendEmailChange}
+          className="form-input"
+        />
+        <button type="submit" className="btn btn-primary">Add Friend</button>
       </form>
-      <form action="/users/account/delete" method="post" className="button">
-        <button type="submit">Delete Account</button>
+      <form action="/users/account/delete" method="post" className="delete-account-form">
+        <button type="submit" className="btn btn-danger">Delete Account</button>
       </form>
     </div>
   );

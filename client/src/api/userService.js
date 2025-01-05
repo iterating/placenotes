@@ -1,29 +1,27 @@
 import apiClient from './apiClient';
-import { SERVER } from '../app/config';
 
-export const login = async (credentials) => {
+const API_URL = '/api/users';
+
+export const searchUsers = async (email) => {
   try {
-    const response = await apiClient.post(`${SERVER}/api/users/login`, credentials);
+    const response = await apiClient.get(`${API_URL}/search`, {
+      params: { email }
+    });
     return response.data;
   } catch (error) {
+    console.error('Error searching users:', error);
     throw error;
   }
 };
 
-export const signup = async (userData) => {
+export const sendFriendRequest = async (targetUserId) => {
   try {
-    const response = await apiClient.post(`${SERVER}/api/users/signup`, userData);
+    const response = await apiClient.post(`${API_URL}/friend-request`, {
+      targetUserId
+    });
     return response.data;
   } catch (error) {
-    throw error;
-  }
-};
-
-export const updateUser = async (userId, userData) => {
-  try {
-    const response = await apiClient.put(`${SERVER}/api/users/${userId}`, userData);
-    return response.data;
-  } catch (error) {
+    console.error('Error sending friend request:', error);
     throw error;
   }
 };

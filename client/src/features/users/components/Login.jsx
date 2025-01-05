@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../../store/authSlice';
 import axios from 'axios';
 import { SERVER } from '../../../app/config';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -54,7 +55,8 @@ const Login = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        /><br />
+          className="form-input"
+        />
         <label htmlFor="password">Password</label>
         <input
           type="password"
@@ -64,9 +66,10 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br />
-        <input type="submit" value="Submit" />
-        <a href="/users/signup">Sign Up For Account</a>
+          className="form-input"
+        />
+        <button type="submit" className="btn btn-primary">Login</button>
+        <Link to="/users/signup" className="btn btn-outline-primary">Sign Up For Account</Link>
       </form>
     </div>
   );

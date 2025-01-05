@@ -30,9 +30,9 @@ const FriendRequests = () => {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter friend's email"
           required
-          className="friend-email-input"
+          className="form-input"
         />
-        <button type="submit" className="send-request-btn">
+        <button type="submit" className="btn btn-primary">
           Send Friend Request
         </button>
       </form>

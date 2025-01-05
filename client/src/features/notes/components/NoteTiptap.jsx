@@ -20,7 +20,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive('bold') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('bold') ? 'is-active' : ''}`}
           title="Bold (Ctrl+B)"
         >
           B
@@ -28,7 +28,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive('italic') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('italic') ? 'is-active' : ''}`}
           title="Italic (Ctrl+I)"
         >
           I
@@ -36,7 +36,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={editor.isActive('strike') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('strike') ? 'is-active' : ''}`}
           title="Strikethrough"
         >
           S̶
@@ -44,7 +44,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleCode().run()}
-          className={editor.isActive('code') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('code') ? 'is-active' : ''}`}
           title="Inline Code"
         >
           &lt;&gt;
@@ -55,7 +55,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().setParagraph().run()}
-          className={editor.isActive('paragraph') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('paragraph') ? 'is-active' : ''}`}
           title="Normal Text"
         >
           ¶
@@ -63,7 +63,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}`}
           title="Heading 1"
         >
           H1
@@ -71,7 +71,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}`}
           title="Heading 2"
         >
           H2
@@ -82,7 +82,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive('bulletList') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('bulletList') ? 'is-active' : ''}`}
           title="Bullet List"
         >
           •
@@ -90,7 +90,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive('orderedList') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('orderedList') ? 'is-active' : ''}`}
           title="Numbered List"
         >
           1.
@@ -98,7 +98,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleTaskList().run()}
-          className={editor.isActive('taskList') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('taskList') ? 'is-active' : ''}`}
           title="Task List"
         >
           ☑
@@ -109,7 +109,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={editor.isActive('codeBlock') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('codeBlock') ? 'is-active' : ''}`}
           title="Code Block"
         >
           { }
@@ -117,7 +117,7 @@ const MenuBar = ({ editor }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={editor.isActive('blockquote') ? 'is-active' : ''}
+          className={`btn btn-sm ${editor.isActive('blockquote') ? 'is-active' : ''}`}
           title="Quote Block"
         >
           "
@@ -126,6 +126,7 @@ const MenuBar = ({ editor }) => {
           type="button"
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
           title="Insert Horizontal Line"
+          className="btn btn-sm"
         >
           —
         </button>
@@ -136,6 +137,7 @@ const MenuBar = ({ editor }) => {
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
           title="Undo (Ctrl+Z)"
+          className="btn btn-sm"
         >
           ↩
         </button>
@@ -143,6 +145,7 @@ const MenuBar = ({ editor }) => {
           type="button"
           onClick={() => editor.chain().focus().redo().run()}
           title="Redo (Ctrl+Y)"
+          className="btn btn-sm"
         >
           ↪
         </button>

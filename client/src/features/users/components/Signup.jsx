@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../../store/authSlice';
 import axios from 'axios';
 import { SERVER } from '../../../app/config';
+import { Link } from 'react-router-dom';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -45,23 +46,25 @@ const Signup = () => {
       <h1 className="title">Signup</h1>
       {error && <div className="error">{error}</div>}
       <form id="signup-form" onSubmit={handleSubmit}>
-        <label htmlFor="email">Email:</label><br />
+        <label htmlFor="email">Email:</label>
         <input
           type="email"
           id="signup-email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           required
-        /><br />
-        <label htmlFor="password">Password:</label><br />
+          className="form-input"
+        />
+        <label htmlFor="password">Password:</label>
         <input
           type="password"
           id="signup-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
-        /><br />
-        <label htmlFor="currentLocation">Location:</label><br />
+          className="form-input"
+        />
+        <label htmlFor="currentLocation">Location:</label>
         <select
           id="signup-currentLocation"
           value={`${currentLocation.coordinates[0]},${currentLocation.coordinates[1]}`}
@@ -69,6 +72,7 @@ const Signup = () => {
             type: 'Point',
             coordinates: event.target.value.split(',').map(x => parseFloat(x))
           })}
+          className="form-select"
         >
           <option value="-118.243683,34.052235">New York</option>
           <option value="-118.243683,34.052235">Los Angeles</option>
@@ -79,9 +83,9 @@ const Signup = () => {
           <option value="-117.161083,32.715736">San Diego</option>
           <option value="-96.796988,32.776665">Dallas</option>
           <option value="-121.894958,37.338208">San Jose</option>
-        </select><br />
-        <input type="submit" value="Create Account" />
-        <a href="/users/login">Already have an account? Login</a>
+        </select>
+        <button type="submit" className="btn btn-primary">Create Account</button>
+        <Link to="/users/login" className="btn btn-link">Already have an account? Login</Link>
       </form>
     </div>
   );

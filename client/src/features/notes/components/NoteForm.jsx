@@ -106,14 +106,14 @@ const NoteForm = ({
             <button 
               type="submit" 
               disabled={isSubmitting} 
-              className="primary-button"
+              className="btn btn-primary"
             >
               {isSubmitting ? "Saving..." : submitLabel}
             </button>
             <button 
               type="button" 
               onClick={() => navigate("/notes")} 
-              className="secondary-button"
+              className="btn btn-secondary"
             >
               Cancel
             </button>

@@ -49,13 +49,13 @@ const PendingRequests = () => {
               <div className="request-actions">
                 <button
                   onClick={() => handleResponse(request._id, 'accept')}
-                  className="accept-btn"
+                  className="btn btn-success btn-sm"
                 >
                   Accept
                 </button>
                 <button
                   onClick={() => handleResponse(request._id, 'reject')}
-                  className="reject-btn"
+                  className="btn btn-outline-danger btn-sm"
                 >
                   Reject
                 </button>
