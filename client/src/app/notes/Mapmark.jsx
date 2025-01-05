@@ -53,56 +53,47 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
       geocoderControl.getContainer().style.maxHeight = "300px";
       geocoderControl.getContainer().style.overflowY = "scroll";
 
-        const marker = L.marker([latitude, longitude], { draggable: true }).addTo(mapInstance.current);
-        const circle = L.circle([latitude, longitude], { radius: radius }).addTo(mapInstance.current);
+      const marker = L.marker([latitude, longitude], { draggable: true }).addTo(mapInstance.current);
+      const circle = L.circle([latitude, longitude], { radius: note.radius }).addTo(mapInstance.current);
     
-        markerRef.current = marker;
-        circleRef.current = circle;
+      markerRef.current = marker;
+      circleRef.current = circle;
     
-        const dragEndHandler = (e) => {
-          const newLatLng = e.target.getLatLng();
-          setNote((prev) => ({
-            ...prev,
-            location: {
-              type: "Point",
-              coordinates: [newLatLng.lng, newLatLng.lat],
-            },
-          }));
-          onMapChange([newLatLng.lng, newLatLng.lat]);
-          circleRef.current.setLatLng(newLatLng);
-        };
+      const dragEndHandler = (e) => {
+        const newLatLng = e.target.getLatLng();
+        const newCoords = [Number(newLatLng.lng.toFixed(6)), Number(newLatLng.lat.toFixed(6))];
+        
+        setNote((prev) => ({
+          ...prev,
+          location: {
+            type: "Point",
+            coordinates: newCoords
+          },
+        }));
+        
+        if (onMapChange) {
+          onMapChange(newCoords[0], newCoords[1]);
+        }
+        
+        circleRef.current.setLatLng(newLatLng);
+      };
     
-        const radiusChangeHandler = () => {
-          const newRadius = circleRef.current.getRadius();
-          setRadius(newRadius);
-        };
-    
-        markerRef.current.on("dragend", dragEndHandler);
-        circleRef.current.on("edit radiuschange", radiusChangeHandler);
-        markerRef.current.on("drag", (e) => {
-          circleRef.current.setLatLng(e.latlng);
-        });
-      }
-    }, [coordinates, note, setNote, onMapChange, radius]);
+      markerRef.current.on("dragend", dragEndHandler);
+      markerRef.current.on("drag", (e) => {
+        const latlng = e.target.getLatLng();
+        circleRef.current.setLatLng(latlng);
+      });
+    }
 
-  const handleRadiusChange = (e) => {
-    setRadius(e.target.valueAsNumber);
-    circleRef.current.setRadius(e.target.valueAsNumber);
-  };
+    // Update circle radius when note.radius changes
+    if (circleRef.current) {
+      circleRef.current.setRadius(note.radius);
+    }
+  }, [coordinates, note, setNote, onMapChange]);
 
   return (
     <>
       <div ref={mapRef} className="map-container" />
-      <div className="map-controls">
-        <input
-          type="range"
-          min="10"
-          max="10000"
-          value={radius}
-          onChange={handleRadiusChange}
-          className="radius-slider"
-        />
-      </div>
     </>
   );
 };

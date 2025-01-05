@@ -69,33 +69,28 @@ export const newNoteForm = (req, res) =>
   })
 
 export const newNote = async (req, res) => {
-  console.log("newNote called with request:", req.body)
   try {
-    const location = req.body.location
-    console.log("newNote location:", location)
-    const userId = req.body?.userId
-    console.log("newNote userId:", userId)
-    const email = req.body?.email
-    console.log("newNote email:", email)
-    const radius = req.body?.radius ?? 200
-    console.log("newNote radius:", radius)
-    const body = req.body.body
-    console.log("newNote body:", body)
-    const recipients = req.body?.recipients || []
-    console.log("newNote recipients:", recipients)
+    const { body, location, radius, userId, email, tags } = req.body;
+
+    // Validate the required fields
+    if (!body || !location || !userId || !email) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Create the note with markdown content
     const note = await NotesService.newNote({
-      userId,
-      email,
+      body: body.trim(), // Store as markdown
       location,
       radius,
-      body,
-      recipients,
-    })
-    console.log("newNote note successfully created:", note)
-    res.json(note)
+      userId,
+      email,
+      tags: tags || []
+    });
+
+    res.status(201).json(note);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: "Error creating note" })
+    console.error("Error creating note:", err);
+    res.status(500).json({ error: "Error creating note", err });
   }
 }
 
@@ -106,31 +101,42 @@ export const editNote = async (req, res) => {
 }
 
 export const updateNote = async (req, res) => {
-  
-  console.log("updateNote called with req.params.id:", req.params.id)
-  console.log("updateNote called with req.body:", req.body)
+  console.log("updateNote called with req.params.id:", req.params.id);
+  console.log("updateNote called with req.body:", req.body);
   try {
-    // const location = JSON.parse(req.body.location)
-    // console.log("updateNote location:", location)
+    // Validate coordinates
+    const coordinates = req.body.location?.coordinates;
+    if (!coordinates || 
+        !Array.isArray(coordinates) || 
+        coordinates.length !== 2 ||
+        coordinates.some(coord => coord === null || coord === undefined || isNaN(coord))) {
+      return res.status(400).json({ 
+        error: "Invalid coordinates. Must be an array of two numbers [longitude, latitude]" 
+      });
+    }
+
     const note = await NotesService.updateNote({
       _id: req.params.id,
-      body: req.body.body,
+      body: req.body.body.trim(),
       location: {
         type: "Point",
-        coordinates: req.body.location.coordinates || [-118.243685, 34.052236],
+        coordinates: coordinates.map(coord => Number(coord))
       },
-      recipients: req.body.recipients || [],
-      radius: req.body.radius || 200,
-    })
+      radius: Number(req.body.radius) || 1000,
+      email: req.body.email,
+      userId: req.body.userId,
+      tags: req.body.tags || []
+    });
+
     if (!note) {
-      console.log("No note found with id:", req.params.id)
-      return res.status(404).send("Note not found")
+      console.log("No note found with id:", req.params.id);
+      return res.status(404).send("Note not found");
     }
-    console.log("Updated note:", note)
-    res.json(note)
+    console.log("Updated note:", note);
+    res.json(note);
   } catch (err) {
-    console.error("Error updating note:", err)
-    res.status(500).json({ error: "Error editing note", err })
+    console.error("Error updating note:", err);
+    res.status(500).json({ error: "Error editing note", err });
   }
 }
 

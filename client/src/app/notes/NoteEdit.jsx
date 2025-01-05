@@ -88,7 +88,12 @@ const NoteEdit = () => {
     setIsSubmitting(true);
 
     try {
-      if (!note.location?.coordinates || !Array.isArray(note.location.coordinates) || note.location.coordinates.length !== 2) {
+      // Validate coordinates
+      const coordinates = note?.location?.coordinates;
+      if (!coordinates || 
+          !Array.isArray(coordinates) || 
+          coordinates.length !== 2 ||
+          coordinates.some(coord => coord === null || coord === undefined || isNaN(coord))) {
         throw new Error("Please select a valid location on the map");
       }
 
@@ -101,19 +106,34 @@ const NoteEdit = () => {
       }
 
       if (isEditMode) {
+        // Ensure coordinates are valid numbers
+        const [lng, lat] = note.location.coordinates.map(coord => Number(coord));
+        
         await dispatch(updateNote({
-          ...note,
+          id: note._id,
           body: note.body.trim(),
+          location: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          radius: Number(note.radius) || 1000,
+          email: user.email,
+          userId: user._id,
+          tags: note.tags || []
         })).unwrap();
       } else {
+        const [lng, lat] = note.location.coordinates.map(coord => Number(coord));
+        
         await dispatch(createNote({
-          ...note,
           body: note.body.trim(),
-          userId: user._id,
+          location: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          radius: Number(note.radius) || 1000,
           email: user.email,
-          time: new Date().toISOString(),
-          type: "note",
-          status: "active"
+          userId: user._id,
+          tags: []
         })).unwrap();
       }
       
