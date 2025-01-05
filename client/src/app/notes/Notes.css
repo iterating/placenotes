@@ -1,10 +1,10 @@
+/* Base styles */
 .note-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
 }
 
 .title {
@@ -19,25 +19,11 @@
   align-items: start;
 }
 
-@media (max-width: 1024px) {
-  .content-wrapper {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* Map styles */
 .map-section {
   position: sticky;
   top: 1rem;
   height: calc(100vh - 200px);
-}
-
-.notes-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-  padding-right: 1rem;
 }
 
 .map-container {
@@ -50,6 +36,28 @@
   min-height: 300px;
 }
 
+.map-controls {
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.radius-slider {
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+/* Notes section */
+.notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
 .notecard {
   background: white;
   padding: 1rem;
@@ -58,43 +66,23 @@
   transition: transform 0.2s ease;
 }
 
-.notecard:hover {
-  transform: translateY(-2px);
-}
-
 .note-preview {
   font-size: 1rem;
   cursor: pointer;
   margin-bottom: 0.5rem;
 }
 
-.note-full {
-  max-width: 100%;
-  font-size: 1rem;
-  padding: 1rem;
-  background-color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
-  max-height: 30rem;
-  overflow-y: auto;
-}
-
+/* Edit styles */
 .edit-note-form,
 .edit-container {
   width: 100%;
   text-wrap: pretty;
-  padding: 1rem;
   background-color: #fff;
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
 }
 
-.note-actions-ui {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
+/* Button styles */
 .button {
   padding: 0.5rem 1rem;
   border: none;
@@ -103,10 +91,6 @@
   color: white;
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-
-.button:hover {
-  background-color: #0056b3;
 }
 
 .button-group {
@@ -119,62 +103,33 @@
   padding: 0.25rem 0.5rem;
 }
 
-.map-controls {
-  margin-top: 1rem;
+.note-actions-ui {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Map popups */
+.leaflet-popup-content-wrapper {
   padding: 0.5rem;
-  background: #fff;
   border-radius: 0.5rem;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.radius-slider {
-  width: 100%;
-  margin: 0.5rem 0;
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0.1rem;
+  max-width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-/* Scrollbar styling */
-.notes-section::-webkit-scrollbar {
-  width: 8px;
-}
 
-.notes-section::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.notes-section::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.notes-section::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* Loading and error states */
-.loading,
-.error {
-  text-align: center;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  background: white;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
-}
-
-.loading {
-  color: #666;
-}
-
-.error {
-  color: #dc3545;
-}
-
-/* Remove geocoder icon */
+/* Map controls */
 .leaflet-control-geocoder-icon {
-  display: none !important;
+  display: none;
 }
 
-/* Style geocoder control */
 .custom-geocoder-control {
   background: white;
   border-radius: 4px;
@@ -197,11 +152,6 @@
   transition: border-color 0.2s ease;
 }
 
-.custom-geocoder-input:focus {
-  border-color: #007bff;
-}
-
-/* Position the geocoder results dropdown */
 .leaflet-control-geocoder-alternatives {
   position: absolute;
   right: 0;
@@ -215,7 +165,46 @@
   overflow-y: auto;
 }
 
-/* Mobile optimizations */
+/* Utility styles */
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+  color: #666;
+}
+
+.error {
+  color: #dc3545;
+}
+
+/* Scrollbar */
+.notes-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notes-section::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.notes-section::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+/* Mobile styles */
+@media (max-width: 1024px) {
+  .content-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .map-section {
     position: relative;
@@ -233,8 +222,8 @@
   }
 
   .address-list {
-    max-height: 200px !important;
-    width: 100% !important;
+    max-height: 200px;
+    width: 100%;
   }
 
   .leaflet-touch .leaflet-control-layers,
