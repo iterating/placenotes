@@ -3,10 +3,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
-import TaskList from '@tiptap/extension-task-list'
-import TaskItem from '@tiptap/extension-task-item'
 import { Markdown } from 'tiptap-markdown'
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect } from 'react'
 
 const MenuBar = ({ editor }) => {
   if (!editor) {
@@ -135,41 +133,32 @@ const MenuBar = ({ editor }) => {
   )
 }
 
-const NoteTiptap = ({ content = '', onChange, editable = true }) => {
+const NoteTiptap = ({ content = '', onUpdate, editable = true }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
+      StarterKit,
       Link.configure({
         openOnClick: false,
       }),
-      Image,
+      Image.configure({
+        inline: true,
+      }),
       Placeholder.configure({
         placeholder: 'Write something...',
       }),
-      TaskList,
-      TaskItem.configure({
-        nested: true,
-      }),
       Markdown.configure({
         html: false,
+        transformCopiedText: true,
         transformPastedText: true,
-        transformCopiedText: true
       }),
     ],
     content,
     editable,
-    onUpdate: ({ editor }) => {
-      const markdown = editor.storage.markdown.getMarkdown()
-      onChange(markdown)
-    },
+    onUpdate,
   })
 
   useEffect(() => {
-    if (editor && content !== editor.storage.markdown.getMarkdown()) {
+    if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content, {
         parseOptions: { preserveWhitespace: 'full' }
       })

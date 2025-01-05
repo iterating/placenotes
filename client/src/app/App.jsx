@@ -6,12 +6,11 @@ import Login from './users/Login';
 import Signup from './users/Signup';
 import Heading from '../components/Heading';
 import Notes from './notes/Notes';
-import NoteNew from './notes/NoteNew';
 import NoteEdit from './notes/NoteEdit';
 import Settings from './users/Settings';
 import RequireAuth from './auth/RequireAuth';
 
-function Router() {
+function App() {
   return (
     <div className="app-container">
       <Heading />
@@ -27,7 +26,7 @@ function Router() {
           } />
           <Route path="/notes/new" element={
             <RequireAuth>
-              <NoteNew />
+              <NoteEdit />
             </RequireAuth>
           } />
           <Route path="/notes/:id/edit" element={
@@ -46,4 +45,4 @@ function Router() {
   );
 }
 
-export default Router;
+export default App;
