@@ -5,6 +5,7 @@ import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import './NotesMap.css';
 
 // Set up default icon
 let DefaultIcon = L.icon({

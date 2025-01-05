@@ -1,10 +1,10 @@
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 
 const API_URL = '/api/users';
 
 export const searchUsers = async (email) => {
   try {
-    const response = await axios.get(`${API_URL}/search`, {
+    const response = await apiClient.get(`${API_URL}/search`, {
       params: { email }
     });
     return response.data;
@@ -16,7 +16,7 @@ export const searchUsers = async (email) => {
 
 export const sendFriendRequest = async (targetUserId) => {
   try {
-    const response = await axios.post(`${API_URL}/friend-request`, {
+    const response = await apiClient.post(`${API_URL}/friend-request`, {
       targetUserId
     });
     return response.data;

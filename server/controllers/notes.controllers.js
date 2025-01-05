@@ -281,3 +281,84 @@ export const getNotesByCurrentLocation = async (req, res) => {
     res.status(500).send("Error retrieving notes")
   }
 }
+
+export const searchNotes = async (req, res) => {
+  console.log('[SearchNotes Controller] Received search request:', {
+    query: req.query,
+    user: req.user?._id,
+    headers: req.headers
+  });
+
+  try {
+    const { q: query } = req.query;
+    const userId = req.user?._id;
+
+    // Authentication check
+    if (!userId) {
+      console.error('[SearchNotes Controller] Unauthorized access attempt');
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    // Query validation
+    if (!query || query.trim().length < 2) {
+      console.warn('[SearchNotes Controller] Invalid search query:', query);
+      return res.status(400).json({
+        success: false,
+        message: 'Search query must be at least 2 characters'
+      });
+    }
+
+    console.log(`[SearchNotes Controller] Processing search:
+      - User ID: ${userId}
+      - Query: "${query}"
+    `);
+
+    // Search in note body and location name
+    const notes = await NotesService.searchNotes({
+      userId,
+      query: query.trim(),
+      limit: 20
+    });
+
+    console.log(`[SearchNotes Controller] Search completed:
+      - Query: "${query}"
+      - Results: ${notes.length}
+      - Status: Success
+    `);
+
+    res.status(200).json({
+      success: true,
+      notes,
+      metadata: {
+        query,
+        count: notes.length,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('[SearchNotes Controller] Error processing search:', {
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      },
+      request: {
+        query: req.query,
+        user: req.user?._id
+      }
+    });
+
+    // Send appropriate error response
+    const statusCode = error.message.includes('Invalid user ID') ? 400 : 500;
+    const errorMessage = statusCode === 400 ? error.message : 'Error searching notes';
+
+    res.status(statusCode).json({
+      success: false,
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

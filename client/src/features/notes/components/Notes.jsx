@@ -5,14 +5,14 @@ import "./Notes.css";
 import NotesMap from "./NotesMap";
 import NotesList from "./NotesList";
 import "leaflet/dist/leaflet.css";
-import { fetchUsersNotes, fetchNotesByLocation, setCurrentLocation } from "../../store/noteStoreAction";
+import { fetchUsersNotes, fetchNotesByLocation, setCurrentLocation } from "../../../store/noteStoreAction";
 import { 
   selectAllNotes, 
   selectNoteStatus, 
   selectNoteError, 
   selectLocation,
   setNoteVisibility 
-} from "../../store/noteSlice.jsx";
+} from "../../../store/noteSlice";
 
 const Notes = () => {
   const navigate = useNavigate();

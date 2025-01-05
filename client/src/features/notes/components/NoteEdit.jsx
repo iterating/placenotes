@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import "./Notes.css";
+import "./NoteEdit.css";
 import NoteForm from "./NoteForm";
-import { createNote, updateNote, deleteNote } from "../../store/noteStoreAction";
+import { createNote, updateNote, deleteNote } from "../../../store/noteStoreAction";
 
 const NoteEdit = () => {
   const { id } = useParams();

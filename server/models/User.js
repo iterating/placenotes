@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  friends:.scalablytyped[{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   friendRequests: [{
     from: {
       type: mongoose.Schema.Types.ObjectId,
@@ -58,8 +58,6 @@ const userSchema = new mongoose.Schema({
     }
   }]
 })
-
-
 
 userSchema.index({ currentLocation: "2dsphere" })
 

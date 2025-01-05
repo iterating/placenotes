@@ -16,6 +16,12 @@ router.get("/", setUser, (req, res, next) => {
   notesController.getNotes(req, res, next);
 });
 
+// Search notes
+router.get("/search", setUser, (req, res, next) => {
+  console.log("GET /notes/search called with query:", req.query);
+  notesController.searchNotes(req, res, next);
+});
+
 // Create new note
 router.post("/new", setUser, (req, res, next) => {
   console.log("POST /notes/new called");

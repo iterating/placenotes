@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../store/authSlice';
+import { loginSuccess } from '../../../store/authSlice';
 import axios from 'axios';
-import { SERVER } from '../config';
+import { SERVER } from '../../../app/config';
 
 const Signup = () => {
   const navigate = useNavigate();

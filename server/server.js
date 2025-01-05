@@ -8,6 +8,10 @@ import notes from "./api/routes/noteRoutes.js"
 import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
 import dotenv from "dotenv"
 import cors from 'cors'
+import { ApolloServer } from '@apollo/server'
+import { expressMiddleware } from '@apollo/server/express4'
+import { typeDefs } from './graphql/schema.js'
+import { resolvers } from './graphql/resolvers.js'
 dotenv.config()
 
 const app = express()
@@ -94,24 +98,39 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Database connection and server start
+// Start Apollo Server and Express
 const startServer = async () => {
   try {
-    // Wait for database connection
-    await connectWithRetry();
-    console.log('Database connection established');
-
-    // Start the server
-    const port = process.env.PORT || 5000;
-    app.listen(port, () => {
-      console.log(`Server is running on port: ${port}`);
-      console.log(`Database connection status: ${isConnectedToDb() ? 'connected' : 'disconnected'}`);
+    await connectWithRetry()
+    
+    // Create Apollo Server
+    const apolloServer = new ApolloServer({
+      typeDefs,
+      resolvers,
     });
+    
+    await apolloServer.start();
+
+    // Apply middleware after Apollo Server is started
+    app.use(
+      '/graphql',
+      cors(corsOptions),
+      express.json(),
+      expressMiddleware(apolloServer, {
+        context: async ({ req }) => ({ req })
+      })
+    );
+
+    const port = process.env.PORT || 5050
+    app.listen(port, () => {
+      console.log(`Server is running on port: ${port}`)
+      console.log(`GraphQL endpoint: http://localhost:${port}/graphql`)
+    })
   } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+    console.error("Failed to start server:", error)
+    process.exit(1)
   }
-};
+}
 
 // Start the server
 startServer();

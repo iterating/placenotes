@@ -175,6 +175,67 @@ export const updateUserNote = (userId, noteId, update) =>
 export const deleteUserNote = (userId, noteId) =>
   Note.findOneAndDelete({ userId, _id: noteId })
 
+export const searchNotes = async ({ userId, query, limit = 20 }) => {
+  console.log(`[SearchNotes] Starting search for user ${userId} with query: "${query}"`);
+  try {
+    checkConnection();
+    
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.error(`[SearchNotes] Invalid user ID: ${userId}`);
+      throw new Error('Invalid user ID');
+    }
+
+    if (!query || typeof query !== 'string') {
+      console.error(`[SearchNotes] Invalid query: ${query}`);
+      throw new Error('Search query must be a non-empty string');
+    }
+
+    console.log(`[SearchNotes] Executing search with criteria:
+      - User ID: ${userId}
+      - Query: "${query}"
+      - Limit: ${limit}
+    `);
+
+    const searchResults = await Note.find({
+      userId,
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { body: { $regex: query, $options: 'i' } },
+        { locationName: { $regex: query, $options: 'i' } }
+      ]
+    })
+    .sort({ time: -1 })
+    .limit(limit)
+    .lean()
+    .exec();
+
+    console.log(`[SearchNotes] Found ${searchResults.length} results for query "${query}"`);
+
+    if (searchResults.length === 0) {
+      console.log(`[SearchNotes] No results found for query "${query}"`);
+    } else {
+      console.log(`[SearchNotes] Results summary:
+        - Total results: ${searchResults.length}
+        - First result title: "${searchResults[0].title || 'Untitled'}"
+        - Last result title: "${searchResults[searchResults.length - 1].title || 'Untitled'}"
+      `);
+    }
+
+    return searchResults;
+  } catch (error) {
+    console.error('[SearchNotes] Error during search:', {
+      userId,
+      query,
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      }
+    });
+    throw error;
+  }
+};
+
 export default {
   allNotes,
   getNotes,
@@ -192,5 +253,6 @@ export default {
   getUserNotes,
   getUserNoteById,
   updateUserNote,
-  deleteUserNote
+  deleteUserNote,
+  searchNotes
 };

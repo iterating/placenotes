@@ -9,7 +9,7 @@ import {
 
 const router = express.Router();
 
-// Protect all routes except those specified
+// Protect all routes
 router.use(auth);
 
 // User management routes

@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { SERVER } from '../app/config';
-import apiClient from '../lib/apiClient';
+import apiClient from '../api/apiClient';
 import { setLocation } from './noteSlice';
 
 // Select token from state

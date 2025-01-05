@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { deleteNote } from "../../store/noteStoreAction";
+import { deleteNote } from "../../../store/noteStoreAction";
 import { marked } from "marked";
 import { Link } from "react-router-dom";
-import axios from "axios";
-// BASE_URL = 'http://localhost:5000';
+import "./NoteCard.css";
 
 const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false);

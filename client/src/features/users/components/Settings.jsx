@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
-import { SERVER } from '../config';
+import { SERVER } from '../../../app/config';
 
 async function getUser() {
   const { data: user } = await axios.get(`${SERVER}/users/account`);
