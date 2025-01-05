@@ -1,42 +1,51 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import Drawer from './Drawer';
 import './Heading.css';
 
 const Heading = () => {
+  const toggleDrawer = useCallback((e) => {
+    e.preventDefault();
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("overlay");
+    const content = document.getElementById("content");
+
+    if (drawer && overlay && content) {
+      drawer.classList.toggle("open");
+      overlay.classList.toggle("open");
+      content.classList.toggle("drawer-open");
+    }
+  }, []);
+
   useEffect(() => {
     const drawerIcon = document.querySelector(".drawer-icon");
     const overlay = document.querySelector(".overlay");
 
-    const toggleDrawer = () => {
-      document.getElementById("drawer").classList.toggle("open");
-      document.getElementById("overlay").classList.toggle("open");
-      document.getElementById("content").classList.toggle("drawer-open");
-    };
-    [drawerIcon, overlay].forEach((element) => {
-      if (element) {
-        element.addEventListener("click", toggleDrawer);
-      } else console.error("Elements not found on page");
-    });
+    if (drawerIcon) {
+      drawerIcon.addEventListener("click", toggleDrawer);
+    }
+    if (overlay) {
+      overlay.addEventListener("click", toggleDrawer);
+    }
 
     return () => {
-      [drawerIcon, overlay].forEach((element) => {
-        if (element) {
-          element.removeEventListener("click", toggleDrawer);
-        }
-      });
+      if (drawerIcon) {
+        drawerIcon.removeEventListener("click", toggleDrawer);
+      }
+      if (overlay) {
+        overlay.removeEventListener("click", toggleDrawer);
+      }
     };
-  }, []);
+  }, [toggleDrawer]);
 
   return (
     <div>
       <header>
-        <span className="drawer-icon" id="sidebar-icon">&#9776;</span>
-        <Drawer/>
-        <div className="overlay" id="overlay"></div>
+        <span className="drawer-icon" id="sidebar-icon" role="button" tabIndex={0}>&#9776;</span>
+        <Drawer />
+        <div className="overlay" id="overlay" role="presentation"></div>
       </header>
     </div>
   );
 };
 
 export default Heading;
-

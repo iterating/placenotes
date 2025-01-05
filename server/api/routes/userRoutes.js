@@ -190,5 +190,8 @@ router.delete("/:id/notes/:noteId", async (req, res) => {
   }
 });
 
+// Add refresh token endpoint
+router.post('/auth/refresh', authController.refreshToken);
+
 export default router
 

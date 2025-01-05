@@ -118,27 +118,42 @@ export const getNoteById = async (id) => {
   return Note.findById(id);
 }
 
-export const getNotesByLocation = async ({ userId, lat, lon }) => {
+export const getNotesByLocation = async ({ userId, location }) => {
   checkConnection();
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error('Invalid user ID format');
     }
 
-    return Note.find({
+    if (!location || !location.type || location.type !== 'Point' || !Array.isArray(location.coordinates)) {
+      throw new Error('Invalid location format. Expected GeoJSON Point object');
+    }
+
+    const [longitude, latitude] = location.coordinates;
+    if (isNaN(longitude) || isNaN(latitude) || 
+        longitude < -180 || longitude > 180 || 
+        latitude < -90 || latitude > 90) {
+      throw new Error('Invalid coordinates. Longitude must be between -180 and 180, latitude between -90 and 90');
+    }
+
+    const query = {
       userId,
       location: {
         $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lon, lat]
-          },
-          $maxDistance: 1000
+          $geometry: location,
+          $maxDistance: 5000 // 5km radius
         }
       }
-    }).lean().exec();
+    };
+
+    console.log('Executing geospatial query:', JSON.stringify(query, null, 2));
+    
+    const notes = await Note.find(query).lean().exec();
+    console.log(`Found ${notes.length} notes near location`);
+    
+    return notes;
   } catch (error) {
-    console.error('Error getting notes by location:', error.message);
+    console.error('Error getting notes by location:', error);
     throw error;
   }
 }

@@ -9,8 +9,11 @@ const dbName = process.env.DBNAME
 
 async function seedDatabase() {
   await mongoose.connect(process.env.ATLAS_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    dbName: process.env.DBNAME || 'placenotes',
+    serverSelectionTimeoutMS: 60000,
+    socketTimeoutMS: 60000,
+    connectTimeoutMS: 60000,
+    family: 4
   })
 
   const users = [
@@ -124,4 +127,3 @@ async function seedDatabase() {
 }
 
 seedDatabase().catch((err) => console.error("Error seeding database:", err))
-

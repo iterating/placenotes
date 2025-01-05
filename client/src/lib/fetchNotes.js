@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiClient from './apiClient';
 import { SERVER } from "../app/config";
 
 // Utility to validate coordinates
@@ -17,14 +17,12 @@ const fetchOneNote = async (token, id) => {
   }
 
   try {
-    const { data } = await axios.get(`${SERVER}/notes/${id}`, {
+    const { data } = await apiClient.get(`/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     if (!data || !data._id) {
       throw new Error("Note not found");
     }
-
     return data;
   } catch (error) {
     console.error("Error fetching note:", error);
@@ -40,7 +38,7 @@ const fetchUsersNotes = async (token, setNotes, setUserId) => {
   }
 
   try {
-    const { data } = await axios.get(`${SERVER}/notes`, {
+    const { data } = await apiClient.get(`/notes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     
@@ -67,7 +65,7 @@ const fetchNotesByCurrentLocation = async (token, setNotes, setUserId, { latitud
   const { latitude, longitude } = validateCoordinates(lat, lon);
 
   try {
-    const response = await axios.get(`${SERVER}/notes/location/current?lat=${latitude}&lon=${longitude}`, {
+    const response = await apiClient.get(`/notes/location/current?lat=${latitude}&lon=${longitude}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -98,7 +96,7 @@ const updateNote = async (token, id, update) => {
   }
 
   try {
-    const { data } = await axios.put(`${SERVER}/notes/${id}`, update, {
+    const { data } = await apiClient.put(`/notes/${id}`, update, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -121,7 +119,7 @@ const deleteNote = async (token, id) => {
   }
 
   try {
-    const { data } = await axios.delete(`${SERVER}/notes/${id}`, {
+    const { data } = await apiClient.delete(`/notes/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return data;

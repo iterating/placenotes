@@ -81,7 +81,6 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         .addTo(map)
         .bindPopup(
           `<div class="popup-content">
-            <div class="popup-title">${note.title || 'Untitled Note'}</div>
             <div class="popup-body">${note.body?.split('\n')[0]}</div>
             <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
           </div>`

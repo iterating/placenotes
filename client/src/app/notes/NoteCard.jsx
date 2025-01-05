@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { deleteNote } from "../../lib/fetchNotes";
+import { deleteNote } from "../../store/noteStoreAction";
 import { marked } from "marked";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -13,11 +13,12 @@ const NoteCard = ({ note, markers }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-
   const handleDelete = async () => {
     try {
-      await dispatch(deleteNote({ id: note._id }));
-      navigate("/notes");
+      const result = await dispatch(deleteNote({ id: note._id })).unwrap();
+      if (result) {
+        navigate("/notes");
+      }
     } catch (error) {
       console.error("Error deleting note", error);
     }
@@ -85,4 +86,3 @@ const NoteCard = ({ note, markers }) => {
 };
 
 export default NoteCard;
-

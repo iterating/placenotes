@@ -88,18 +88,24 @@ const NoteNew = () => {
 
   return (
     <div className="edit-container">
-      <h1 className="title">Create New Note</h1>
+      <h1>Create New Note</h1>
       <form onSubmit={handleSubmit} className="edit-note-form">
         <label htmlFor="note-body">Note:</label>
         <br />
         <textarea
-          name="body"
-          id="note-body"
-          rows="20"
-          cols="80"
-          value={body}
+          value={body || ""}
           onChange={(e) => setBody(e.target.value)}
           required
+          style={{
+            minHeight: "300px",
+            maxHeight: "100vh",
+            height: "auto",
+            overflow: "scroll",
+          }}
+          onInput={(e) => {
+            e.target.style.height = "auto";
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
         ></textarea>
         <br />
         <Mapmark

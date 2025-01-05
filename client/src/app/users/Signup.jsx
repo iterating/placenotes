@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../store/authSlice';
 import axios from 'axios';
 import { SERVER } from '../config';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [currentLocation, setLocation] = useState({
     type: 'Point',
     coordinates: [-118.243683, 34.052235]
@@ -14,10 +18,7 @@ const Signup = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log('Signup: Handling submit');
-    console.log(`Signup: Email entered: ${email}`);
-    console.log(`Signup: Password entered: ${password}`);
-    console.log(`Signup: Location entered: ${currentLocation.type}, ${currentLocation.coordinates.join(', ')}`);
+    setError('');
 
     try {
       const response = await axios.post(`${SERVER}/users/signup`, {
@@ -25,21 +26,24 @@ const Signup = () => {
         password,
         location: JSON.stringify(currentLocation),
       });
-      console.log('Signup: Response from server:', response.data);
-      const data = response.data;
-      console.log('Signup: Success');
-      // Store the token in session storage
-      sessionStorage.token = data.token;
-      // Redirect to notes page
-      navigate('/notes');
+
+      if (response.data?.token) {
+        dispatch(loginSuccess({
+          token: response.data.token,
+          user: response.data.user
+        }));
+        navigate('/notes');
+      }
     } catch (error) {
       console.error('Error signing up:', error);
+      setError(error.response?.data?.message || 'An error occurred during signup');
     }
   };
 
   return (
     <div id="form">
       <h1 className="title">Signup</h1>
+      {error && <div className="error">{error}</div>}
       <form id="signup-form" onSubmit={handleSubmit}>
         <label htmlFor="email">Email:</label><br />
         <input

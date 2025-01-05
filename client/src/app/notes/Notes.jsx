@@ -1,30 +1,38 @@
-import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import "./Notes.css";
-import { fetchUsersNotes } from "../../lib/fetchNotes";
 import NotesMap from "./NotesMap";
 import NotesList from "./NotesList";
 import "leaflet/dist/leaflet.css";
-import { getCurrentLocation } from "../../lib/Location";
+import { fetchUsersNotes, fetchNotesByLocation, setCurrentLocation } from "../../store/noteStoreAction";
+import { 
+  selectAllNotes, 
+  selectNoteStatus, 
+  selectNoteError, 
+  selectLocation,
+  setNoteVisibility 
+} from "../../store/noteSlice.jsx";
 
 const Notes = () => {
-  const token = sessionStorage.getItem("token") || null;
-  const [notes, setNotes] = useState([]);
-  const [userId, setUserId] = useState(() => {
-    if (token) {
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      return decoded._id;
-    }
-    return null;
-  });
-  const [currentLocation, setCurrentLocation] = useState(JSON.parse(sessionStorage.getItem("currentLocation")) || null);
-  const markers = React.useRef([]);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const markers = useRef([]);
+  
+  const notes = useSelector(selectAllNotes);
+  const status = useSelector(selectNoteStatus);
+  const error = useSelector(selectNoteError);
+  const currentLocation = useSelector(selectLocation);
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
   useEffect(() => {
-    if (token) {
-      console.log("Fetching notes...");
-      fetchUsersNotes(token, setNotes, setUserId);
+    if (!isAuthenticated) {
+      navigate('/users/login');
+      return;
     }
-  }, [token]);
+
+    dispatch(fetchUsersNotes());
+  }, [dispatch, isAuthenticated, navigate]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -34,9 +42,10 @@ const Notes = () => {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           };
-          setCurrentLocation(newLocation);
-          sessionStorage.setItem("currentLocation", JSON.stringify(newLocation));
-          console.log("Current location:", newLocation);
+          dispatch(setCurrentLocation(newLocation));
+          
+          // Optionally fetch notes near the current location
+          dispatch(fetchNotesByLocation(newLocation));
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -45,15 +54,11 @@ const Notes = () => {
     } else {
       console.error("Geolocation is not supported by this browser.");
     }
-  }, []);
+  }, [dispatch]);
 
   const handleNoteClick = useCallback((id) => {
-    setNotes((prevNotes) =>
-      prevNotes.map((note) =>
-        note._id === id ? { ...note, showFullNote: !note.showFullNote } : note
-      )
-    );
-  }, []);
+    dispatch(setNoteVisibility({ id, visible: !notes.find(note => note._id === id)?.showFullNote }));
+  }, [dispatch, notes]);
 
   const handleMouseOver = useCallback((id) => {
     const noteElement = document.querySelector(`[data-note-id="${id}"]`);
@@ -79,34 +84,36 @@ const Notes = () => {
     }
   }, [markers]);
 
+  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'failed') return <div>Error: {error}</div>;
+
   return (
     <div className="note-container">
       <h1 className="title">Your Notes</h1>
       <div className="map-container" id="map-container-home">
         <NotesMap
           notes={notes}
+          currentLocation={currentLocation}
+          markers={markers}
+          onMarkerClick={handleNoteClick}
           handleMouseOver={handleMouseOver}
           handleMouseOut={handleMouseOut}
-          markers={markers}
-          currentLocation={currentLocation}
         />
       </div>
-      <br />
-      <>
-      <NotesList
-        notes={notes}
-        handleNoteClick={handleNoteClick}
-        handleMouseOver={handleMouseOver}
-        handleMouseOut={handleMouseOut}
-        markers={markers}
+      <div className="notes-list">
+        <NotesList
+          notes={notes}
+          onNoteClick={handleNoteClick}
+          onMouseOver={handleMouseOver}
+          onMouseOut={handleMouseOut}
+          markers={markers}
         />
-        </>
-      <p>
-        <a href="/notes/new">Create a new note</a>
-      </p>
+        <p>
+          <a href="/notes/new">Create a new note</a>
+        </p>
+      </div>
     </div>
   );
 };
 
 export default Notes;
-

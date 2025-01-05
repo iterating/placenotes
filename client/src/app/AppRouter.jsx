@@ -9,22 +9,40 @@ import Notes from './notes/Notes';
 import NoteNew from './notes/NoteNew';
 import NoteEdit from './notes/NoteEdit';
 import Settings from './users/Settings';
-
+import RequireAuth from './auth/RequireAuth';
 
 function Router() {
   return (
-    <>
+    <div className="app-container">
       <Heading />
-      <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/users/login" element={<Login />} />
-        <Route path="/users/signup" element={<Signup />} />
-        <Route path="/notes" element={<Notes />} />
-        <Route path="/notes/new" element={<NoteNew />} />
-        <Route path="/notes/:id/edit" element={<NoteEdit />} />
-        <Route path="/users/settings" element={<Settings />} />
-      </Routes>
-    </>
+      <div id="content" className="content-container">
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/users/login" element={<Login />} />
+          <Route path="/users/signup" element={<Signup />} />
+          <Route path="/notes" element={
+            <RequireAuth>
+              <Notes />
+            </RequireAuth>
+          } />
+          <Route path="/notes/new" element={
+            <RequireAuth>
+              <NoteNew />
+            </RequireAuth>
+          } />
+          <Route path="/notes/:id/edit" element={
+            <RequireAuth>
+              <NoteEdit />
+            </RequireAuth>
+          } />
+          <Route path="/users/settings" element={
+            <RequireAuth>
+              <Settings />
+            </RequireAuth>
+          } />
+        </Routes>
+      </div>
+    </div>
   );
 }
 

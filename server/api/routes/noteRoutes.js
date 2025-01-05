@@ -22,16 +22,6 @@ router.post("/new", setUser, (req, res, next) => {
   notesController.newNote(req, res, next);
 });
 
-// Get, update, delete note by ID
-router.route("/:id")
-  .get(setUser, notesController.getNoteById)
-  .put(setUser, notesController.updateNote)
-  .delete(setUser, notesController.deleteNote);
-
-// Get notes by time
-router.route("/time/:time")
-  .get(setUser, notesController.getNoteByTime);
-
 // Get notes by location
 router.route("/location/current")
   .get(setUser, notesController.getNotesByCurrentLocation);
@@ -40,8 +30,22 @@ router.route("/location/current")
 router.route("/location/:lat/:lon")
   .get(setUser, notesController.getNotesByLocation);
 
+// Get notes near a location
+router.route("/nearby")
+  .get(setUser, notesController.getNotesByLocation);
+
+// Get notes by time
+router.route("/time/:time")
+  .get(setUser, notesController.getNoteByTime);
+
 // Get notes by age
 router.get("/age/recent", setUser, notesController.recentNotes);
 router.get("/age/oldest", setUser, notesController.oldestNotes);
+
+// Get, update, delete note by ID (must be last to avoid catching other routes)
+router.route("/:id")
+  .get(setUser, notesController.getNoteById)
+  .put(setUser, notesController.updateNote)
+  .delete(setUser, notesController.deleteNote);
 
 export default router;

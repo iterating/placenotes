@@ -61,7 +61,8 @@ export const signup = async (req, res) => {
         message: "User registered successfully",
         user: {
           _id: result._id,
-          email: result.email
+          email: result.email,
+          ...userData
         },
         token
       })
@@ -113,7 +114,8 @@ export const login = async (req, res, next) => {
           message: "Login successful",
           user: {
             _id: user._id,
-            email: user.email
+            email: user.email,
+            name: user.name
           },
           token,
           notes
@@ -129,9 +131,16 @@ export const login = async (req, res, next) => {
   })(req, res, next)
 }
 
-export const logout = (req, res) => {
+export const logout = async (req, res) => {
   console.log("Logout request received")
   try {
+    // Clear the token from the request
+    const token = req.headers.authorization?.replace('Bearer ', '')
+    if (token) {
+      // You could add the token to a blacklist here if needed
+      console.log("Token cleared from request")
+    }
+
     req.logout((err) => {
       if (err) {
         console.error("Error during logout:", err)
@@ -159,9 +168,46 @@ export const logout = (req, res) => {
     })
   } catch (error) {
     console.error("Unexpected error during logout:", error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Error during logout"
+    })
+  }
+}
+
+export const refreshToken = async (req, res) => {
+  const oldToken = req.headers.authorization?.replace('Bearer ', '')
+  
+  if (!oldToken) {
+    return res.status(401).json({
+      success: false,
+      message: 'No token provided'
+    })
+  }
+
+  try {
+    const secret = process.env.JWT_SECRET || "defaultSecretKey"
+    const decoded = jwt.verify(oldToken, secret, { ignoreExpiration: true })
+    
+    if (!decoded._id || !decoded.email) {
+      throw new Error('Invalid token payload')
+    }
+    
+    // Generate a new token
+    const newToken = generateToken({
+      _id: decoded._id,
+      email: decoded.email
+    })
+
+    return res.json({
+      success: true,
+      token: newToken
+    })
+  } catch (error) {
+    console.error('Error refreshing token:', error)
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token'
     })
   }
 }
@@ -169,5 +215,6 @@ export const logout = (req, res) => {
 export default {
   signup,
   login,
-  logout
-};
+  logout,
+  refreshToken
+}

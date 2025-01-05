@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { setToken as setTokenInManager } from '../lib/tokenManager';
 
 const initialState = {
-  token: localStorage.getItem('token') || null,
+  token: null,
   user: null,
   isAuthenticated: false,
   notes: [],
@@ -17,9 +18,9 @@ const authSlice = createSlice({
       state.token = action.payload;
       state.isAuthenticated = Boolean(action.payload);
       if (action.payload) {
-        localStorage.setItem('token', action.payload);
+        setTokenInManager(action.payload);
       } else {
-        localStorage.removeItem('token');
+        setTokenInManager(null);
       }
     },
     setUser(state, action) {
@@ -38,7 +39,7 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.notes = action.payload.notes || [];
-      localStorage.setItem('token', action.payload.token);
+      setTokenInManager(action.payload.token);
     },
     loginFailure(state, action) {
       state.loading = false;
@@ -47,14 +48,18 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.notes = [];
-      localStorage.removeItem('token');
+      setTokenInManager(null);
     },
     logout(state) {
+      state.isAuthenticated = false;
       state.user = null;
       state.token = null;
-      state.isAuthenticated = false;
       state.notes = [];
-      localStorage.removeItem('token');
+      state.error = null;
+      state.loading = false;
+      setTokenInManager(null);
+      localStorage.clear();
+      sessionStorage.clear();
     }
   }
 });

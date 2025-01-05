@@ -69,9 +69,9 @@ const noteSchema = new mongoose.Schema({
 });
 
 // Indexes
-noteSchema.index({ location: '2dsphere' });
 noteSchema.index({ userId: 1, createdAt: -1 });
 noteSchema.index({ email: 1, createdAt: -1 });
+noteSchema.index({ location: '2dsphere' });
 
 // Update timestamps on save
 noteSchema.pre('save', function(next) {
@@ -89,9 +89,15 @@ noteSchema.pre('save', function(next) {
 
 const Note = mongoose.model("Note", noteSchema);
 
-// Create indexes
-Note.createIndexes().catch(err => {
-  console.error('Error creating indexes:', err);
-});
+export const createNoteIndexes = async () => {
+  try {
+    await Note.collection.createIndex({ location: "2dsphere" });
+    await Note.createIndexes();
+    console.log('Note indexes created successfully');
+  } catch (err) {
+    console.error('Error creating Note indexes:', err);
+    throw err;
+  }
+};
 
 export default Note;

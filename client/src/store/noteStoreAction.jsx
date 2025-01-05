@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { SERVER } from '../app/config';
+import apiClient from '../lib/apiClient';
 
 // Select token from state
 const selectToken = (state) => state.auth.token;
@@ -34,13 +35,55 @@ export const fetchUsersNotes = createAsyncThunk(
       return rejectWithValue('No token available');
     }
     try {
-      const response = await axios.get(`${SERVER}/notes`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data;
+      const { data } = await apiClient.get('/notes');
+      return data.map(note => ({ ...note, showFullNote: false }));
     } catch (error) {
       console.error('Error fetching notes:', error);
       return rejectWithValue(error.response?.data || 'Error fetching notes');
+    }
+  }
+);
+
+// Fetch notes by location
+export const fetchNotesByLocation = createAsyncThunk(
+  'notes/fetchNotesByLocation',
+  async ({ latitude, longitude }, { getState, rejectWithValue }) => {
+    const token = selectToken(getState());
+    if (!token) {
+      return rejectWithValue('No token available');
+    }
+
+    try {
+      // Validate coordinates
+      if (isNaN(latitude) || isNaN(longitude) ||
+          latitude < -90 || latitude > 90 ||
+          longitude < -180 || longitude > 180) {
+        throw new Error('Invalid coordinates');
+      }
+
+      const location = {
+        type: 'Point',
+        coordinates: [longitude, latitude]
+      };
+      
+      console.log('Fetching notes with location:', JSON.stringify(location));
+      
+      const { data } = await apiClient.get('/notes/nearby', {
+        params: { location: JSON.stringify(location) },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      console.log('Received notes:', data);
+      return data.map(note => ({ ...note, showFullNote: false }));
+    } catch (error) {
+      console.error('Error fetching notes by location:', error);
+      if (error.response?.status === 400) {
+        return rejectWithValue('Invalid location format or coordinates');
+      } else if (error.response?.status === 401) {
+        return rejectWithValue('Authentication required');
+      } else {
+        return rejectWithValue(error.response?.data?.message || 'Error fetching notes by location');
+      }
     }
   }
 );
@@ -54,10 +97,8 @@ export const fetchOneNote = createAsyncThunk(
       return rejectWithValue('No token available');
     }
     try {
-      const response = await axios.get(`${SERVER}/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data;
+      const { data } = await apiClient.get(`/notes/${id}`);
+      return data;
     } catch (error) {
       console.error('Error fetching note:', error);
       return rejectWithValue(error.response?.data || 'Error fetching note');
@@ -65,73 +106,38 @@ export const fetchOneNote = createAsyncThunk(
   }
 );
 
-// Edit a note
-export const editNote = createAsyncThunk(
-  'notes/editNote',
-  async ({ id, note }, { getState, rejectWithValue }) => {
+// Create a new note
+export const createNote = createAsyncThunk(
+  'notes/createNote',
+  async (noteData, { getState, rejectWithValue }) => {
     const token = selectToken(getState());
-    if (!token) return rejectWithValue('No token available');
-
+    if (!token) {
+      return rejectWithValue('No token available');
+    }
     try {
-      // Validate and format the location field
-      if (note?.location) {
-        const validatedLocation = validateLocation(note.location);
-        if (!validatedLocation) {
-          return rejectWithValue('Invalid location');
-        }
-        note.location = validatedLocation;
-      }
-
-      // Set default values and add id to note
-      const updatedNote = {
-        ...note,
-        _id: id,
-        body: note?.body || '',
-        radius: note?.radius || 100,
-        recipients: note?.recipients || [],
-      };
-
-      // Send the update request to the server
-      const response = await axios.put(`${SERVER}/notes/${id}`, updatedNote, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return response.data;
+      const { data } = await apiClient.post('/notes', noteData);
+      return data;
     } catch (error) {
-      console.error('Error editing note:', error);
-      return rejectWithValue(error.response?.data || 'Error editing note');
+      console.error('Error creating note:', error);
+      return rejectWithValue(error.response?.data || 'Error creating note');
     }
   }
 );
 
-// Create a new note
-export const createNote = createAsyncThunk(
-  'notes/createNote',
-  async ({ note }, { getState, rejectWithValue }) => {
+// Update a note
+export const updateNote = createAsyncThunk(
+  'notes/updateNote',
+  async ({ id, update }, { getState, rejectWithValue }) => {
     const token = selectToken(getState());
     if (!token) {
-      console.error('No token available');
       return rejectWithValue('No token available');
     }
-
     try {
-      console.log('Creating note with data:', note);
-
-      // Validate and format the location field
-      if (note.location) {
-        note.location = validateLocation(note.location);
-        console.log('Validated location:', note.location);
-      }
-
-      const response = await axios.post(`${SERVER}/notes/new`, note, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log('Note created successfully:', response.data);
-      return response.data;
+      const { data } = await apiClient.put(`/notes/${id}`, update);
+      return data;
     } catch (error) {
-      console.error('Error creating note:', error);
-      return rejectWithValue(error.response?.data || 'Error creating note');
+      console.error('Error updating note:', error);
+      return rejectWithValue(error.response?.data || 'Error updating note');
     }
   }
 );
@@ -144,13 +150,9 @@ export const deleteNote = createAsyncThunk(
     if (!token) {
       return rejectWithValue('No token available');
     }
-    console.log("Deleting note:", id);
     try {
-      const response = await axios.delete(`${SERVER}/notes/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Deleted note:", response.data);
-      return response.data;
+      const { data } = await apiClient.delete(`/notes/${id}`);
+      return { id, data };
     } catch (error) {
       console.error('Error deleting note:', error);
       return rejectWithValue(error.response?.data || 'Error deleting note');
@@ -160,7 +162,6 @@ export const deleteNote = createAsyncThunk(
 
 // Action for setting current location
 export const SET_CURRENT_LOCATION = 'SET_CURRENT_LOCATION';
-
 export const setCurrentLocation = (location) => ({
   type: SET_CURRENT_LOCATION,
   payload: location,

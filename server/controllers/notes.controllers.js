@@ -220,26 +220,31 @@ export const oldestNotes = async (req, res) => {
 
 export const getNotesByLocation = async (req, res) => {
   try {
-    const { lat, lon } = req.params
-    if (lat == null || lon == null) {
-      return res.status(400).send("Latitude and longitude must be provided")
+    const location = req.query.location ? JSON.parse(req.query.location) : null;
+    if (!location) {
+      return res.status(400).send("Location must be provided");
     }
-    const userId = req.user?._id
+
+    const userId = req.user?._id;
     if (!userId) {
-      return res.status(401).send("User not authenticated")
+      return res.status(401).send("User not authenticated");
     }
+
     const notes = await NotesService.getNotesByLocation({
-      userId: userId,
-      "location.lon": Number(lon),
-      "location.lat": Number(lat),
-    })
+      userId,
+      location
+    });
+
     if (!notes || notes.length === 0) {
-      return res.status(404).send("No notes found at the specified location")
+      return res.status(404).send("No notes found at the specified location");
     }
-    res.json(notes)
+    res.json(notes);
   } catch (err) {
-    console.error("Error retrieving notes:", err)
-    res.status(500).send("Error retrieving notes")
+    console.error("Error retrieving notes:", err);
+    if (err.message.includes('Invalid location format')) {
+      return res.status(400).send(err.message);
+    }
+    res.status(500).send("Error retrieving notes");
   }
 }
 
