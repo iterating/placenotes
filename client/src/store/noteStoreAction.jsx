@@ -2,9 +2,11 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { SERVER } from '../app/config';
 import apiClient from '../lib/apiClient';
+import { setLocation } from './noteSlice';
 
 // Select token from state
 const selectToken = (state) => state.auth.token;
+const selectUserId = (state) => state.auth.user?._id;
 
 // Utility to validate and format the location coordinates
 const validateLocation = (location) => {
@@ -26,20 +28,21 @@ const validateLocation = (location) => {
   };
 };
 
-// Fetch all notes
+// Action creator for setting current location
+export const setCurrentLocation = (location) => (dispatch) => {
+  dispatch(setLocation(location));
+};
+
+// Fetch all notes for the current user
 export const fetchUsersNotes = createAsyncThunk(
   'notes/fetchUsersNotes',
-  async (_, { getState, rejectWithValue }) => {
-    const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
+  async (_, { rejectWithValue }) => {
     try {
-      const { data } = await apiClient.get('/notes');
-      return data.map(note => ({ ...note, showFullNote: false }));
+      const response = await apiClient.get('/notes');
+      return response.data;
     } catch (error) {
       console.error('Error fetching notes:', error);
-      return rejectWithValue(error.response?.data || 'Error fetching notes');
+      return rejectWithValue(error.response?.data?.message || 'Error fetching notes');
     }
   }
 );
@@ -47,61 +50,13 @@ export const fetchUsersNotes = createAsyncThunk(
 // Fetch notes by location
 export const fetchNotesByLocation = createAsyncThunk(
   'notes/fetchNotesByLocation',
-  async ({ latitude, longitude }, { getState, rejectWithValue }) => {
-    const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
-
+  async ({ latitude, longitude }, { rejectWithValue }) => {
     try {
-      // Validate coordinates
-      if (isNaN(latitude) || isNaN(longitude) ||
-          latitude < -90 || latitude > 90 ||
-          longitude < -180 || longitude > 180) {
-        throw new Error('Invalid coordinates');
-      }
-
-      const location = {
-        type: 'Point',
-        coordinates: [longitude, latitude]
-      };
-      
-      console.log('Fetching notes with location:', JSON.stringify(location));
-      
-      const { data } = await apiClient.get('/notes/nearby', {
-        params: { location: JSON.stringify(location) },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      console.log('Received notes:', data);
-      return data.map(note => ({ ...note, showFullNote: false }));
+      const response = await apiClient.get(`/notes/nearby?lat=${latitude}&lng=${longitude}`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching notes by location:', error);
-      if (error.response?.status === 400) {
-        return rejectWithValue('Invalid location format or coordinates');
-      } else if (error.response?.status === 401) {
-        return rejectWithValue('Authentication required');
-      } else {
-        return rejectWithValue(error.response?.data?.message || 'Error fetching notes by location');
-      }
-    }
-  }
-);
-
-// Fetch a single note
-export const fetchOneNote = createAsyncThunk(
-  'notes/fetchOneNote',
-  async ({ id }, { getState, rejectWithValue }) => {
-    const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
-    try {
-      const { data } = await apiClient.get(`/notes/${id}`);
-      return data;
-    } catch (error) {
-      console.error('Error fetching note:', error);
-      return rejectWithValue(error.response?.data || 'Error fetching note');
+      return rejectWithValue(error.response?.data?.message || 'Error fetching notes by location');
     }
   }
 );
@@ -109,35 +64,29 @@ export const fetchOneNote = createAsyncThunk(
 // Create a new note
 export const createNote = createAsyncThunk(
   'notes/createNote',
-  async (noteData, { getState, rejectWithValue }) => {
-    const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
+  async (noteData, { rejectWithValue }) => {
     try {
-      const { data } = await apiClient.post('/notes', noteData);
-      return data;
+      console.log('Creating note with data:', noteData);
+      const response = await apiClient.post('/notes/new', noteData);
+      console.log('Note created successfully:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error creating note:', error);
-      return rejectWithValue(error.response?.data || 'Error creating note');
+      return rejectWithValue(error.response?.data?.message || 'Error creating note');
     }
   }
 );
 
-// Update a note
+// Update an existing note
 export const updateNote = createAsyncThunk(
   'notes/updateNote',
-  async ({ id, update }, { getState, rejectWithValue }) => {
-    const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
+  async ({ id, ...updateData }, { rejectWithValue }) => {
     try {
-      const { data } = await apiClient.put(`/notes/${id}`, update);
-      return data;
+      const response = await apiClient.put(`/notes/${id}`, { ...updateData });
+      return response.data;
     } catch (error) {
       console.error('Error updating note:', error);
-      return rejectWithValue(error.response?.data || 'Error updating note');
+      return rejectWithValue(error.response?.data?.message || 'Error updating note');
     }
   }
 );
@@ -145,24 +94,13 @@ export const updateNote = createAsyncThunk(
 // Delete a note
 export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
-  async ({ id }, { getState, rejectWithValue }) => {
-    const token = selectToken(getState());
-    if (!token) {
-      return rejectWithValue('No token available');
-    }
+  async ({ id }, { rejectWithValue }) => {
     try {
-      const { data } = await apiClient.delete(`/notes/${id}`);
-      return { id, data };
+      await apiClient.delete(`/notes/${id}`);
+      return id;
     } catch (error) {
       console.error('Error deleting note:', error);
-      return rejectWithValue(error.response?.data || 'Error deleting note');
+      return rejectWithValue(error.response?.data?.message || 'Error deleting note');
     }
   }
 );
-
-// Action for setting current location
-export const SET_CURRENT_LOCATION = 'SET_CURRENT_LOCATION';
-export const setCurrentLocation = (location) => ({
-  type: SET_CURRENT_LOCATION,
-  payload: location,
-});

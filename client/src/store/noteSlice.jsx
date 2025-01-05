@@ -2,11 +2,10 @@ import { createSlice } from '@reduxjs/toolkit';
 import {
   fetchUsersNotes,
   fetchNotesByLocation,
-  fetchOneNote,
   createNote,
   updateNote,
   deleteNote,
-  SET_CURRENT_LOCATION
+  setCurrentLocation
 } from './noteStoreAction';
 
 const initialState = {
@@ -33,6 +32,9 @@ const noteSlice = createSlice({
       if (note) {
         note.showFullNote = visible;
       }
+    },
+    setLocation: (state, action) => {
+      state.location = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -51,8 +53,7 @@ const noteSlice = createSlice({
         state.error = action.payload;
       })
 
-    // Fetch notes by location
-    builder
+      // Fetch notes by location
       .addCase(fetchNotesByLocation.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -66,38 +67,21 @@ const noteSlice = createSlice({
         state.error = action.payload;
       })
 
-    // Fetch one note
-    builder
-      .addCase(fetchOneNote.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(fetchOneNote.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.currentNote = action.payload;
-      })
-      .addCase(fetchOneNote.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      })
-
-    // Create note
-    builder
+      // Create note
       .addCase(createNote.pending, (state) => {
         state.status = 'loading';
         state.error = null;
       })
       .addCase(createNote.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.notes.push(action.payload);
+        state.notes.unshift(action.payload);
       })
       .addCase(createNote.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })
 
-    // Update note
-    builder
+      // Update note
       .addCase(updateNote.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -108,43 +92,30 @@ const noteSlice = createSlice({
         if (index !== -1) {
           state.notes[index] = action.payload;
         }
-        if (state.currentNote?._id === action.payload._id) {
-          state.currentNote = action.payload;
-        }
       })
       .addCase(updateNote.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })
 
-    // Delete note
-    builder
+      // Delete note
       .addCase(deleteNote.pending, (state) => {
         state.status = 'loading';
         state.error = null;
       })
       .addCase(deleteNote.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.notes = state.notes.filter(note => note._id !== action.payload.id);
-        if (state.currentNote?._id === action.payload.id) {
-          state.currentNote = null;
-        }
+        state.notes = state.notes.filter(note => note._id !== action.payload);
       })
       .addCase(deleteNote.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      })
-
-    // Set location
-    builder
-      .addCase(SET_CURRENT_LOCATION, (state, action) => {
-        state.location = action.payload;
       });
   },
 });
 
 // Export actions
-export const { clearNotes, setNoteVisibility } = noteSlice.actions;
+export const { clearNotes, setNoteVisibility, setLocation } = noteSlice.actions;
 
 // Selectors
 export const selectAllNotes = (state) => state.notes.notes;

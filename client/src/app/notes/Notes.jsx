@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./Notes.css";
@@ -18,6 +18,7 @@ const Notes = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const markers = useRef([]);
+  const [isLocationFiltered, setIsLocationFiltered] = useState(false);
   
   const notes = useSelector(selectAllNotes);
   const status = useSelector(selectNoteStatus);
@@ -43,9 +44,6 @@ const Notes = () => {
             longitude: position.coords.longitude,
           };
           dispatch(setCurrentLocation(newLocation));
-          
-          // Optionally fetch notes near the current location
-          dispatch(fetchNotesByLocation(newLocation));
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -84,12 +82,38 @@ const Notes = () => {
     }
   }, [markers]);
 
+  const handleLocationFilter = () => {
+    if (!currentLocation) {
+      alert("Location is not available. Please ensure location services are enabled.");
+      return;
+    }
+
+    if (isLocationFiltered) {
+      // If already filtered by location, show all notes
+      dispatch(fetchUsersNotes());
+      setIsLocationFiltered(false);
+    } else {
+      // Filter by location
+      dispatch(fetchNotesByLocation(currentLocation));
+      setIsLocationFiltered(true);
+    }
+  };
+
   if (status === 'loading') return <div>Loading...</div>;
-  if (status === 'failed') return <div>Error: {error}</div>;
+  if (status === 'failed') return <div>Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>;
 
   return (
     <div className="note-container">
-      <h1 className="title">Your Notes</h1>
+      <div className="notes-header">
+        <h1 className="title">Your Notes</h1>
+        <button 
+          className="location-filter-button"
+          onClick={handleLocationFilter}
+          disabled={!currentLocation}
+        >
+          {isLocationFiltered ? "Show All Notes" : "Show Nearby Notes"}
+        </button>
+      </div>
       <div className="map-container" id="map-container-home">
         <NotesMap
           notes={notes}

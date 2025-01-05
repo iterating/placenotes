@@ -2,14 +2,43 @@
 .note-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 20px;
+  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.location-filter-button {
+  padding: 8px 16px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.location-filter-button:hover:not(:disabled) {
+  background-color: #357abd;
+}
+
+.location-filter-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 .title {
-  margin-bottom: 1rem;
+  font-size: 24px;
   color: #333;
+  margin: 0;
 }
 
 .content-wrapper {
@@ -28,12 +57,10 @@
 
 .map-container {
   width: 100%;
-  height: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  height: 400px;
+  border-radius: 8px;
   overflow: hidden;
-  touch-action: pan-x pan-y;
-  min-height: 300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .map-controls {
@@ -58,6 +85,12 @@
   padding-right: 1rem;
 }
 
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .notecard {
   background: white;
   padding: 1rem;
@@ -80,6 +113,91 @@
   background-color: #fff;
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.edit-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.edit-note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.note-textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.note-textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.map-section {
+  margin: 20px 0;
+}
+
+.map-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.submit-button,
+.cancel-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #357abd;
+}
+
+.submit-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.cancel-button:hover {
+  background-color: #e5e5e5;
+}
+
+.error-message {
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #ffebee;
+  color: #c62828;
+  border-radius: 4px;
+  border: 1px solid #ffcdd2;
 }
 
 /* Button styles */
@@ -123,7 +241,6 @@
   max-height: 300px;
   overflow-y: auto;
 }
-
 
 /* Map controls */
 .leaflet-control-geocoder-icon {
@@ -206,6 +323,10 @@
 }
 
 @media (max-width: 768px) {
+  .note-container {
+    padding: 10px;
+  }
+
   .map-section {
     position: relative;
     height: 50vh;
@@ -215,6 +336,7 @@
 
   .map-container {
     border-radius: 0;
+    height: 300px;
   }
 
   .leaflet-control-geocoder {
@@ -236,5 +358,28 @@
     width: 44px;
     height: 44px;
     line-height: 44px;
+  }
+
+  .notes-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .location-filter-button {
+    width: 100%;
+  }
+
+  .edit-container {
+    padding: 10px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .submit-button,
+  .cancel-button {
+    width: 100%;
   }
 }

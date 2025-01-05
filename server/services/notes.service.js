@@ -15,7 +15,7 @@ export const allNotes = async () => {
 }
 
 export const getNotes = async (userId) => {
-  console.log(`services fetching notes for user: ${userId}`);
+  console.log(`Services: Fetching notes for user: ${userId}`);
   try {
     checkConnection();
     
@@ -23,10 +23,15 @@ export const getNotes = async (userId) => {
       throw new Error('Invalid user ID');
     }
 
-    const notes = await Note.find({ userId }).sort({ createdAt: -1 });
+    const notes = await Note.find({ userId })
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    console.log(`Services: Found ${notes.length} notes for user ${userId}`);
     return notes;
   } catch (error) {
-    console.error(`Error fetching notes for user with ID: ${userId}:`, error.message);
+    console.error(`Error fetching notes for user ${userId}:`, error.message);
     throw error;
   }
 }

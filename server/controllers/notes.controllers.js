@@ -28,27 +28,30 @@ export const allNotes = async (req, res) => {
   }
 }
 export const getNotes = async (req, res) => {
-  console.log("getNotes called")
+  console.log("getNotes called");
   try {
-    const userId = req.user?._id
+    const userId = req.user?._id;
     if (!userId) {
-      console.error("No user ID found in request")
-      return res.status(400).send({ error: "No user ID found" })
+      console.error("No user ID found in request");
+      return res.status(400).send({ error: "No user ID found" });
     }
-    console.log("controller fetching notes for user:", userId)
-    const notes = await NotesService.getNotes(userId)
-    if (!Array.isArray(notes) || notes.length === 0) {
-      console.log("No notes found for user:", userId)
-    } else {
-      console.log("controller notes successfully retrieved for user:", userId)
+
+    console.log("Fetching notes for user:", userId);
+    const notes = await NotesService.getNotes(userId);
+    
+    if (!Array.isArray(notes)) {
+      console.error("Invalid notes data returned from service");
+      return res.status(500).send({ error: "Error retrieving notes" });
     }
-    res.json(notes)
+
+    console.log(`Retrieved ${notes.length} notes for user ${userId}`);
+    res.json(notes);
   } catch (err) {
-    console.error("Error retrieving notes:", err)
+    console.error("Error retrieving notes:", err);
     if (err.name === "CastError") {
-      return res.status(400).send({ error: "Invalid user ID" })
+      return res.status(400).send({ error: "Invalid user ID" });
     }
-    res.status(500).json({ error: "Error retrieving notes" })
+    res.status(500).json({ error: "Error retrieving notes" });
   }
 }
 
@@ -272,4 +275,3 @@ export const getNotesByCurrentLocation = async (req, res) => {
     res.status(500).send("Error retrieving notes")
   }
 }
-
