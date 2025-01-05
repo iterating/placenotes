@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { deleteNote } from "../../store/noteStoreAction"
 import { fetchOneNote, updateNote } from "../../lib/fetchNotes.js"
 import Mapmark from "./Mapmark.jsx"
-import { marked } from "marked"
+import NoteTiptap from "./NoteTiptap"
 import { getToken } from "../../lib/tokenManager"
 
 const NoteEdit = () => {
@@ -61,10 +61,10 @@ const NoteEdit = () => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (newContent) => {
     setNote((prev) => ({
       ...prev,
-      body: e.target.value,
+      body: newContent,
     }));
   };
 
@@ -94,34 +94,33 @@ const NoteEdit = () => {
   if (!note) return <div className="edit-container"><p>Note not found</p></div>;
 
   return (
-    <div className="edit-container">
-      <h1>Edit Note</h1>
-      <textarea
-        value={note.body || ""}
-        onChange={handleChange}
-        style={{
-          minHeight: "300px",
-          maxHeight: "100vh",
-          height: "auto",
-          overflow: "scroll",
-        }}
-      />
+    <div className="note-edit-container">
+      <div className="note-edit-content">
+        <h1>Edit Note</h1>
+        <div className="editor-container">
+          <NoteTiptap
+            content={note.body || ""}
+            onChange={handleChange}
+            editable={true}
+          />
+        </div>
 
-      <div className="button-group">
-        <button onClick={handleSave}>Save Changes</button>
-        <button onClick={() => navigate("/notes")}>
-          Go Back Without Saving
-        </button>
-        <button onClick={handleDelete}>Delete Note</button>
-      </div>
-      <Mapmark
-        note={note}
-        setNote={setNote}
-        onMapChange={handleMapChange}
-      />
-      <div className="markdown-preview">
-        <h4>Preview</h4>
-        <div dangerouslySetInnerHTML={{ __html: marked(note.body || "") }} />
+        <div className="button-group">
+          <button onClick={handleSave}>Save Changes</button>
+          <button onClick={() => navigate("/notes")}>
+            Go Back Without Saving
+          </button>
+          <button onClick={handleDelete}>Delete Note</button>
+        </div>
+        <Mapmark
+          note={note}
+          setNote={setNote}
+          onMapChange={handleMapChange}
+        />
+        {/* <div className="markdown-preview">
+          <h4>Preview</h4>
+          <div dangerouslySetInnerHTML={{ __html: marked(note.body || "") }} />
+        </div> */}
       </div>
     </div>
   );
