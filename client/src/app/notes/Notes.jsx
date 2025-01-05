@@ -19,6 +19,7 @@ const Notes = () => {
   const dispatch = useDispatch();
   const markers = useRef([]);
   const [isLocationFiltered, setIsLocationFiltered] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   
   const notes = useSelector(selectAllNotes);
   const status = useSelector(selectNoteStatus);
@@ -126,13 +127,18 @@ const Notes = () => {
     <div className="note-container">
       <div className="notes-header">
         <h1 className="title">Your Notes</h1>
-        <button 
-          className="location-filter-button"
-          onClick={handleLocationFilter}
-          disabled={!currentLocation}
-        >
-          {isLocationFiltered ? "Show All Notes" : "Show Nearby Notes"}
-        </button>
+        <div className="toggle-container">
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={isLocationFiltered}
+              onChange={handleLocationFilter}
+              disabled={!currentLocation}
+            />
+            <span className="toggle-slider"></span>
+          </label>
+          <span className="toggle-label">Show Nearby Notes</span>
+        </div>
       </div>
       <div className="map-container" id="map-container-home">
         <NotesMap

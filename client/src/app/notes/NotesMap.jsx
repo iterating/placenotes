@@ -43,9 +43,11 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         geocoder,
         defaultMarkGeocode: false,
         placeholder: 'Search location...',
-        collapsed: false,
+        collapsed: true,
         showResultIcons: false,
-        position: 'topright'
+        position: 'topright',
+        expand: 'click',
+        iconLabel: 'Search location'
       }).addTo(mapInstance.current);
 
       geocoderControl.on("markgeocode", (e) => {
