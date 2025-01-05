@@ -27,11 +27,9 @@ const NoteForm = ({
     : undefined;
 
   return (
-    <div className="note-edit-content">
-      <div className="note-header">
-        <h1>{title}</h1>
-        {error && <div className="error-message">{error}</div>}
-      </div>
+    <div className="edit-note-form">
+      <h1 style={{ textAlign: 'center' }}>{title}</h1>
+      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="note-form">
         <div className="editor-container">
           <NoteTiptap

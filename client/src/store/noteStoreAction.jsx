@@ -52,11 +52,18 @@ export const fetchNotesByLocation = createAsyncThunk(
   'notes/fetchNotesByLocation',
   async ({ latitude, longitude }, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get(`/notes/nearby?lat=${latitude}&lng=${longitude}`);
+      const response = await apiClient.get(`/notes/nearby`, {
+        params: {
+          location: JSON.stringify({
+            type: 'Point',
+            coordinates: [longitude, latitude]
+          })
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching notes by location:', error);
-      return rejectWithValue(error.response?.data?.message || 'Error fetching notes by location');
+      return rejectWithValue(error.response?.data || 'Error fetching notes by location');
     }
   }
 );

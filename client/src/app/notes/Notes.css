@@ -12,9 +12,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
-
 .location-filter-button {
   padding: 8px 16px;
   background-color: #4a90e2;
@@ -36,7 +34,7 @@
 }
 
 .title {
-  font-size: 24px;
+  font-size: 20px;
   color: #333;
   margin: 0;
 }
@@ -95,7 +93,7 @@
 
 .notecard {
   background: white;
-  padding: 1rem;
+  padding:0.5rem;
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
@@ -108,56 +106,20 @@
 }
 
 /* Edit styles */
-.edit-note-form,
-.edit-container {
+.edit-note-form {
   width: 100%;
   text-wrap: pretty;
   background-color: #fff;
   border-radius: 0.5rem;
   box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
-}
-
-.edit-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.edit-note-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.note-textarea {
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.note-textarea:focus {
-  outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-}
-
-.note-edit-content {
-  flex: 1;
-  padding: 5px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   max-width: 1000px;
   margin: 0 auto;
+  padding: 5px;
   height: 100vh;
   overflow: hidden;
-}
-
-.note-header {
-  padding: 10px;
 }
 
 .note-form {
@@ -166,6 +128,10 @@
   flex-direction: column;
   overflow: hidden;
   height: calc(100vh - 80px);
+  max-width: none !important; /* Override global form style */
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .editor-container {
@@ -211,7 +177,7 @@
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -659,11 +625,7 @@
     line-height: 44px;
   }
 
-  .notes-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
+  
 
   .location-filter-button {
     width: 100%;

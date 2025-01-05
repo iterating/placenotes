@@ -111,7 +111,10 @@ const Notes = () => {
       setIsLocationFiltered(false);
     } else {
       // Filter by location
-      dispatch(fetchNotesByLocation(currentLocation));
+      dispatch(fetchNotesByLocation({
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude
+      }));
       setIsLocationFiltered(true);
     }
   };
