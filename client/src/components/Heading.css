@@ -6,28 +6,35 @@
 }
 
 .app-header {
-  padding: 2px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-  height: 2rem;
-  overflow: hidden;
   display: flex;
   align-items: center;
+  padding: 8px 16px;
   background-color: white;
-  margin: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  min-width: 48px;
 }
 
 .app-header > .drawer-icon {
-  text-align: left;
   cursor: pointer;
-  font-size: 25px;
-  margin: 0px 25px 0px 5px;
-  transition: transform 0.2s ease;
-  user-select: none;
+  font-size: 24px;
+  padding: 8px;
+  color: #333;
+  transition: color 0.2s ease;
 }
 
 .app-header > .drawer-icon:hover {
-  transform: scale(1.1);
+  color: #000;
 }
 
 /* Drawer styles */
@@ -65,27 +72,29 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0);
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
   visibility: hidden;
-  transition: background-color 0.3s ease, visibility 0.3s ease;
-  z-index: 999;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 900;
 }
 
 .overlay.open {
-  background-color: rgba(0, 0, 0, 0.4);
+  opacity: 1;
   visibility: visible;
 }
 
 /* Content transition */
-.content-container {
+#content {
+  margin-top: 64px;
   transition: margin-left 0.3s ease;
   min-height: 100vh;
   padding: 20px;
 }
 
-.content-container.drawer-open {
+#content.drawer-open {
   margin-left: 250px;
 }
 

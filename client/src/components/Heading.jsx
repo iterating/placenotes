@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import Drawer from './Drawer';
+import SearchBar from './SearchBar';
 import './Heading.css';
 
 const Heading = () => {
@@ -39,8 +40,14 @@ const Heading = () => {
 
   return (
     <div>
-      <header>
-        <span className="drawer-icon" id="sidebar-icon" role="button" tabIndex={0}>&#9776;</span>
+      <header className="app-header">
+        <div className="header-left">
+          <span className="drawer-icon" id="sidebar-icon" role="button" tabIndex={0}>&#9776;</span>
+        </div>
+        <SearchBar />
+        <div className="header-right">
+          {/* Add any right-side header content here */}
+        </div>
         <Drawer />
         <div className="overlay" id="overlay" role="presentation"></div>
       </header>

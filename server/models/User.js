@@ -40,19 +40,30 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  friends: {
-    added: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    default: [],
-    accepted: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    default: [],
-  },
+  friends:.scalablytyped[{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  friendRequests: [{
+    from: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending"
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 })
 
 
 
 userSchema.index({ currentLocation: "2dsphere" })
 
-userSchema.methods.encryptPassword = async (password) => {
+userSchema.methods.encryptPassword = async function(password) {
   const salt = await bcrypt.genSalt(1)
   return await bcrypt.hash(password, salt)
 }
