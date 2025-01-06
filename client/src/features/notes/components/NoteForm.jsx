@@ -101,23 +101,23 @@ const NoteForm = ({
               className="radius-slider"
             />
           </div>
+        </div>
 
-          <div className="button-group">
-            <button 
-              type="submit" 
-              disabled={isSubmitting} 
-              className="btn btn-primary"
-            >
-              {isSubmitting ? "Saving..." : submitLabel}
-            </button>
-            <button 
-              type="button" 
-              onClick={() => navigate("/notes")} 
-              className="btn btn-secondary"
-            >
-              Cancel
-            </button>
-          </div>
+        <div className="button-group">
+          <button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className="btn btn-primary"
+          >
+            {isSubmitting ? "Saving..." : submitLabel}
+          </button>
+          <button 
+            type="button" 
+            onClick={() => navigate("/notes")} 
+            className="btn btn-secondary"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
