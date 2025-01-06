@@ -1,22 +1,25 @@
 .editor-container {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 10;
   background: white;
-  padding: 5px;
+  padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
-  height: 600px;
+  flex: 2;
   display: flex;
   flex-direction: column;
+  margin-bottom: 1rem;
 }
 
 .editor {
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-bottom: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .editor-menu {
@@ -24,10 +27,10 @@
   top: 0;
   z-index: 20;
   background: white;
-  padding: 5px;
+  padding: 0.5rem;
   border-bottom: 1px solid #ddd;
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
@@ -50,7 +53,7 @@
 .ProseMirror {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 1rem;
   min-height: 200px;
   outline: none;
 }
@@ -146,4 +149,11 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+.map-container {
+  flex: 1;
+  min-height: 300px;
+  position: relative;
+  z-index: 5;
 }

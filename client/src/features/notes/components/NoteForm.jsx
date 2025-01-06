@@ -51,6 +51,13 @@ const NoteForm = ({
     }
   };
 
+  const handleRadiusChange = (radius) => {
+    onNoteChange({
+      ...note,
+      radius: radius
+    });
+  };
+
   // Extract coordinates from note location
   const coordinates = note?.location?.coordinates 
     ? [note.location.coordinates[1], note.location.coordinates[0]] // Convert [lng, lat] to [lat, lng]
@@ -59,64 +66,42 @@ const NoteForm = ({
   return (
     <div className="edit-note-form">
       <h1 style={{ textAlign: 'center' }}>{title}</h1>
-      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="note-form">
+        {error && <div className="error-message">{error}</div>}
         <div className="editor-container">
           <NoteTiptap
-            content={note.body || ""}
-            onUpdate={({ editor }) => {
-              const markdown = editor.storage.markdown.getMarkdown();
-              if (markdown !== note.body) {
-                onNoteChange({ ...note, body: markdown });
-              }
+            content={note?.body || ""}
+            onUpdate={(newContent) => {
+              onNoteChange({
+                ...note,
+                body: newContent
+              });
             }}
-            editable={!isSubmitting}
           />
         </div>
-
-        <div className="map-section">
-          <div className="map-container">
-            <Mapmark
-              note={note}
-              setNote={onNoteChange}
-              onMapChange={handleMapChange}
-              coordinates={coordinates}
-            />
-          </div>
-          <div className="radius-control">
-            <label htmlFor="radius-slider">Radius: {note.radius}m</label>
-            <input
-              id="radius-slider"
-              type="range"
-              min="10"
-              max="10000"
-              value={note.radius || 100}
-              onChange={(e) => {
-                const newRadius = e.target.valueAsNumber;
-                onNoteChange({
-                  ...note,
-                  radius: newRadius
-                });
-              }}
-              className="radius-slider"
-            />
-          </div>
+        <div className="map-container">
+          <Mapmark
+            location={note?.location}
+            onLocationChange={handleMapChange}
+            onRadiusChange={handleRadiusChange}
+            radius={note?.radius}
+          />
         </div>
-
         <div className="button-group">
+          <button 
+            type="button" 
+            onClick={() => navigate("/notes")} 
+            className="btn btn-secondary"
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
           <button 
             type="submit" 
             disabled={isSubmitting} 
             className="btn btn-primary"
           >
             {isSubmitting ? "Saving..." : submitLabel}
-          </button>
-          <button 
-            type="button" 
-            onClick={() => navigate("/notes")} 
-            className="btn btn-secondary"
-          >
-            Cancel
           </button>
         </div>
       </form>

@@ -21,17 +21,21 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
+const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) => {
   const { state } = useLocation();
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const circleRef = useRef(null);
   const mapInstance = useRef(null);
-  const [radius, setRadius] = useState(note.radius || 100);
+
+  // Get coordinates from location prop
+  const coordinates = location?.coordinates 
+    ? [location.coordinates[1], location.coordinates[0]] 
+    : [34.052235, -118.243683];
 
   useEffect(() => {
     if (!mapInstance.current) {
-      const [latitude, longitude] = coordinates || [34.052235, -118.243683];
+      const [latitude, longitude] = coordinates;
       mapInstance.current = L.map(mapRef.current).setView([latitude, longitude], 15);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
 
@@ -39,61 +43,73 @@ const Mapmark = ({ note, setNote, onMapChange, coordinates }) => {
       const geocoderControl = L.Control.geocoder({ geocoder })
         .on("markgeocode", (e) => {
           const latlng = e.geocode.center;
-          setNote((prev) => ({
-            ...prev,
-            location: { type: "Point", coordinates: [latlng.lng, latlng.lat] },
-          }));
+          onLocationChange(latlng.lng, latlng.lat);
           mapInstance.current.setView(latlng, 15);
-          markerRef.current.setLatLng(latlng);
-          circleRef.current.setLatLng(markerRef.current.getLatLng());
+          if (markerRef.current) {
+            markerRef.current.setLatLng(latlng);
+            circleRef.current.setLatLng(latlng);
+          }
         })
         .addTo(mapInstance.current);
-    
-      geocoderControl.getContainer().classList.add("address-list");
-      geocoderControl.getContainer().style.maxHeight = "300px";
-      geocoderControl.getContainer().style.overflowY = "scroll";
 
-      const marker = L.marker([latitude, longitude], { draggable: true }).addTo(mapInstance.current);
-      const circle = L.circle([latitude, longitude], { radius: note.radius }).addTo(mapInstance.current);
-    
-      markerRef.current = marker;
-      circleRef.current = circle;
-    
-      const dragEndHandler = (e) => {
-        const newLatLng = e.target.getLatLng();
-        const newCoords = [Number(newLatLng.lng.toFixed(6)), Number(newLatLng.lat.toFixed(6))];
-        
-        setNote((prev) => ({
-          ...prev,
-          location: {
-            type: "Point",
-            coordinates: newCoords
-          },
-        }));
-        
-        if (onMapChange) {
-          onMapChange(newCoords[0], newCoords[1]);
-        }
-        
-        circleRef.current.setLatLng(newLatLng);
-      };
-    
-      markerRef.current.on("dragend", dragEndHandler);
-      markerRef.current.on("drag", (e) => {
-        const latlng = e.target.getLatLng();
-        circleRef.current.setLatLng(latlng);
+      // Add marker and circle
+      markerRef.current = L.marker(coordinates).addTo(mapInstance.current);
+      circleRef.current = L.circle(coordinates, {
+        radius: radius,
+        color: 'blue',
+        fillColor: '#3388ff',
+        fillOpacity: 0.2
+      }).addTo(mapInstance.current);
+
+      // Handle map clicks
+      mapInstance.current.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        onLocationChange(lng, lat);
+        markerRef.current.setLatLng([lat, lng]);
+        circleRef.current.setLatLng([lat, lng]);
       });
     }
 
-    // Update circle radius when note.radius changes
-    if (circleRef.current) {
-      circleRef.current.setRadius(note.radius);
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
+  }, []);
+
+  // Update circle radius when radius prop changes
+  useEffect(() => {
+    if (circleRef.current && radius) {
+      circleRef.current.setRadius(radius);
     }
-  }, [coordinates, note, setNote, onMapChange]);
+  }, [radius]);
+
+  // Update marker and circle position when coordinates change
+  useEffect(() => {
+    if (markerRef.current && circleRef.current) {
+      const [lat, lng] = coordinates;
+      markerRef.current.setLatLng([lat, lng]);
+      circleRef.current.setLatLng([lat, lng]);
+      mapInstance.current?.setView([lat, lng]);
+    }
+  }, [coordinates]);
 
   return (
     <>
-      <div ref={mapRef} className="map-container" />
+      <div ref={mapRef} style={{ height: "100%", minHeight: "300px" }} />
+      <div className="radius-control">
+        <label htmlFor="radius-slider">Radius: {radius}m</label>
+        <input
+          id="radius-slider"
+          type="range"
+          min="10"
+          max="10000"
+          value={radius}
+          onChange={(e) => onRadiusChange(e.target.valueAsNumber)}
+          className="radius-slider"
+        />
+      </div>
     </>
   );
 };
