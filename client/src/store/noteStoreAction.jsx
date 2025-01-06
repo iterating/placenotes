@@ -72,19 +72,32 @@ export const createNote = createAsyncThunk(
   'notes/createNote',
   async (noteData, { rejectWithValue, getState }) => {
     try {
+      const state = getState();
+      const userId = selectUserId(state);
+      
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      if (!noteData.body?.trim()) {
+        throw new Error('Note content is required');
+      }
+
       // Ensure note data matches schema
       const formattedData = {
-        ...noteData,
+        userId,
+        body: noteData.body.trim(),
         location: validateLocation(noteData.location),
         radius: Number(noteData.radius) || 1000,
-        email: noteData.email
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
       const response = await apiClient.post('/notes/new', formattedData);
       return response.data;
     } catch (error) {
       console.error('Error creating note:', error);
-      return rejectWithValue(error.response?.data?.message || 'Error creating note');
+      return rejectWithValue(error.response?.data?.message || error.message || 'Error creating note');
     }
   }
 );
