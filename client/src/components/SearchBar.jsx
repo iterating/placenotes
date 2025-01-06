@@ -55,7 +55,6 @@ const SearchBar = () => {
       });
       
       if (response.data.success) {
-        // Update the user's status in search results
         setSearchResults(results =>
           results.map(user =>
             user._id === userId
@@ -82,22 +81,29 @@ const SearchBar = () => {
 
   return (
     <div className="search-container" ref={searchRef}>
-      <form onSubmit={handleSearch} className="search-bar">
-        <input
-          type="text"
-          placeholder="Search notes or type @ to find users..."
-          value={searchTerm}
-          onChange={handleInputChange}
-          onFocus={() => setShowResults(true)}
-          className="form-input"
-        />
-        <button type="submit" className="btn btn-primary btn-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div className="search-input-wrapper">
+        <span className="search-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-        </button>
-      </form>
+        </span>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={handleInputChange}
+          onFocus={() => setShowResults(true)}
+          className="search-input"
+          placeholder="Search notes or type @ to find users..."
+          aria-label="Search"
+        />
+      </div>
+      <button type="submit" className="search-submit" aria-label="Submit search" onClick={handleSearch}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
 
       {showResults && searchTerm.includes('@') && (
         <div className="search-results">
