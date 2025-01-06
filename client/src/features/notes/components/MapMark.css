@@ -1,0 +1,63 @@
+.map-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--primary-color);
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -15px 0 0 -15px;
+  animation: bounce 0.3s ease-out;
+}
+
+.marker-pin::after {
+  content: '';
+  width: 24px;
+  height: 24px;
+  margin: 3px 0 0 3px;
+  background: var(--white);
+  position: absolute;
+  border-radius: 50%;
+}
+
+.map-marker.selected .marker-pin {
+  background: var(--success-color);
+  transform: rotate(-45deg) scale(1.2);
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+.map-popup {
+  padding: var(--spacing-sm);
+}
+
+.map-popup h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.map-popup p {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+@keyframes bounce {
+  0% {
+    transform: rotate(-45deg) translateY(-10px);
+  }
+  50% {
+    transform: rotate(-45deg) translateY(5px);
+  }
+  100% {
+    transform: rotate(-45deg) translateY(0);
+  }
+}

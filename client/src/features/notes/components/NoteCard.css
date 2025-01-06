@@ -1,6 +1,6 @@
 .notecard {
   background: var(--white);
-  padding: 1rem 1rem;
+  padding: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease;
@@ -8,10 +8,14 @@
   overflow: hidden;
 }
 
+/* Override toggle-bar styles for notecard */
+.notecard .toggle-bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: none;
+}
+
 .note-handle {
   height: 24px;
-  background: var(--gray-100);
-  border-bottom: 1px solid var(--gray-200);
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -38,7 +42,7 @@
   font-size: 1rem;
   cursor: pointer;
   margin-bottom: 0.1rem;
-  padding: 0 var(--spacing-sm );
+  padding: var(--spacing-sm);
 }
 
 .note-body {

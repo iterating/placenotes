@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { deleteNote } from "../../../store/noteStoreAction";
 import { marked } from "marked";
 import "./NoteCard.css";
+import "./ToggleBar.css";
 
 const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false);
@@ -23,8 +24,11 @@ const NoteCard = ({ note, markers }) => {
 
   return (
     <div className="notecard">
-      <div className="note-handle" onClick={() => setShowFullNote(!showFullNote)}>
-        <div className="handle-icon" />
+      <div className="toggle-bar" onClick={() => setShowFullNote(!showFullNote)}>
+        <div className="toggle-handle">
+          <span className="toggle-icon">{showFullNote ? '▼' : '▲'}</span>
+          <span className="toggle-text">{showFullNote ? 'Minimize Note' : 'Expand Note'}</span>
+        </div>
       </div>
       <div
         className="note-preview"

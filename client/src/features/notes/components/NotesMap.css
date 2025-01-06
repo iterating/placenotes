@@ -108,60 +108,17 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.map-toggle {
+.map-section .toggle-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
   z-index: 1000;
-  cursor: pointer;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s ease;
-}
-
-.map-toggle:hover {
-  background: rgba(255, 255, 255, 0.98);
-}
-
-.toggle-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 8px;
-  color: #666;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.toggle-handle:hover {
-  color: #333;
-}
-
-.toggle-icon {
-  font-size: 12px;
-  transition: transform 0.2s ease;
-}
-
-.expanded .toggle-icon {
-  transform: translateY(1px);
-}
-
-.collapsed .toggle-icon {
-  transform: translateY(-1px);
 }
 
 .map-container {
   width: 100%;
-  height: calc(100% - 32px);
-  margin-top: 24px;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  height: 100%;
 }
 
 .map-handle {
@@ -252,5 +209,69 @@
 
   .leaflet-control-geocoder input {
     width: 150px;
+  }
+}
+
+/* Map controls */
+.leaflet-control-geocoder {
+  max-width: calc(100% - 20px);
+}
+
+.leaflet-control-geocoder-icon {
+  display: none;
+}
+
+.leaflet-control-geocoder-alternatives {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: var(--spacing-sm);
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.leaflet-touch .leaflet-control-zoom a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+}
+
+/* Map popup styles */
+.leaflet-popup-content-wrapper {
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: var(--spacing-xs);
+  max-width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .map-section {
+    position: relative;
+    height: 50vh;
+    min-height: 300px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .map-container {
+    border-radius: 0;
+    height: 300px;
   }
 }

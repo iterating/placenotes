@@ -7,6 +7,7 @@ import { useSpring, animated } from "@react-spring/web";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import './NotesMap.css';
+import './ToggleBar.css';
 
 // Set up default icon
 let DefaultIcon = L.icon({
@@ -142,7 +143,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
       className={`map-section ${isExpanded ? 'expanded' : 'collapsed'}`} 
       style={{ height, opacity }}
     >
-      <div className="map-toggle" onClick={toggleMap}>
+      <div className="toggle-bar" onClick={toggleMap}>
         <div className="toggle-handle">
           <span className="toggle-icon">{isExpanded ? '▼' : '▲'}</span>
           <span className="toggle-text">{isExpanded ? 'Minimize Map' : 'Expand Map'}</span>
