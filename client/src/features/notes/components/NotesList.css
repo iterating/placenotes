@@ -2,34 +2,25 @@
 .notes-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-  text-align: left;
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-md);
-  animation: slideIn 0.3s ease-out;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .notes-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
   width: 100%;
+  gap: 1px;
 }
 
 .notecard {
   background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--gray-200);
-  padding: var(--spacing-md);
-  transition: var(--transition-all);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.notecard:first-child {
+  border-top: 1px solid var(--gray-100);
 }
 
 .notecard:hover {
@@ -181,27 +172,18 @@
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   .notes-container {
-    max-width: 100%;
     padding: 0;
-    margin: 0;
+    height: calc(100vh - var(--header-height));
   }
 
   .notes-list {
-    gap: 1px;
-    background: var(--gray-100);
+    gap: 0;
   }
 
   .notecard {
-    margin: 0;
     border-radius: 0;
-    box-shadow: none;
-    border: none;
-    background: white;
-  }
-
-  .notecard:hover {
-    transform: none;
-    box-shadow: none;
+    margin: 0;
+    padding: 0;
   }
 
   .note-action-button {

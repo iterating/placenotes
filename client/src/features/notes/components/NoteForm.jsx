@@ -65,8 +65,7 @@ const NoteForm = ({
   };
 
   return (
-    <div className="edit-note-form">
-
+<>
       <form onSubmit={handleSubmit} className="note-form">
         {error && <div className="error-message">{error}</div>}
         <div className="editor-container">
@@ -124,8 +123,8 @@ const NoteForm = ({
           </button>
         </div>
       )}
-    </div>
-  );
+</>
+    );
 };
 
 export default NoteForm;

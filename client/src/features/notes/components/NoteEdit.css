@@ -9,32 +9,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-md);
+  padding-bottom: 0.2em;
   border-bottom: 1px solid var(--gray-200);
 }
 
 .note-edit-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: 500;
   color: var(--gray-900);
   margin: 0;
 }
 
 .note-edit-actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 0.2em;
 }
 
 .note-edit-button {
+  padding: 0.15em 0.3em;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  min-height: 1.2em;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: var(--transition-all);
+  justify-content: center;
+  transition: all 0.1s ease;
 }
 
 .note-edit-button-primary {
@@ -192,23 +192,13 @@
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
-  .note-edit-container {
-    padding: var(--spacing-sm);
-  }
-
   .note-edit-header {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: flex-start;
-  }
-
-  .note-edit-actions {
-    width: 100%;
+    padding: 0.1em;
   }
 
   .note-edit-button {
-    flex: 1;
-    justify-content: center;
+    padding: 0.1em 0.2em;
+    min-height: 1.1em;
   }
 
   .location-map {

@@ -9,7 +9,7 @@
   gap: var(--spacing-md);
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-xs);
   height: 100vh;
   overflow: hidden;
 }
@@ -25,14 +25,94 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: var(--white);
-  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-label {
+  font-size: 0.5rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  padding: 0 var(--spacing-xs);
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: var(--spacing-xs);
+  border: 1px solid var(--gray-200);
+  font-size: 0.625rem;
+  color: var(--gray-900);
+  transition: var(--transition-all);
+  background: white;
+}
+
+.form-input {
+  height: 1.75rem;
+  border-radius: 0;
+}
+
+.form-textarea {
+  min-height: 80px;
+  resize: none;
+  border-radius: 0;
+  line-height: 1.2;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.2em;
+  padding: 0.2em;
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+}
+
+.form-button {
+  padding: 0.15em 0.3em;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  min-height: 1.2em;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+}
+
+.form-button-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.form-button-primary:hover {
+  background: var(--primary-600);
+}
+
+.form-button-secondary {
+  background: var(--gray-200);
+  color: var(--gray-700);
+}
+
+.form-button-secondary:hover {
+  background: var(--gray-300);
+}
+
+.form-button-danger {
+  background: var(--red-500);
+  color: white;
+}
+
+.form-button-danger:hover {
+  background: var(--red-600);
 }
 
 .note-form-content {
@@ -60,13 +140,16 @@
 }
 
 .editor-container {
-  width: 1000px;
-  min-height: 50vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-radius: var(--radius-md);
-  overflow: auto;
   border: 1px solid var(--gray-200);
   background: var(--white);
   margin: 0 auto;
+  width: 1400px;
+  min-height: 50vh;
 }
 
 .editor {
@@ -76,7 +159,7 @@
 }
 
 .editor-content {
-  width: 1000px;
+  width: 1400px;
   height: 1000px;
   margin: 0 auto;
   overflow: visible;
@@ -154,18 +237,6 @@
   border: 1px solid var(--gray-200);
 }
 
-.form-actions {
-  padding: 1rem;
-  background: var(--white);
-  border-top: 1px solid var(--gray-200);
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  position: sticky;
-  bottom: 0;
-  z-index: 1001;
-}
-
 .button-group {
   display: flex;
   gap: var(--spacing-md);
@@ -236,30 +307,30 @@
 
 @media (max-width: 768px) {
   .note-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1100;
+    background: white;
+  }
+
+  .form-group {
     padding: 0;
   }
 
-  .note-form-content {
-    padding: 0.5rem;
+  .form-input,
+  .form-textarea {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    font-size: 0.5rem;
   }
 
-  .map-section {
-    height: 250px;
-    margin: 0.5rem 0;
-  }
-
-  .radius-slider-container {
-    padding: 0.5rem;
-  }
-
-  .form-actions {
-    padding: 0.5rem;
-  }
-
-  .form-actions button {
-    flex: 1;
-    min-height: 40px;
-    font-size: 0.875rem;
+  .form-button {
+    padding: 0.1em 0.25em;
+    min-height: 1.1em;
   }
 }
 
