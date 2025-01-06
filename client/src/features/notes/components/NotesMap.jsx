@@ -141,15 +141,13 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   return (
     <animated.div 
       className={`map-section ${isExpanded ? 'expanded' : 'collapsed'}`} 
-      style={{ height, opacity }}
+      style={{ height }}
     >
+      <div ref={mapRef} className="map-container" style={{ height }} />
       <div className="toggle-bar" onClick={toggleMap}>
-        <div className="toggle-handle">
-          <span className="toggle-icon">{isExpanded ? '▼' : '▲'}</span>
-          <span className="toggle-text">{isExpanded ? 'Minimize Map' : 'Expand Map'}</span>
-        </div>
+        <span className="toggle-icon">▼</span>
+        {isExpanded ? 'Collapse map' : 'Expand map'}
       </div>
-      <div ref={mapRef} className="map-container" />
     </animated.div>
   );
 };

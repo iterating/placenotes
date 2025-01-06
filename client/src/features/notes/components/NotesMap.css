@@ -90,33 +90,53 @@
 
 .map-section {
   width: 100%;
-  height: 100%;
-  border-radius: 0 0 8px 8px;
-  overflow: hidden;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
   background-color: white;
-}
-
-.map-section.expanded {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.map-section.collapsed {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-
-.map-section .toggle-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+  position: relative;
+  margin-bottom: 32px;
 }
 
 .map-container {
   width: 100%;
-  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-section .toggle-bar {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 4px 12px;
+  border-radius: 0 0 8px 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.map-section .toggle-bar:hover {
+  color: #333;
+  background: #f8f8f8;
+}
+
+.map-section .toggle-icon {
+  transition: transform 0.3s ease;
+  display: inline-block;
+  font-size: 10px;
+}
+
+.map-section.expanded .toggle-icon {
+  transform: rotate(180deg);
 }
 
 .map-handle {

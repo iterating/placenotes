@@ -6,12 +6,33 @@
   transition: transform 0.2s ease;
   border: 1px solid var(--gray-200);
   overflow: hidden;
+  position: relative;
+  z-index: 2;
 }
 
-/* Override toggle-bar styles for notecard */
 .notecard .toggle-bar {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   border-top: none;
+  background: white;
+  padding: 4px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notecard .toggle-handle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.notecard .toggle-icon {
+  font-size: 10px;
+  transition: transform 0.2s ease;
 }
 
 .note-handle {

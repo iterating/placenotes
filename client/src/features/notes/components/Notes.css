@@ -8,15 +8,15 @@
   min-height: 100vh;
 }
 
-.map-container {
+#map-container-home {
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 500px;
   width: 100%;
 }
 
 .notes-list {
+  margin-top: 32px;
   overflow-y: auto;
   padding: var(--spacing-xs);
 }
