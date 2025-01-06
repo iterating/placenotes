@@ -52,7 +52,7 @@
   margin: 0 0 var(--spacing-sm) 0;
   color: var(--text-secondary);
   font-size: 0.9rem;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .map-popup button {
@@ -105,19 +105,18 @@
 }
 
 .map-container {
-  width: 100%;
-  height: 100%;
   position: relative;
+  height: 400px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  flex: 1;
-  min-height: var(--map-height-expanded);
-  background-color: var(--gray-50);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
 }
 
 .map-container.collapsed {
-  min-height: var(--map-height-collapsed);
+  height: var(--map-height-collapsed);
 }
 
 .map-container .leaflet-container {
@@ -290,41 +289,14 @@
     --map-height-collapsed: 150px;
   }
   .map-container {
-    min-height: var(--map-height-expanded);
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    height: 350px;
   }
 
-  .map-container.collapsed {
-    min-height: var(--map-height-collapsed);
-  }
-
-  .map-handle {
-    height: 20px;
-  }
-
-  .leaflet-control-geocoder {
-    margin: 0.5rem;
-    width: calc(70% - 1rem);
-    max-width: 10rem;
-    top: 10px;
-  }
-
-  .leaflet-control-geocoder input {
-    height: 2.25rem;
-    font-size: 0.875rem;
-  }
-
-  .leaflet-control-geocoder-alternatives {
-    max-height: 10rem;
-  }
-
-  .leaflet-control-geocoder-alternatives li {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .leaflet-touch .leaflet-control-zoom a {
-    width: 2rem;
-    height: 2rem;
-    line-height: 2rem;
+  .map-popup {
+    max-width: calc(100vw - 2rem);
   }
 }
 
@@ -334,10 +306,6 @@
     --map-height-collapsed: 120px;
   }
   .map-container {
-    min-height: var(--map-height-expanded);
-  }
-
-  .map-container.collapsed {
-    min-height: var(--map-height-collapsed);
+    height: 300px;
   }
 }

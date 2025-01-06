@@ -7,8 +7,9 @@
   overflow-y: auto;
   text-align: left;
   width: 100%;
-  max-width: 800px; /* Match map width */
+  max-width: 800px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .notes-list {
@@ -34,7 +35,7 @@
 
 .note-preview {
   font-size: 0.875rem;
-  line-height: 1.4;
+  line-height: 1.2;
   cursor: pointer;
   color: var(--text-primary);
   padding: var(--spacing-xs) 0;
@@ -51,13 +52,21 @@
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .notes-container {
-    padding: 0 1rem;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
   }
-  
+
+  .notes-list {
+    padding: 0;
+    margin: 0;
+  }
+
   .notecard {
-    margin: 0 -1rem;
-    width: calc(100% + 2rem);
+    margin: 0;
     border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid var(--gray-200);
   }
 }
 

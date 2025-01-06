@@ -1,43 +1,203 @@
+.edit-note-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
 .edit-note-form {
   width: 100%;
   text-wrap: pretty;
   background-color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  max-width: 1000px;
+  gap: 1.5rem;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 1rem;
-  height: calc(100vh - 72px);
-  overflow: hidden;
-  margin-top: 72px;
+  padding: 2rem;
+  height: calc(100vh - 6rem);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 1rem;
 }
 
 .note-form {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
   overflow: hidden;
   height: 100%;
-  max-width: none !important;
-  margin: 0;
   padding: 0;
+  margin: 0;
   box-shadow: none;
 }
 
-.error-message {
-  padding: 10px;
-  margin-bottom: 20px;
-  background-color: #ffebee;
-  color: #c62828;
-  border-radius: 4px;
-  border: 1px solid #ffcdd2;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.form-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.button-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.button-primary:hover {
+  background-color: #2563eb;
+}
+
+.button-secondary {
+  background-color: white;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.button-secondary:hover {
+  background-color: #f9fafb;
+}
+
+.button-danger {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
+.button-danger:hover {
+  background-color: #dc2626;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-radius: 0.5rem;
+  border: 1px solid #fecaca;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-message::before {
+  content: "⚠️";
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Map container styles */
+.map-container {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  height: 300px;
+}
+
+/* Mobile optimizations */
 @media (max-width: 768px) {
-  .edit-container {
-    padding: 10px;
+  .edit-note-container {
+    padding: 0;
+    background: white;
+  }
+
+  .edit-note-form {
+    max-width: 100%;
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100vh;
+  }
+
+  .edit-header {
+    padding: 0 0 1rem 0;
+  }
+
+  .form-group,
+  .button {
+    width: 100%;
+  }
+
+  .map-container {
+    margin: 0 -1rem;
+    width: calc(100% + 2rem);
+    border-radius: 0;
   }
 }

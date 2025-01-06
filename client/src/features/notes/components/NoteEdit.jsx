@@ -43,96 +43,124 @@ const NoteEdit = () => {
       body: "",
       location: {
         type: "Point",
-        coordinates: [-118.243683, 34.052235] // Default to LA coordinates [longitude, latitude]
+        coordinates: [-118.243683, 34.052235] // Default to LA coordinates
       },
       radius: 1000,
       email: user.email,
       userId: user._id
     };
-    setNote(initialNote);
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setNote(prev => ({
-            ...prev,
-            location: {
-              type: "Point",
-              coordinates: [position.coords.longitude, position.coords.latitude]
-            }
-          }));
-          setIsLoading(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setIsLoading(false);
-        }
-      );
-    } else {
-      setIsLoading(false);
-    }
+    setNote(initialNote);
+    setIsLoading(false);
   }, [isAuthenticated, user, isEditMode, existingNote, navigate]);
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (updatedNote) => {
     try {
       setIsSubmitting(true);
       setError(null);
 
-      const noteData = {
-        ...formData,
-        email: user.email,
-        userId: user._id
-      };
-
       if (isEditMode) {
-        await dispatch(updateNote({ id, noteData })).unwrap();
+        await dispatch(updateNote(updatedNote));
       } else {
-        await dispatch(createNote(noteData)).unwrap();
+        await dispatch(createNote(updatedNote));
       }
 
       navigate('/notes');
     } catch (err) {
-      console.error('Error saving note:', err);
-      setError(err.message || 'Error saving note');
-    } finally {
+      setError(err.message || "Failed to save note");
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this note?')) {
+    if (!window.confirm("Are you sure you want to delete this note?")) {
       return;
     }
 
     try {
       setIsSubmitting(true);
       setError(null);
-      await dispatch(deleteNote(id)).unwrap();
+      await dispatch(deleteNote(note._id));
       navigate('/notes');
     } catch (err) {
-      console.error('Error deleting note:', err);
-      setError(err.message || 'Error deleting note');
-    } finally {
+      setError(err.message || "Failed to delete note");
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="edit-note-container">
+        <div className="edit-note-form">
+          <div className="loading-state">
+            <div className="loading-spinner"></div>
+            <p>Loading note...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="error">{error}</div>;
+  if (error && !note) {
+    return (
+      <div className="edit-note-container">
+        <div className="edit-note-form">
+          <div className="error-message">
+            {error}
+          </div>
+          <button 
+            className="button button-secondary"
+            onClick={() => navigate('/notes')}
+          >
+            Back to Notes
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="note-edit">
-      <NoteForm
-        note={note}
-        onSubmit={handleSubmit}
-        onDelete={isEditMode ? handleDelete : undefined}
-        isSubmitting={isSubmitting}
-      />
+    <div className="edit-note-container">
+      <div className="edit-note-form">
+        <div className="edit-header">
+          <h1 className="edit-title">
+            {isEditMode ? 'Edit Note' : 'Create New Note'}
+          </h1>
+          <div className="edit-actions">
+            {isEditMode && (
+              <button
+                className="button button-danger"
+                onClick={handleDelete}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="loading-spinner" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Note'
+                )}
+              </button>
+            )}
+            <button
+              className="button button-secondary"
+              onClick={() => navigate('/notes')}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <NoteForm
+          note={note}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
+      </div>
     </div>
   );
 };
