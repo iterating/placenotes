@@ -25,16 +25,26 @@ function App() {
 
   useEffect(() => {
     const initAuth = async () => {
+      const token = getToken();
+      
+      if (!token) {
+        dispatch(setToken(null));
+        return;
+      }
+
       try {
         const response = await apiClient.get('/users/account');
         if (response.data) {
           dispatch(setUser(response.data));
+          dispatch(setToken(token));
         } else {
           dispatch(setToken(null));
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        dispatch(setToken(null));
+        if (error.response?.status === 401) {
+          dispatch(setToken(null));
+        }
       }
     };
 

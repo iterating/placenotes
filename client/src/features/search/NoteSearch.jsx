@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { useNoteSearch } from '../hooks/useNoteSearch';
-import { useGeolocation } from '../hooks/useGeolocation';
+import { useNoteSearch } from '../../hooks/useNoteSearch';
+import { useGeolocation } from '../../hooks/useGeolocation';
 import { Box, TextField, IconButton, Card, CardContent, Typography, CircularProgress } from '@mui/material';
 import { Search as SearchIcon, MyLocation as MyLocationIcon, Clear as ClearIcon } from '@mui/icons-material';
 

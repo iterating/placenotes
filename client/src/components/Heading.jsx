@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import Drawer from './Drawer';
 import DrawerRight from './DrawerRight';
-import SearchBar from './SearchBar';
+import SearchBar from '../features/search/SearchBar';
 import MessageList from '../features/messages/components/MessageList';
 import './Heading.css';
 
@@ -90,8 +90,9 @@ const Heading = () => {
             role="button" 
             tabIndex={0}
             onClick={() => setIsMessageDrawerOpen(!isMessageDrawerOpen)}
+            aria-label="Toggle messages drawer"
           >
-            <i className="fas fa-comments"></i>
+            &#9776;
           </span>
         </div>
       </header>

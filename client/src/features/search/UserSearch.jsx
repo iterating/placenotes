@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { searchUsers, sendFriendRequest } from '../api/userService';
+import { searchUsers, sendFriendRequest } from '../../api/userService';
 import './UserSearch.css';
 
 const UserSearch = () => {
