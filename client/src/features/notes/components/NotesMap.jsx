@@ -32,7 +32,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const toggleMap = () => {
     setIsExpanded(!isExpanded);
     api.start({ 
-      height: !isExpanded ? "400px" : "100px"
+      height: !isExpanded ? "500px" : "200px"
     });
   };
 

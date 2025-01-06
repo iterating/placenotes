@@ -118,7 +118,7 @@
   border-top-left-radius: var(--radius-sm);
   border-top-right-radius: var(--radius-sm);
   cursor: grab;
-  z-index: 20;
+  z-index: 900;
   display: flex;
   justify-content: center;
   align-items: center;
