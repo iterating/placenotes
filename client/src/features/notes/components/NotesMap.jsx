@@ -2,9 +2,8 @@ import L from "leaflet";
 import "leaflet-control-geocoder";
 import "leaflet/dist/leaflet.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-import React, { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useGesture } from "@use-gesture/react";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import './NotesMap.css';
@@ -25,33 +24,17 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation")) || null;
-  const [{ height }, api] = useSpring(() => ({ height: "400px" }));
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [{ height }, api] = useSpring(() => ({ 
+    height: isExpanded ? "400px" : "100px"
+  }));
 
-  // Bind gestures to the map container
-  const bind = useGesture(
-    {
-      onDrag: ({ movement: [, my], direction: [, dy], down }) => {
-        if (dy > 0) { // Dragging down
-          api.start({ height: down ? `${400 - my}px` : "400px" });
-        } else if (dy < 0) { // Dragging up
-          api.start({ height: down ? `${400 - my}px` : "100px" });
-        }
-      },
-      onDragEnd: ({ direction: [, dy] }) => {
-        if (dy > 0) { // Dragging down ended
-          api.start({ height: "400px" });
-        } else if (dy < 0) { // Dragging up ended
-          api.start({ height: "100px" });
-        }
-      },
-    },
-    {
-      drag: {
-        axis: "y",
-        bounds: { top: -300, bottom: 0 },
-      },
-    }
-  );
+  const toggleMap = () => {
+    setIsExpanded(!isExpanded);
+    api.start({ 
+      height: !isExpanded ? "400px" : "100px"
+    });
+  };
 
   useEffect(() => {
     if (!mapInstance.current) {
@@ -102,7 +85,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
     const map = mapInstance.current;
 
     // Clear previous markers
-    markers.current.forEach((marker) => map.removeLayer(marker));
+    markers.current?.forEach((marker) => map.removeLayer(marker));
     markers.current = []; // Clear the markers array
 
     // Add new markers based on the current notes
@@ -145,17 +128,11 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation]);
 
   return (
-    <animated.div
-      {...bind()}
-      style={{
-        height,
-        touchAction: "none",
-        position: "relative",
-      }}
-      className="map-section"
-    >
+    <animated.div className="map-section" style={{ height }}>
+      <div className="map-handle" onClick={toggleMap}>
+        <div className="handle-icon" />
+      </div>
       <div ref={mapRef} className="map-container" />
-      <div className="map-handle" />
     </animated.div>
   );
 };
