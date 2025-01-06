@@ -52,6 +52,11 @@
   padding: var(--spacing-md);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
+  text-align: left;
+}
+
+.note-body p {
+  text-align: left;
 }
 
 .note-preview:not(.expanded) .note-body {

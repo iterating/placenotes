@@ -215,8 +215,8 @@
   box-shadow: var(--shadow-md);
   border: 0.0625rem solid var(--gray-200);
   margin: 0.75rem;
-  width: calc(100% - 1.5rem);
-  max-width: 20rem;
+  width: calc(75% - 1.5rem);
+  max-width: 15rem;
   position: relative;
   top: 20px;
 }
@@ -303,8 +303,8 @@
 
   .leaflet-control-geocoder {
     margin: 0.5rem;
-    width: calc(100% - 1rem);
-    max-width: none;
+    width: calc(70% - 1rem);
+    max-width: 10rem;
     top: 10px;
   }
 
