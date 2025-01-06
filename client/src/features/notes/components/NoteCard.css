@@ -8,7 +8,8 @@
   position: relative;
   transition: transform 0.2s ease;
   width: 100%;
-  max-width: 100%;
+  max-width: 800px; /* Match map width */
+  margin: 0 auto;
   text-align: left;
 }
 

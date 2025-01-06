@@ -1,0 +1,160 @@
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* Header with user profile */
+.drawer-header {
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.user-info p {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Navigation */
+.drawer-nav {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  color: #4a5568;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  gap: 1rem;
+}
+
+.nav-item:hover {
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+.nav-item.active {
+  background: #ebf8ff;
+  color: #3182ce;
+  font-weight: 500;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+.nav-item:hover .nav-icon {
+  opacity: 1;
+}
+
+/* Footer */
+.drawer-footer {
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.nav-item.logout {
+  color: #e53e3e;
+}
+
+.nav-item.logout:hover {
+  background: #fff5f5;
+}
+
+/* Overlay */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+#overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .drawer {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .nav-item {
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* Content shift when drawer is open */
+#content {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#content.drawer-open {
+  margin-left: 280px;
+}
+
+@media (max-width: 768px) {
+  #content.drawer-open {
+    margin-left: 0;
+  }
+}

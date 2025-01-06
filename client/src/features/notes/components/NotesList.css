@@ -5,17 +5,20 @@
   gap: var(--spacing-md);
   max-height: calc(100vh - 200px);
   overflow-y: auto;
-  padding-right: var(--spacing-md);
   text-align: left;
+  width: 100%;
+  max-width: 800px; /* Match map width */
+  margin: 0 auto;
 }
 
 .notes-list {
   margin-top: 1rem;
-  padding: 0 1rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   text-align: left;
+  width: 100%;
 }
 
 .notecard {
@@ -25,6 +28,8 @@
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease;
   margin-bottom: var(--spacing-xs);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .note-preview {
@@ -43,6 +48,19 @@
   justify-content: flex-start;
 }
 
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .notes-container {
+    padding: 0 1rem;
+  }
+  
+  .notecard {
+    margin: 0 -1rem;
+    width: calc(100% + 2rem);
+    border-radius: 0;
+  }
+}
+
 /* Loading and empty states */
 .loading,
 .no-notes {
@@ -50,6 +68,7 @@
   padding: var(--spacing-lg);
   color: var(--text-secondary);
   font-size: 1rem;
+  width: 100%;
 }
 
 /* Scrollbar styles */
