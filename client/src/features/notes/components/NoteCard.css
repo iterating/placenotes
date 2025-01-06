@@ -37,64 +37,76 @@
 .note-preview {
   font-size: 1rem;
   cursor: pointer;
-  margin-bottom: 0.5rem;
-  padding: var(--spacing-md);
+  margin-bottom: 0.1rem;
+  padding: 0 var(--spacing-sm );
 }
 
 .note-body {
   color: var(--text-primary);
-  line-height: 1.5;
 }
 
 .note-actions-ui, .button-group {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  padding: var(--spacing-sm);
+  padding: 0 var(--spacing-sm);
   border-top: 1px solid var(--gray-100);
   background: var(--gray-50);
+  flex-wrap: wrap;
 }
 
-.btn {
-  padding: var(--spacing-xs) var(--spacing-sm);
+.note-actions-ui button,
+.button-group button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--spacing-sm);
   border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  border: 1px solid var(--primary-color);
+  background: var(--primary-color);
+  color: var(--white);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
   transition: all 0.2s ease;
-  min-width: 80px;
-  color: white;
 }
 
-.btn-primary {
-  background: #0d6efd;
-  border: 1px solid #0d6efd;
+.note-actions-ui button:hover,
+.button-group button:hover {
+  background: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
 }
 
-.btn-primary:hover {
-  background: #0b5ed7;
-  border-color: #0a58ca;
+.note-actions-ui button.secondary,
+.button-group button.secondary {
+  background: var(--white);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
 }
 
-.btn-secondary {
-  background: #6c757d;
-  border: 1px solid #6c757d;
+.note-actions-ui button.secondary:hover,
+.button-group button.secondary:hover {
+  background: var(--primary-color-light);
 }
 
-.btn-secondary:hover {
-  background: #5c636a;
-  border-color: #565e64;
+.note-actions-ui button.danger,
+.button-group button.danger {
+  background: var(--error-background);
+  color: var(--white);
+  border: 1px solid var(--error-border);
 }
 
-.btn-outline-danger {
-  background: transparent;
-  border: 1px solid #dc3545;
-  color: #dc3545;
+.note-actions-ui button.danger:hover,
+.button-group button.danger:hover {
+  background: var(--error-text);
+  border-color: var(--error-text);
 }
 
-.btn-outline-danger:hover {
-  color: white;
-  background: #dc3545;
-  border-color: #dc3545;
+.note-actions-ui button svg,
+.button-group button svg {
+  width: 20px;
+  height: 20px;
 }
 
 .button-group {
@@ -104,4 +116,17 @@
   border-top: 1px solid var(--gray-200);
   gap: 0.5rem;
   display: flex;
+}
+
+@media (max-width: 768px) {
+  .note-actions-ui,
+  .button-group {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .note-actions-ui button,
+  .button-group button {
+    flex: 1;
+  }
 }
