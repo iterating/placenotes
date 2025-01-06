@@ -41,8 +41,12 @@ const NoteEdit = () => {
     // For new note, initialize with default values and get location
     const initialNote = {
       body: "",
-      location: null,
-      radius: 100
+      location: {
+        type: "Point",
+        coordinates: [-118.243683, 34.052235] // Default to LA coordinates [longitude, latitude]
+      },
+      radius: 1000,
+      email: user.email
     };
     setNote(initialNote);
 
@@ -53,134 +57,80 @@ const NoteEdit = () => {
             ...prev,
             location: {
               type: "Point",
-              coordinates: [position.coords.longitude, position.coords.latitude],
+              coordinates: [position.coords.longitude, position.coords.latitude]
             }
           }));
           setIsLoading(false);
         },
         (error) => {
-          console.error("Geolocation error:", error);
-          setError("Could not get your location. Please enable location services.");
+          console.error("Error getting location:", error);
           setIsLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        }
       );
     } else {
-      setError("Geolocation is not supported by your browser");
       setIsLoading(false);
     }
-  }, [isAuthenticated, user, navigate, isEditMode, existingNote]);
+  }, [isAuthenticated, user, isEditMode, existingNote, navigate]);
 
-  const handleMapChange = (lat, lng) => {
-    setNote(prev => ({
-      ...prev,
-      location: {
-        type: "Point",
-        coordinates: [lng, lat],
-      }
-    }));
-    setError(null);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
+  const handleSubmit = async (formData) => {
     try {
-      // Validate coordinates
-      const coordinates = note?.location?.coordinates;
-      if (!coordinates || 
-          !Array.isArray(coordinates) || 
-          coordinates.length !== 2 ||
-          coordinates.some(coord => coord === null || coord === undefined || isNaN(coord))) {
-        throw new Error("Please select a valid location on the map");
-      }
+      setIsSubmitting(true);
+      setError(null);
 
-      if (!note.body.trim()) {
-        throw new Error("Please enter a note");
-      }
-
-      if (!user?._id && !isEditMode) {
-        throw new Error("User information not available");
-      }
+      const noteData = {
+        ...formData,
+        email: user.email
+      };
 
       if (isEditMode) {
-        // Ensure coordinates are valid numbers
-        const [lng, lat] = note.location.coordinates.map(coord => Number(coord));
-        
-        await dispatch(updateNote({
-          id: note._id,
-          body: note.body.trim(),
-          location: {
-            type: 'Point',
-            coordinates: [lng, lat]
-          },
-          radius: Number(note.radius) || 1000,
-          email: user.email,
-          userId: user._id,
-          tags: note.tags || []
-        })).unwrap();
+        await dispatch(updateNote({ id, noteData })).unwrap();
       } else {
-        const [lng, lat] = note.location.coordinates.map(coord => Number(coord));
-        
-        await dispatch(createNote({
-          body: note.body.trim(),
-          location: {
-            type: 'Point',
-            coordinates: [lng, lat]
-          },
-          radius: Number(note.radius) || 1000,
-          email: user.email,
-          userId: user._id,
-          tags: []
-        })).unwrap();
+        await dispatch(createNote(noteData)).unwrap();
       }
-      
-      navigate("/notes");
-    } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} note:`, error);
-      setError(error.message || `Failed to ${isEditMode ? 'update' : 'create'} note. Please try again.`);
+
+      navigate('/notes');
+    } catch (err) {
+      console.error('Error saving note:', err);
+      setError(err.message || 'Error saving note');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!isEditMode) return;
-    
-    if (window.confirm("Are you sure you want to delete this note?")) {
-      try {
-        await dispatch(deleteNote(note._id)).unwrap();
-        navigate("/notes");
-      } catch (error) {
-        setError(error.message || "Failed to delete note");
-      }
+    if (!window.confirm('Are you sure you want to delete this note?')) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      await dispatch(deleteNote(id)).unwrap();
+      navigate('/notes');
+    } catch (err) {
+      console.error('Error deleting note:', err);
+      setError(err.message || 'Error deleting note');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (!isAuthenticated || !user) return null;
-  if (isLoading) return <div className="loading">Loading...</div>;
-  if (!note) return <div className="error-message">Note not found</div>;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
-    <div>
+    <div className="note-edit">
       <NoteForm
         note={note}
-        onNoteChange={setNote}
-        onLocationChange={handleMapChange}
         onSubmit={handleSubmit}
+        onDelete={isEditMode ? handleDelete : undefined}
         isSubmitting={isSubmitting}
-        error={error}
-        submitLabel={isEditMode ? "Save Changes" : "Create Note"}
-        title={isEditMode ? "Edit Note" : "Create New Note"}
       />
-      {isEditMode && (
-        <div className="delete-container">
-          <button onClick={handleDelete} className="delete-button">
-            Delete Note
-          </button>
-        </div>
-      )}
     </div>
   );
 };

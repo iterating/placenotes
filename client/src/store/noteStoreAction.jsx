@@ -37,12 +37,7 @@ export const fetchUsersNotes = createAsyncThunk(
   'notes/fetchUsersNotes',
   async (_, { rejectWithValue, getState }) => {
     try {
-      const token = selectToken(getState());
-      const response = await apiClient.get('/notes', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiClient.get('/notes');
       return response.data;
     } catch (error) {
       console.error('Error fetching notes:', error);
@@ -57,16 +52,12 @@ export const fetchNotesByLocation = createAsyncThunk(
   async ({ location, radius }, { rejectWithValue, getState }) => {
     try {
       const validatedLocation = validateLocation(location);
-      const token = selectToken(getState());
       const response = await apiClient.get('/notes/nearby', {
         params: {
           longitude: validatedLocation.coordinates[0],
           latitude: validatedLocation.coordinates[1],
           radius: radius || 1000 // Default radius of 1km
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        }
       });
       return response.data;
     } catch (error) {
@@ -81,12 +72,15 @@ export const createNote = createAsyncThunk(
   'notes/createNote',
   async (noteData, { rejectWithValue, getState }) => {
     try {
-      const token = selectToken(getState());
-      const response = await apiClient.post('/notes', noteData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Ensure note data matches schema
+      const formattedData = {
+        ...noteData,
+        location: validateLocation(noteData.location),
+        radius: Number(noteData.radius) || 1000,
+        email: noteData.email
+      };
+
+      const response = await apiClient.post('/notes/new', formattedData);
       return response.data;
     } catch (error) {
       console.error('Error creating note:', error);
@@ -100,12 +94,15 @@ export const updateNote = createAsyncThunk(
   'notes/updateNote',
   async ({ id, noteData }, { rejectWithValue, getState }) => {
     try {
-      const token = selectToken(getState());
-      const response = await apiClient.put(`/notes/${id}`, noteData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Ensure note data matches schema
+      const formattedData = {
+        ...noteData,
+        location: validateLocation(noteData.location),
+        radius: Number(noteData.radius) || 1000,
+        email: noteData.email
+      };
+
+      const response = await apiClient.put(`/notes/${id}`, formattedData);
       return response.data;
     } catch (error) {
       console.error('Error updating note:', error);
@@ -117,14 +114,9 @@ export const updateNote = createAsyncThunk(
 // Delete a note
 export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
-  async (id, { rejectWithValue, getState }) => {
+  async (id, { rejectWithValue }) => {
     try {
-      const token = selectToken(getState());
-      await apiClient.delete(`/notes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await apiClient.delete(`/notes/${id}`);
       return id;
     } catch (error) {
       console.error('Error deleting note:', error);

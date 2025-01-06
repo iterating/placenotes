@@ -1,20 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NoteTiptap from "./NoteTiptap";
 import Mapmark from "./Mapmark";
 import "./Notes.css";
 
 const NoteForm = ({ 
-  note, 
-  onNoteChange, 
-  onLocationChange,
+  note: initialNote, 
   onSubmit, 
-  isSubmitting, 
-  error,
-  submitLabel = "Save",
-  title
+  onDelete,
+  isSubmitting 
 }) => {
   const navigate = useNavigate();
+  const [note, setNote] = useState(initialNote);
+  const [error, setError] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -25,58 +23,57 @@ const NoteForm = ({
         !Array.isArray(coordinates) || 
         coordinates.length !== 2 ||
         coordinates.some(coord => coord === null || coord === undefined || isNaN(coord))) {
-      // If coordinates are invalid, use a default location or show error
-      const defaultCoords = [-118.243685, 34.052236]; // Default to LA
-      onNoteChange({
-        ...note,
-        location: {
-          type: "Point",
-          coordinates: defaultCoords
-        }
-      });
+      setError("Please select a valid location on the map");
+      return;
     }
     
-    onSubmit(event);
+    if (!note.body?.trim()) {
+      setError("Please enter some text for your note");
+      return;
+    }
+    
+    onSubmit(note);
   };
 
   const handleMapChange = (lng, lat) => {
     if (typeof lng === 'number' && typeof lat === 'number' && !isNaN(lng) && !isNaN(lat)) {
-      onNoteChange({
-        ...note,
+      setNote(prev => ({
+        ...prev,
         location: {
           type: "Point",
           coordinates: [lng, lat]
         }
-      });
+      }));
+      setError(null);
     }
   };
 
   const handleRadiusChange = (radius) => {
-    onNoteChange({
-      ...note,
+    setNote(prev => ({
+      ...prev,
       radius: radius
-    });
+    }));
   };
 
-  // Extract coordinates from note location
-  const coordinates = note?.location?.coordinates 
-    ? [note.location.coordinates[1], note.location.coordinates[0]] // Convert [lng, lat] to [lat, lng]
-    : undefined;
+  const handleContentChange = (newContent) => {
+    setNote(prev => ({
+      ...prev,
+      body: newContent
+    }));
+    setError(null);
+  };
 
   return (
     <div className="edit-note-form">
-      <h1 style={{ textAlign: 'center' }}>{title}</h1>
+      <h1 style={{ textAlign: 'center' }}>
+        {initialNote?._id ? 'Edit Note' : 'Create New Note'}
+      </h1>
       <form onSubmit={handleSubmit} className="note-form">
         {error && <div className="error-message">{error}</div>}
         <div className="editor-container">
           <NoteTiptap
             content={note?.body || ""}
-            onUpdate={(newContent) => {
-              onNoteChange({
-                ...note,
-                body: newContent
-              });
-            }}
+            onUpdate={handleContentChange}
           />
         </div>
         <div className="map-container">
@@ -101,10 +98,21 @@ const NoteForm = ({
             disabled={isSubmitting} 
             className="btn btn-primary"
           >
-            {isSubmitting ? "Saving..." : submitLabel}
+            {isSubmitting ? "Saving..." : (initialNote?._id ? "Save Changes" : "Create Note")}
           </button>
         </div>
       </form>
+      {initialNote?._id && (
+        <div className="delete-container">
+          <button 
+            onClick={onDelete} 
+            className="btn btn-danger"
+            disabled={isSubmitting}
+          >
+            Delete Note
+          </button>
+        </div>
+      )}
     </div>
   );
 };

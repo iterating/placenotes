@@ -33,6 +33,14 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
     ? [location.coordinates[1], location.coordinates[0]] 
     : [34.052235, -118.243683];
 
+  const updateLocation = (lat, lng) => {
+    onLocationChange(lng, lat);
+    if (markerRef.current && circleRef.current) {
+      markerRef.current.setLatLng([lat, lng]);
+      circleRef.current.setLatLng([lat, lng]);
+    }
+  };
+
   useEffect(() => {
     if (!mapInstance.current) {
       const [latitude, longitude] = coordinates;
@@ -43,17 +51,23 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
       const geocoderControl = L.Control.geocoder({ geocoder })
         .on("markgeocode", (e) => {
           const latlng = e.geocode.center;
-          onLocationChange(latlng.lng, latlng.lat);
+          updateLocation(latlng.lat, latlng.lng);
           mapInstance.current.setView(latlng, 15);
-          if (markerRef.current) {
-            markerRef.current.setLatLng(latlng);
-            circleRef.current.setLatLng(latlng);
-          }
         })
         .addTo(mapInstance.current);
 
       // Add marker and circle
-      markerRef.current = L.marker(coordinates).addTo(mapInstance.current);
+      markerRef.current = L.marker(coordinates, {
+        draggable: true // Make marker draggable
+      }).addTo(mapInstance.current);
+
+      // Handle marker drag events
+      markerRef.current.on('dragend', (e) => {
+        const marker = e.target;
+        const position = marker.getLatLng();
+        updateLocation(position.lat, position.lng);
+      });
+
       circleRef.current = L.circle(coordinates, {
         radius: radius,
         color: 'blue',
@@ -64,9 +78,7 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
       // Handle map clicks
       mapInstance.current.on('click', (e) => {
         const { lat, lng } = e.latlng;
-        onLocationChange(lng, lat);
-        markerRef.current.setLatLng([lat, lng]);
-        circleRef.current.setLatLng([lat, lng]);
+        updateLocation(lat, lng);
       });
     }
 
@@ -99,14 +111,15 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
     <>
       <div ref={mapRef} style={{ height: "100%", minHeight: "300px" }} />
       <div className="radius-control">
-        <label htmlFor="radius-slider">Radius: {radius}m</label>
+        <label htmlFor="radius">Radius (meters): {radius}m</label>
         <input
-          id="radius-slider"
           type="range"
-          min="10"
-          max="10000"
+          id="radius"
+          min="50"
+          max="5000"
+          step="50"
           value={radius}
-          onChange={(e) => onRadiusChange(e.target.valueAsNumber)}
+          onChange={(e) => onRadiusChange(Number(e.target.value))}
           className="radius-slider"
         />
       </div>
