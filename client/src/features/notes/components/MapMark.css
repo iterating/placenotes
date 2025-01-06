@@ -1,7 +1,4 @@
-:root {
-  --map-height-expanded: 500px;
-  --map-height-collapsed: 200px;
-}
+
 
 .map-marker {
   display: flex;
@@ -93,7 +90,7 @@
   }
 }
 
-.map-section {
+.map-container {
   width: 100%;
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -124,6 +121,8 @@
   min-height: inherit;
   transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+
 
 .map-handle {
   position: absolute;
@@ -192,20 +191,31 @@
 }
 
 /* Map Container Styles */
-.map-wrapper {
-  position: relative;
+.mapmark-container {
   width: 100%;
-  height: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.map-content {
+.mapmark-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  background: var(--white);
+  overflow: hidden;
   position: relative;
-  flex: 1;
-  width: 100%;
-  height: 100%;
 }
+
+
 
 /* Leaflet Control Styles */
 .leaflet-control-geocoder {
@@ -309,3 +319,5 @@
     height: 300px;
   }
 }
+
+

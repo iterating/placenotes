@@ -1,5 +1,6 @@
 /* Note Card Container */
 .notecard {
+
     background: var(--white);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);

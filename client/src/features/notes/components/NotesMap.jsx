@@ -52,33 +52,35 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   };
 
   useEffect(() => {
-    if (!mapInstance.current) {
+    if (!mapInstance.current && mapRef.current) {
       const initialView = currentLocation
         ? [currentLocation.latitude, currentLocation.longitude]
-        : [34.052235, -118.243683]; // Default to LA if no location is found
-      mapInstance.current = L.map(mapRef.current).setView(initialView, currentLocation ? 15 : 13);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
-
-      const geocoder = L.Control.Geocoder.nominatim({
-        geocodingQueryParams: {
-          format: "json",
-          addressdetails: 1,
-        },
+        : [34.052235, -118.243683]; // Default to LA if no location is found   
+        mapInstance.current = L.map(mapRef.current, {
+        center: initialView,
+        zoom: currentLocation ? 15 : 13,
+        zoomControl: true,
+        scrollWheelZoom: true,
+        attributionControl: false // Remove attribution for cleaner look
       });
 
-      const geocoderControl = L.Control.geocoder({
-        geocoder,
-        defaultMarkGeocode: false,
-        placeholder: 'Search location...',
-        collapsed: false,
-        showResultIcons: false,
-        position: 'topright',
-        expand: 'click',
-        iconLabel: 'Search location'
+      // Force a resize after initialization
+      setTimeout(() => {
+        if (mapInstance.current) {
+          mapInstance.current.invalidateSize();
+        }
+      }, 100);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: ''
       }).addTo(mapInstance.current);
 
-      geocoderControl.on("markgeocode", (e) => {
+      const geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        collapsed: true,
+        placeholder: 'Search location...',
+        geocoder: L.Control.Geocoder.nominatim(),
+      }).on('markgeocode', function(e) {
         const latlng = e.geocode.center;
         const address = e.geocode.properties;
         console.log("selected address:", address);
@@ -94,7 +96,31 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
           },
         };
         console.log("creating new note:", note);
-      });
+      }).addTo(mapInstance.current);
+
+      // Add click handler to toggle collapsed state
+      const geocoderContainer = geocoder.getContainer();
+      const searchIcon = geocoderContainer.querySelector('.leaflet-control-geocoder-icon');
+      const input = geocoderContainer.querySelector('input');
+
+      if (searchIcon && input) {
+        searchIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          geocoderContainer.classList.toggle('collapsed');
+          if (!geocoderContainer.classList.contains('collapsed')) {
+            input.focus();
+          }
+        });
+
+        input.addEventListener('blur', () => {
+          if (input.value === '') {
+            geocoderContainer.classList.add('collapsed');
+          }
+        });
+
+        // Start in collapsed state
+        geocoderContainer.classList.add('collapsed');
+      }
     }
 
     const map = mapInstance.current;

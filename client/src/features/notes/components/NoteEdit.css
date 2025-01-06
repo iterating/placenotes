@@ -9,7 +9,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.2em;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-xs);
   border-bottom: 1px solid var(--gray-200);
 }
 
@@ -22,7 +23,7 @@
 
 .note-edit-actions {
   display: flex;
-  gap: 0.2em;
+  gap: var(--spacing-sm);
 }
 
 .note-edit-button {

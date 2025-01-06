@@ -1,5 +1,7 @@
 /* CSS Variables */
 :root {
+  --map-height-expanded: 500px;
+  --map-height-collapsed: 200px;
   /* Colors */
   --primary-color: #007bff;
   --primary-hover: #0056b3;
@@ -12,16 +14,19 @@
   --text-primary: #2d3748;
   --text-secondary: #4a5568;
   --white: #ffffff;
+  --gray-50: #fafafa;
   --gray-100: #f5f5f5;
   --gray-200: #e0e0e0;
   --gray-300: #ccc;
   --gray-400: #999;
   --gray-500: #666;
   --gray-600: #444;
-  --error-bg: #ffebee;
+  --error-background: #ffebee;
   --error-text: #c62828;
-  --success-bg: #e8f5e9;
+  --error-border: #ef5350;
+  --success-background: #e8f5e9;
   --success-text: #2e7d32;
+  --success-border: #66bb6a;
   
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -37,9 +42,25 @@
   --radius-full: 9999px;
   
   /* Shadows */
-  --shadow-sm: 0 0 0.5rem rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  
+  /* Line Heights */
+  --line-height-sm: 1.25;
+  --line-height-base: 1.5;
+  --line-height-lg: 1.75;
+  
+  /* Transitions */
+  --transition-base: all 0.2s ease;
+  --transition-slow: all 0.3s ease;
 }
 
 /* Flexbox Utilities */
@@ -121,7 +142,7 @@
 /* Status Messages */
 .success-message {
   padding: var(--spacing-sm);
-  background-color: var(--success-bg);
+  background-color: var(--success-background);
   color: var(--success-text);
   border-radius: var(--radius-sm);
   margin-top: var(--spacing-sm);
@@ -129,7 +150,7 @@
 
 .error-message {
   padding: var(--spacing-sm);
-  background-color: var(--error-bg);
+  background-color: var(--error-background);
   color: var(--error-text);
   border-radius: var(--radius-sm);
   margin-top: var(--spacing-sm);
@@ -155,4 +176,116 @@
 
 .hover-bg-gray:hover {
   background-color: var(--gray-100);
+}
+
+/* Common Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+  cursor: pointer;
+  min-height: 2rem;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-50);
+  color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-danger {
+  background: var(--error-background);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+.btn-danger:hover {
+  background: var(--error-border);
+  color: var(--white);
+}
+
+/* Common Form Styles */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  transition: var(--transition-base);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-error {
+  color: var(--error-text);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+}
+
+/* Common Layout Styles */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    min-height: 1.75rem;
+  }
+  
+  .form-input,
+  .form-textarea {
+    padding: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+  }
 }

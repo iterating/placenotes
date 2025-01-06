@@ -132,7 +132,7 @@
   min-height: 200px;
 }
 
-.map-section {
+p {
   height: 300px;
   margin: 1rem 0;
   position: relative;
@@ -143,44 +143,57 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   border-radius: var(--radius-md);
   border: 1px solid var(--gray-200);
   background: var(--white);
   margin: 0 auto;
   width: 1400px;
   min-height: 50vh;
+  overflow: auto;
 }
 
 .editor {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  flex: 1;
+  overflow: auto;
 }
 
 .editor-content {
   width: 1400px;
-  height: 1000px;
+  height: auto;
+  min-height: 50vh;
   margin: 0 auto;
-  overflow: visible;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.note-form-map {
+  flex: 1;
+  min-height: 300px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  margin-bottom: 1rem;
 }
 
 .radius-slider-container {
-  padding: 0.5rem;
-  background: var(--white);
-  border-top: 1px solid var(--gray-200);
+
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  position: sticky;
-  bottom: 50px;
-  z-index: 1000;
+  gap: 0.5rem;
+  z-index: 2;
 }
 
 .radius-slider-container label {
-  font-weight: 500;
+  font-size: var(--font-size-xs);
   color: var(--gray-700);
-  min-width: 60px;
+  white-space: nowrap;
 }
 
 .radius-slider {
@@ -200,8 +213,8 @@
   border: 2px solid var(--white);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
 }
 
 .radius-slider::-webkit-slider-thumb:hover {
@@ -209,32 +222,12 @@
   transform: scale(1.1);
 }
 
-.radius-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  background: var(--primary-color);
-  border: 2px solid var(--white);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.radius-slider::-moz-range-thumb:hover {
-  background: var(--primary-hover);
-  transform: scale(1.1);
-}
-
 .radius-value {
-  min-width: 70px;
+  min-width: 60px;
   text-align: right;
   color: var(--gray-700);
   font-weight: 500;
-  font-size: 0.95rem;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--white);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--gray-200);
+  font-size: var(--font-size-sm);
 }
 
 .button-group {
@@ -243,6 +236,7 @@
   padding: var(--spacing-md) 0;
   justify-content: flex-end;
   border-top: 1px solid var(--gray-200);
+  position: relative;
 }
 
 .button-group button {
@@ -288,11 +282,13 @@
   font-weight: 500;
   transition: all 0.2s ease;
   min-width: 120px;
+  z-index: 1;
+  position: relative;
 }
 
 .btn-danger:hover {
   background: var(--error-background);
-  color: var(--white);
+  color: var(--error-text);
   transform: translateY(-1px);
 }
 
@@ -314,29 +310,28 @@
     bottom: 0;
     z-index: 1100;
     background: white;
+    padding: var(--spacing-sm);
   }
 
-  .form-group {
-    padding: 0;
+  .editor-container,
+  .editor-content {
+    width: 100%;
   }
 
-  .form-input,
-  .form-textarea {
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
-    font-size: 0.5rem;
-  }
-
-  .form-button {
-    padding: 0.1em 0.25em;
-    min-height: 1.1em;
+  .radius-slider-container {
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }
 
 @media (max-width: 480px) {
-  .map-section {
-    height: 200px;
+  .radius-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  .radius-value {
+    min-width: 50px;
+    font-size: var(--font-size-xs);
   }
 }
 
@@ -351,21 +346,6 @@
 
   .button-group button {
     width: 100%;
-  }
-
-  .radius-slider-container {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-  }
-
-  .radius-slider-container label {
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .radius-value {
-    text-align: center;
-    margin-top: var(--spacing-sm);
   }
 
   .note-form {
@@ -390,18 +370,6 @@
   .form-group select {
     font-size: 0.875rem;
     padding: 0.375rem 0.5rem;
-  }
-
-  .radius-slider-container {
-    font-size: 0.875rem;
-  }
-
-  .radius-slider-container label {
-    font-size: 0.875rem;
-  }
-
-  .radius-value {
-    font-size: 0.875rem;
   }
 
   .form-actions button {
@@ -433,12 +401,6 @@
     font-size: 0.8rem;
   }
 
-  .radius-slider-container,
-  .radius-slider-container label,
-  .radius-value {
-    font-size: 0.8rem;
-  }
-
   .form-actions button {
     font-size: 0.8rem;
   }
@@ -452,20 +414,4 @@
   display: flex;
   gap: var(--spacing-md);
   margin-top: var(--spacing-md);
-}
-
-.mapmark-container {
-  flex: 1;
-  min-height: 300px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--gray-200);
-  box-shadow: var(--shadow-sm);
-}
-
-.mapmark-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
 }
