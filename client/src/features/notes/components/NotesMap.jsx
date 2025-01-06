@@ -67,9 +67,9 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         geocoder,
         defaultMarkGeocode: false,
         placeholder: 'Search location...',
-        collapsed: true,
+        collapsed: false,
         showResultIcons: false,
-        position: 'topright',
+        position: 'topleft',
         expand: 'click',
         iconLabel: 'Search location'
       }).addTo(mapInstance.current);
@@ -139,16 +139,22 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation]);
 
   return (
-    <animated.div 
-      className={`map-section ${isExpanded ? 'expanded' : 'collapsed'}`} 
-      style={{ height }}
-    >
-      <div ref={mapRef} className="map-container" style={{ height }} />
+    <div className={`map-section ${isExpanded ? 'expanded' : ''}`}>
+      <div className="map-handle" onClick={toggleMap} />
+      <animated.div
+        style={{
+          height,
+          opacity,
+          overflow: 'hidden'
+        }}
+      >
+        <div ref={mapRef} className="map-container" />
+      </animated.div>
       <div className="toggle-bar" onClick={toggleMap}>
         <span className="toggle-icon">▼</span>
         {isExpanded ? 'Collapse map' : 'Expand map'}
       </div>
-    </animated.div>
+    </div>
   );
 };
 

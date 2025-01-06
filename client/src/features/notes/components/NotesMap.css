@@ -90,56 +90,25 @@
 
 .map-section {
   width: 100%;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background-color: white;
   position: relative;
   margin-bottom: 32px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .map-container {
   width: 100%;
+  height: 100%;
   position: relative;
-  border-radius: 8px 8px 0 0;
   overflow: hidden;
-}
-
-.map-section .toggle-bar {
-  width: 100%;
-  height: 32px;
-  background: white;
-  padding: 4px 12px;
-  border-radius: 0 0 8px 8px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #666;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-top: none;
-  user-select: none;
-  position: relative;
-  z-index: 1000;
-}
-
-.map-section .toggle-bar:hover {
-  color: #333;
-  background: #f8f8f8;
-}
-
-.map-section .toggle-icon {
-  transition: transform 0.3s ease;
-  display: inline-block;
-  font-size: 10px;
-}
-
-.map-section.expanded .toggle-icon {
-  transform: rotate(180deg);
+  flex: 1;
+  min-height: 500px;
+  background-color: var(--gray-50);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .map-handle {
@@ -149,8 +118,8 @@
   right: 0;
   height: 24px;
   background-color: var(--gray-100);
-  border-top-left-radius: var(--radius-sm);
-  border-top-right-radius: var(--radius-sm);
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
   cursor: grab;
   z-index: 900;
   display: flex;
@@ -177,47 +146,81 @@
   background-color: var(--gray-200);
 }
 
+.toggle-bar {
+  width: 100%;
+  height: 32px;
+  background-color: var(--gray-100);
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid var(--gray-200);
+  border-top: none;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-bar:hover {
+  background-color: var(--gray-200);
+}
+
+.toggle-icon {
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.map-section.expanded .toggle-icon {
+  transform: rotate(180deg);
+}
+
 /* Leaflet Control Styles */
 .leaflet-control-geocoder {
-  background: var(--white);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-xs);
+  background: var(--white) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid var(--gray-200) !important;
+  margin-top: 40px !important;
+  margin-left: 10px !important;
+  width: 300px !important;
 }
 
 .leaflet-control-geocoder input {
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-sm);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: 14px;
-  width: 200px;
+  width: 100% !important;
+  padding: var(--spacing-sm) !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 0.9rem !important;
+  color: var(--gray-900) !important;
 }
 
-.leaflet-control-geocoder-expanded {
-  padding: var(--spacing-xs);
-  background: var(--white);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+.leaflet-control-geocoder input:focus {
+  outline: none !important;
 }
 
 .leaflet-control-geocoder-alternatives {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-top: var(--spacing-xs);
+  width: 100% !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  background: var(--white) !important;
+  border-top: 1px solid var(--gray-200) !important;
 }
 
 .leaflet-control-geocoder-alternatives li {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  cursor: pointer;
-  border-bottom: 1px solid var(--gray-100);
+  padding: var(--spacing-sm) !important;
+  cursor: pointer !important;
+  border-bottom: 1px solid var(--gray-100) !important;
 }
 
 .leaflet-control-geocoder-alternatives li:last-child {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .leaflet-control-geocoder-alternatives li:hover {
-  background-color: var(--gray-100);
+  background-color: var(--gray-50) !important;
 }
 
 /* Map controls */

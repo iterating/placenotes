@@ -109,9 +109,9 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
 
   return (
     <>
-      <div ref={mapRef} style={{ height: "100%", minHeight: "300px" }} />
-      <div className="radius-control">
-        <label htmlFor="radius">Radius (meters): {radius}m</label>
+      <div ref={mapRef} style={{ height: "100%", minHeight: "300px" }} className="mapmark-container" />
+      <div className="radius-slider-container">
+        <label htmlFor="radius">Radius:</label>
         <input
           type="range"
           id="radius"
@@ -122,6 +122,7 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
           onChange={(e) => onRadiusChange(Number(e.target.value))}
           className="radius-slider"
         />
+        <span className="radius-value">{radius}m</span>
       </div>
     </>
   );
