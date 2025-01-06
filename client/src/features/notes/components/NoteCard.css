@@ -54,7 +54,6 @@
 .note-body {
   color: var(--text-primary);
   margin-bottom: 0 !important;
-
 }
 
 .note-actions-ui, .button-group {
@@ -131,45 +130,4 @@ p {
   border-top: 1px solid var(--gray-200);
   gap: 0.5rem;
   display: flex;
-}
-
-/* Mobile styles */
-@media (max-width: 768px) {
-  .notecard {
-    margin: 0;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    box-shadow: none;
-    border-bottom: 1px solid var(--gray-200);
-  }
-
-  .toggle-bar {
-    height: 28px;
-  }
-
-  .note-preview {
-    padding: var(--spacing-xs) !important;
-  }
-
-  .note-actions-ui, 
-  .button-group {
-    padding: var(--spacing-xs);
-    gap: var(--spacing-xs);
-    margin-top: -24px;
-  }
-
-  .note-actions-ui button,
-  .button-group button {
-    flex: 1;
-    min-height: 32px;
-    padding: var(--spacing-xs);
-    font-size: 0.75rem;
-  }
-
-  .note-actions-ui button svg,
-  .button-group button svg {
-    width: 14px;
-    height: 14px;
-  }
 }

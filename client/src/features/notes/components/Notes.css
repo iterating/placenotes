@@ -45,31 +45,3 @@
   color: var(--text-secondary);
   font-size: 1rem;
 }
-
-/* Mobile styles */
-@media (max-width: 1024px) {
-  .content-wrapper {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-xs);
-    height: auto;
-    overflow: visible;
-  }
-}
-
-@media (max-width: 768px) {
-  .note-container {
-    padding: 0;
-  }
-
-  .notes-header {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .title {
-    font-size: 1.1rem;
-  }
-
-  .search-location-container {
-    gap: var(--spacing-xs);
-  }
-}

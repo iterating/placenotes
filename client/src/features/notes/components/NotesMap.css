@@ -200,21 +200,6 @@
   background-color: var(--gray-100);
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  .map-section {
-    position: relative;
-    height: 50vh;
-    min-height: 300px;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .map-container {
-    border-radius: 0;
-    height: 300px;
-  }
-}
-
 /* Map controls */
 .leaflet-control-geocoder {
   max-width: calc(100% - 20px);
@@ -262,19 +247,4 @@
   max-width: 300px;
   max-height: 300px;
   overflow-y: auto;
-}
-
-/* Mobile styles */
-@media (max-width: 768px) {
-  .map-section {
-    position: relative;
-    height: 50vh;
-    min-height: 300px;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .map-container {
-    border-radius: 0;
-    height: 300px;
-  }
 }

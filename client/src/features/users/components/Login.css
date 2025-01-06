@@ -55,12 +55,3 @@
 .login-form .btn-outline-primary {
   margin-bottom: 0;
 }
-
-/* Mobile styles */
-@media (max-width: 768px) {
-  .login-form {
-    margin: 60px var(--spacing-sm) 0;
-    padding: var(--spacing-md);
-    border-radius: var(--radius-sm);
-  }
-}
