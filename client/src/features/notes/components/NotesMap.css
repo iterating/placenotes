@@ -234,9 +234,15 @@
 }
 
 .leaflet-control-geocoder {
-  box-shadow: var(--shadow-md) !important;
-  border-radius: var(--radius-md) !important;
-  overflow: hidden;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 0.0625rem solid var(--gray-200);
+  margin: 0.75rem;
+  width: calc(75% - 1.5rem);
+  max-width: 15rem;
+  position: relative;
+  top: 20px;
 }
 
 .leaflet-control-geocoder input {
