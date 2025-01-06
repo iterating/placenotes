@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { deleteNote } from "../../../store/noteStoreAction";
 import { marked } from "marked";
-import { Link } from "react-router-dom";
 import "./NoteCard.css";
 
 const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false);
-  const { noteId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -25,9 +23,11 @@ const NoteCard = ({ note, markers }) => {
 
   return (
     <div className="notecard">
+      <div className="note-handle" onClick={() => setShowFullNote(!showFullNote)}>
+        <div className="handle-icon" />
+      </div>
       <div
         className="note-preview"
-        onClick={() => setShowFullNote(!showFullNote)}
         data-note-id={note._id}
         onMouseOver={() => {
           const markerElement = markers.current.find((marker) => {
@@ -70,7 +70,6 @@ const NoteCard = ({ note, markers }) => {
         >
           Edit
         </button>
-        <br />
         <button
           className="btn btn-outline-danger"
           onClick={handleDelete}
@@ -78,7 +77,6 @@ const NoteCard = ({ note, markers }) => {
         >
           Delete Note
         </button>
-
       </div>
     </div>
   );

@@ -4,16 +4,83 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease;
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+}
+
+.note-handle {
+  height: 24px;
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.note-handle:hover {
+  background: var(--gray-200);
+}
+
+.handle-icon {
+  width: 40px;
+  height: 4px;
+  background: var(--gray-300);
+  border-radius: 2px;
+}
+
+.note-handle:hover .handle-icon {
+  background: var(--gray-400);
 }
 
 .note-preview {
   font-size: 1rem;
   cursor: pointer;
   margin-bottom: 0.5rem;
+  padding: var(--spacing-md);
+}
+
+.note-body {
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
 .note-actions-ui {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+
+.btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--primary-color-dark);
+}
+
+.btn-outline-danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.btn-outline-danger:hover {
+  background: var(--danger-light);
 }
