@@ -6,6 +6,7 @@
   max-height: calc(100vh - 200px);
   overflow-y: auto;
   padding-right: var(--spacing-md);
+  text-align: left;
 }
 
 .notes-list {
@@ -14,6 +15,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  text-align: left;
 }
 
 .notecard {
@@ -31,12 +33,14 @@
   cursor: pointer;
   color: var(--text-primary);
   padding: var(--spacing-xs) 0;
+  text-align: left;
 }
 
 .note-actions {
   display: flex;
   gap: var(--spacing-xs);
   margin-top: var(--spacing-xs);
+  justify-content: flex-start;
 }
 
 /* Loading and empty states */
