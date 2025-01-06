@@ -1,5 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import './App.css';
+
 
 // Feature imports
 import Login from './features/users/components/Login';
