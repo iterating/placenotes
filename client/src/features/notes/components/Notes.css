@@ -8,6 +8,19 @@
   min-height: 100vh;
 }
 
+.map-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 500px;
+  width: 100%;
+}
+
+.notes-list {
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+}
+
 .notes-header {
   display: flex;
   justify-content: space-between;
@@ -34,7 +47,7 @@
   gap: var(--spacing-xs);
   align-items: start;
   height: calc(100vh - 60px);
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* Loading states */
