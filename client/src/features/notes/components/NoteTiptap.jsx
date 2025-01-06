@@ -159,7 +159,7 @@ const NoteTiptap = ({ content = '', onUpdate, editable = true }) => {
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2]
+          levels: [1, 2, 3, 4, 5, 6],
         },
         bulletList: true,
         orderedList: true,
@@ -172,7 +172,14 @@ const NoteTiptap = ({ content = '', onUpdate, editable = true }) => {
         code: true,
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: true,
+        HTMLAttributes: {
+          class: 'note-link',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+        protocols: ['http', 'https', 'mailto', 'tel'],
+        validate: href => /^https?:\/\//.test(href) || /^mailto:/.test(href) || /^tel:/.test(href),
       }),
       Image.configure({
         inline: true,

@@ -5,13 +5,12 @@
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  overflow: auto;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
   width: 100%;
+  height: calc(100vh - 200px);
   min-height: 200px;
-  max-height: 80vh;
+  overflow: hidden;
 }
 
 .editor {
@@ -21,14 +20,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: visible;
   width: 100%;
+  overflow: hidden;
 }
 
 .editor-menu {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 100;
   background: white;
   padding: 0.5rem;
   border-bottom: 1px solid #ddd;
@@ -55,6 +54,30 @@
   color: var(--text-primary);
 }
 
+.editor-menu button {
+  padding: 0.25rem 0.5rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editor-menu button:hover {
+  background-color: var(--gray-100);
+}
+
+.editor-menu button.is-active {
+  background-color: var(--gray-200);
+  border-color: var(--gray-300);
+}
+
 .ProseMirror {
   flex: 1;
   padding: 1rem;
@@ -67,6 +90,7 @@
   line-height: 1.3;
   color: var(--gray-900);
   text-align: left;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ProseMirror p {
@@ -208,26 +232,21 @@
   width: 100%;
 }
 
-.map-container {
-  flex: 1;
-  min-height: 300px;
-  position: relative;
-  z-index: 5;
-}
-
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .editor-container {
     padding: 0.25rem;
+    border: none;
     border-radius: 0;
-    margin: 0 -1rem;
-    width: calc(100% + 2rem);
+    margin: 0;
+    width: 100%;
+    height: calc(100vh - 150px);
+    position: relative;
   }
 
   .editor {
+    border: none;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
   }
 
   .editor-menu {
@@ -235,6 +254,10 @@
     justify-content: flex-start;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
   .editor-menu::-webkit-scrollbar {
@@ -242,23 +265,22 @@
   }
 
   .editor-menu button {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    padding: 0.25rem;
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+    font-size: 0.75rem;
   }
 
   .ProseMirror {
     padding: 0.5rem;
-    font-size: 16px; /* Prevent iOS zoom on input */
-    min-height: 120px;
+    font-size: 0.875rem;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-/* Ensure buttons are touchable on mobile */
-.editor-menu button {
-  min-width: 2rem;
-  min-height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: manipulation;
+@media (max-width: 480px) {
+  .editor-container {
+    height: calc(100vh - 120px);
+  }
 }

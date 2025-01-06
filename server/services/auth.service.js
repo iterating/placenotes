@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import { _id } from "../db/db.js";
 import mongoose from "mongoose";
 
-export const signup = async ({ email, password, ...userData }) => {
+export const signup = async ({ email, password, currentLocation, ...userData }) => {
   try {
     let errors = [];
     
@@ -23,6 +23,10 @@ export const signup = async ({ email, password, ...userData }) => {
       _id: new mongoose.Types.ObjectId(),
       email,
       password,
+      currentLocation: {
+        type: 'Point',
+        coordinates: currentLocation?.coordinates || [-118.243683, 34.052235]
+      },
       ...userData,
     });
 

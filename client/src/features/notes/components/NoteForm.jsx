@@ -75,14 +75,12 @@ const NoteForm = ({
             onUpdate={handleContentChange}
           />
         </div>
-        <div className="map-container">
           <Mapmark
             location={note?.location}
             onLocationChange={handleMapChange}
             onRadiusChange={handleRadiusChange}
             radius={note?.radius}
           />
-        </div>
         <div className="radius-slider-container">
           <label htmlFor="radius">Radius:</label>
           <input

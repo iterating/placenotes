@@ -27,7 +27,7 @@ export const generateToken = (user) => {
 export const signup = async (req, res) => {
   console.log("Signup request received:", req.body)
   try {
-    const { email, password, ...userData } = req.body
+    const { email, password, location, ...userData } = req.body
 
     if (!email || !password) {
       return res.status(400).json({
@@ -36,7 +36,18 @@ export const signup = async (req, res) => {
       })
     }
 
-    const result = await AuthService.signup({ email, password, ...userData })
+    // Ensure location has the correct structure
+    const currentLocation = {
+      type: 'Point',
+      coordinates: location?.coordinates || [-118.243683, 34.052235]
+    };
+
+    const result = await AuthService.signup({ 
+      email, 
+      password, 
+      currentLocation,
+      ...userData 
+    })
     
     if (result.errorMessage) {
       return res.status(400).json({

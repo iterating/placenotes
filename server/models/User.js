@@ -26,11 +26,20 @@ const userSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ["Point"],
+      required: true
     },
     coordinates: {
-      type: [Number, Number],
-      default: [-118.243683, 34.052235],
-    },
+      type: [Number],
+      required: true,
+      validate: {
+        validator: function(v) {
+          return v.length === 2 && 
+                 v[0] >= -180 && v[0] <= 180 && 
+                 v[1] >= -90 && v[1] <= 90;
+        },
+        message: "Coordinates must be [longitude, latitude] format"
+      }
+    }
   },
   createdAt: {
     type: Date,
@@ -59,7 +68,8 @@ const userSchema = new mongoose.Schema({
   }]
 })
 
-userSchema.index({ currentLocation: "2dsphere" })
+// Create a 2dsphere index on the currentLocation field
+userSchema.index({ currentLocation: "2dsphere" });
 
 userSchema.methods.encryptPassword = async function(password) {
   const salt = await bcrypt.genSalt(1)

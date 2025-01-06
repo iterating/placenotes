@@ -60,9 +60,30 @@ const NoteEdit = () => {
       setError(null);
 
       if (isEditMode) {
-        await dispatch(updateNote(updatedNote));
+        await dispatch(updateNote({
+          id: id,
+          noteData: {
+            ...updatedNote,
+            location: updatedNote.location || {
+              type: "Point",
+              coordinates: [-118.243683, 34.052235] // Default to LA coordinates if missing
+            },
+            radius: updatedNote.radius || 1000,
+            email: user.email,
+            userId: user._id
+          }
+        }));
       } else {
-        await dispatch(createNote(updatedNote));
+        await dispatch(createNote({
+          ...updatedNote,
+          location: updatedNote.location || {
+            type: "Point",
+            coordinates: [-118.243683, 34.052235]
+          },
+          radius: updatedNote.radius || 1000,
+          email: user.email,
+          userId: user._id
+        }));
       }
 
       navigate('/notes');
@@ -126,31 +147,6 @@ const NoteEdit = () => {
           <h1 className="edit-title">
             {isEditMode ? 'Edit Note' : 'Create New Note'}
           </h1>
-          <div className="edit-actions">
-            {isEditMode && (
-              <button
-                className="button button-danger"
-                onClick={handleDelete}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="loading-spinner" />
-                    Deleting...
-                  </>
-                ) : (
-                  'Delete Note'
-                )}
-              </button>
-            )}
-            <button
-              className="button button-secondary"
-              onClick={() => navigate('/notes')}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-          </div>
         </div>
 
         {error && <div className="error-message">{error}</div>}

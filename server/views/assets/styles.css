@@ -45,7 +45,8 @@ body {
 
 }
 .edit-note-form, .edit-container {
-  max-width: 850px;
+  max-width: 900px;
+  height: 80vh;
   text-wrap: pretty;
   margin: 0.5rem auto;
   padding: 0.5rem;
