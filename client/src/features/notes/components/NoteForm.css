@@ -105,7 +105,7 @@
 }
 
 .radius-slider::-webkit-slider-thumb:hover {
-  background: var(--primary-color-dark);
+  background: var(--primary-hover);
   transform: scale(1.1);
 }
 
@@ -121,7 +121,7 @@
 }
 
 .radius-slider::-moz-range-thumb:hover {
-  background: var(--primary-color-dark);
+  background: var(--primary-hover);
   transform: scale(1.1);
 }
 
@@ -159,8 +159,8 @@
 }
 
 .button-group button:hover {
-  background: var(--primary-color-dark);
-  border-color: var(--primary-color-dark);
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
   transform: translateY(-1px);
 }
 
@@ -172,8 +172,8 @@
 
 .button-group button.btn-secondary:hover {
   background: var(--gray-50);
-  color: var(--primary-color-dark);
-  border-color: var(--primary-color-dark);
+  color: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 .delete-container {
