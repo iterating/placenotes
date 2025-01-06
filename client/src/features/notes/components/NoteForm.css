@@ -9,7 +9,7 @@
   gap: var(--spacing-md);
   max-width: 1000px;
   margin: 0 auto;
-  padding: var(--spacing-md);
+  padding: var(--spacing-xl);
   height: 100vh;
   overflow: hidden;
 }
@@ -18,6 +18,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-lg);
   overflow: hidden;
   height: calc(100vh - 80px);
   max-width: none !important;
@@ -26,44 +27,132 @@
   box-shadow: none;
 }
 
-.form-buttons {
+.editor-container {
+  flex: 0.4;
+  min-height: 200px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+}
+
+.map-container {
+  flex: 1;
+  min-height: 300px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.radius-slider-container {
   display: flex;
+  align-items: center;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--gray-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+}
+
+.radius-slider-container label {
+  font-weight: 500;
+  color: var(--gray-700);
+  min-width: 60px;
+}
+
+.radius-slider {
+  flex: 1;
+  appearance: none;
+  height: 4px;
+  background: var(--gray-200);
+  border-radius: 2px;
+  outline: none;
+}
+
+.radius-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.radius-slider::-webkit-slider-thumb:hover {
+  background: var(--primary-color-dark);
+  transform: scale(1.1);
+}
+
+.radius-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.radius-slider::-moz-range-thumb:hover {
+  background: var(--primary-color-dark);
+  transform: scale(1.1);
+}
+
+.radius-value {
+  min-width: 70px;
+  text-align: right;
+  color: var(--gray-700);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
 }
 
 .button-group {
   display: flex;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-  justify-content: flex-start;
+  padding: var(--spacing-md) 0;
+  justify-content: flex-end;
+  border-top: 1px solid var(--gray-200);
 }
 
 .button-group button {
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-xl);
   border-radius: var(--radius-md);
   border: 1px solid var(--primary-color);
   background: var(--primary-color);
   color: var(--white);
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 500;
   transition: all 0.2s ease;
-  min-width: 100px;
+  min-width: 120px;
 }
 
 .button-group button:hover {
   background: var(--primary-color-dark);
   border-color: var(--primary-color-dark);
+  transform: translateY(-1px);
 }
 
-.button-group button.secondary {
+.button-group button.btn-secondary {
   background: var(--white);
   color: var(--primary-color);
   border: 1px solid var(--primary-color);
 }
 
-.button-group button.secondary:hover {
-  background: var(--primary-color-light);
+.button-group button.btn-secondary:hover {
+  background: var(--gray-50);
+  color: var(--primary-color-dark);
+  border-color: var(--primary-color-dark);
 }
 
 .delete-container {
@@ -73,21 +162,23 @@
   border-top: 1px solid var(--gray-200);
 }
 
-.delete-button {
-  padding: var(--spacing-md);
+.btn-danger {
+  padding: var(--spacing-md) var(--spacing-xl);
   border-radius: var(--radius-md);
   border: 1px solid var(--error-border);
   background: var(--white);
   color: var(--error-text);
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 500;
   transition: all 0.2s ease;
-  min-width: 100px;
+  min-width: 120px;
 }
 
-.delete-button:hover {
+.btn-danger:hover {
   background: var(--error-background);
   color: var(--white);
+  transform: translateY(-1px);
 }
 
 .error-message {
@@ -99,91 +190,53 @@
   border: 1px solid var(--error-border);
 }
 
-.radius-slider-container {
+@media (max-width: 768px) {
+  .edit-note-form {
+    padding: var(--spacing-md);
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+
+  .radius-slider-container {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .radius-slider-container label {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .radius-value {
+    text-align: center;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+.form-buttons {
   display: flex;
-  align-items: center;
   gap: var(--spacing-md);
-  margin: var(--spacing-xl) 0;
-  padding: var(--spacing-md);
-  background-color: var(--gray-50);
-  border-radius: var(--radius-md);
-}
-
-.radius-slider {
-  flex: 1;
-  appearance: none;
-  height: 4px;
-  background: var(--primary-color-light);
-  border-radius: 2px;
-  outline: none;
-}
-
-.radius-slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  background: var(--primary-color);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.radius-slider::-webkit-slider-thumb:hover {
-  background: var(--primary-color-dark);
-}
-
-.radius-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: var(--primary-color);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.radius-slider::-moz-range-thumb:hover {
-  background: var(--primary-color-dark);
-}
-
-.radius-value {
-  min-width: 60px;
-  text-align: right;
-  color: var(--gray-700);
-  font-size: 0.9rem;
-}
-
-.map-container {
-  flex: 1;
-  min-height: 300px;
-  margin: var(--spacing-md) 0;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--gray-200);
-  box-shadow: var(--shadow-sm);
+  margin-top: var(--spacing-md);
 }
 
 .mapmark-container {
   flex: 1;
   min-height: 300px;
-  margin: var(--spacing-md) 0;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--gray-200);
   box-shadow: var(--shadow-sm);
 }
 
-@media (max-width: 768px) {
-  .edit-container {
-    padding: var(--spacing-md);
-  }
-
-  .form-buttons {
-    flex-direction: column;
-  }
-
-  .submit-button,
-  .cancel-button {
-    width: 100%;
-  }
+.mapmark-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }

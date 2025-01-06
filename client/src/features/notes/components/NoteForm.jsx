@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import NoteTiptap from "./NoteTiptap";
 import Mapmark from "./Mapmark";
 import "./Notes.css";
+import "./NoteForm.css";
 
 const NoteForm = ({ 
   note: initialNote, 
@@ -83,6 +84,20 @@ const NoteForm = ({
             onRadiusChange={handleRadiusChange}
             radius={note?.radius}
           />
+        </div>
+        <div className="radius-slider-container">
+          <label htmlFor="radius">Radius:</label>
+          <input
+            type="range"
+            id="radius"
+            min="50"
+            max="5000"
+            step="50"
+            value={note?.radius || 100}
+            onChange={(e) => handleRadiusChange(Number(e.target.value))}
+            className="radius-slider"
+          />
+          <span className="radius-value">{note?.radius || 100}m</span>
         </div>
         <div className="button-group">
           <button 
