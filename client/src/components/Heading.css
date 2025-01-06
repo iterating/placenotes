@@ -2,7 +2,7 @@
   width: 100%;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1100;
 }
 
 .app-header {
@@ -11,11 +11,8 @@
   padding: var(--spacing-sm) var(--spacing-md);
   background-color: var(--white);
   box-shadow: var(--shadow-sm);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+  position: relative;
+  z-index: 1100;
   height: 40px;
 }
 
@@ -84,7 +81,7 @@
 
 /* Drawer styles */
 .drawer {
-  height: 100%;
+  height: 100vh;
   width: 250px;
   position: fixed;
   top: 0;
@@ -92,8 +89,8 @@
   background-color: var(--white);
   box-shadow: var(--shadow-md);
   transition: left 0.3s ease;
-  padding-top: 60px;
-  z-index: 1000;
+  z-index: 1090;
+  padding-top: 40px;
 }
 
 .drawer.open {
@@ -123,7 +120,7 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: 900;
+  z-index: 1080;
 }
 
 .overlay.open {
@@ -133,9 +130,9 @@
 
 /* Content transition */
 #content {
-  margin-top: 64px;
+  margin-top: 40px;
   transition: margin-left 0.3s ease;
-  min-height: 100vh;
+  min-height: calc(100vh - 40px);
   padding: var(--spacing-lg);
 }
 
@@ -164,5 +161,18 @@
   .drawer-icon,
   .btn-sm {
     padding: var(--spacing-xs);
+  }
+  
+  #content.drawer-open {
+    margin-left: 0;
+  }
+  
+  .drawer {
+    width: 100%;
+    left: -100%;
+  }
+  
+  .drawer.open {
+    left: 0;
   }
 }
