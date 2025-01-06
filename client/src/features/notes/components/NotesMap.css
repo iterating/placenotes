@@ -90,19 +90,75 @@
 
 .map-section {
   position: sticky;
+  top: 0;
+  width: 100%;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  background: white;
+}
+
+.map-section.expanded {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.map-section.collapsed {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.map-toggle {
+  position: absolute;
   bottom: 0;
-  z-index: 10;
-  background: var(--white);
-  padding: var(--spacing-xs);
-  border-top: 1px solid var(--gray-200);
-  touch-action: none;
-  user-select: none;
-  transition: height 0.3s ease;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  cursor: pointer;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.map-toggle:hover {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.toggle-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.toggle-handle:hover {
+  color: #333;
+}
+
+.toggle-icon {
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.expanded .toggle-icon {
+  transform: translateY(1px);
+}
+
+.collapsed .toggle-icon {
+  transform: translateY(-1px);
 }
 
 .map-container {
-  height: calc(100% - 24px); /* Adjust for handle height */
-  margin-top: 24px; /* Space for handle */
+  width: 100%;
+  height: calc(100% - 32px);
+  margin-top: 24px;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-sm);
   overflow: hidden;

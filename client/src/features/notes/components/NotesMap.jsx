@@ -25,15 +25,25 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapInstance = useRef(null);
   const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation")) || null;
   const [isExpanded, setIsExpanded] = useState(true);
-  const [{ height }, api] = useSpring(() => ({ 
-    height: isExpanded ? "400px" : "100px"
+  const [{ height, opacity }, api] = useSpring(() => ({ 
+    height: isExpanded ? "500px" : "200px",
+    opacity: 1,
+    config: { tension: 300, friction: 20 }
   }));
 
   const toggleMap = () => {
     setIsExpanded(!isExpanded);
     api.start({ 
-      height: !isExpanded ? "500px" : "200px"
+      height: !isExpanded ? "500px" : "200px",
+      opacity: !isExpanded ? 1 : 0.8,
     });
+    
+    // Ensure map redraws correctly after resize
+    setTimeout(() => {
+      if (mapInstance.current) {
+        mapInstance.current.invalidateSize();
+      }
+    }, 400);
   };
 
   useEffect(() => {
@@ -128,9 +138,15 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation]);
 
   return (
-    <animated.div className="map-section" style={{ height }}>
-      <div className="map-handle" onClick={toggleMap}>
-        <div className="handle-icon" />
+    <animated.div 
+      className={`map-section ${isExpanded ? 'expanded' : 'collapsed'}`} 
+      style={{ height, opacity }}
+    >
+      <div className="map-toggle" onClick={toggleMap}>
+        <div className="toggle-handle">
+          <span className="toggle-icon">{isExpanded ? '▼' : '▲'}</span>
+          <span className="toggle-text">{isExpanded ? 'Minimize Map' : 'Expand Map'}</span>
+        </div>
       </div>
       <div ref={mapRef} className="map-container" />
     </animated.div>
