@@ -1,3 +1,8 @@
+:root {
+  --map-height-expanded: 500px;
+  --map-height-collapsed: 200px;
+}
+
 .map-marker {
   display: flex;
   align-items: center;
@@ -94,7 +99,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background-color: white;
   position: relative;
-  margin-bottom: 32px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -106,14 +110,20 @@
   position: relative;
   overflow: hidden;
   flex: 1;
-  min-height: 500px;
+  min-height: var(--map-height-expanded);
   background-color: var(--gray-50);
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .map-container.collapsed {
-  min-height: 200px;
+  min-height: var(--map-height-collapsed);
+}
+
+.map-container .leaflet-container {
+  height: 100%;
+  min-height: inherit;
+  transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .map-handle {
@@ -275,12 +285,16 @@
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
+  :root {
+    --map-height-expanded: 400px;
+    --map-height-collapsed: 150px;
+  }
   .map-container {
-    min-height: 400px;
+    min-height: var(--map-height-expanded);
   }
 
   .map-container.collapsed {
-    min-height: 150px;
+    min-height: var(--map-height-collapsed);
   }
 
   .map-handle {
@@ -315,11 +329,15 @@
 }
 
 @media (max-width: 480px) {
+  :root {
+    --map-height-expanded: 300px;
+    --map-height-collapsed: 120px;
+  }
   .map-container {
-    min-height: 300px;
+    min-height: var(--map-height-expanded);
   }
 
   .map-container.collapsed {
-    min-height: 120px;
+    min-height: var(--map-height-collapsed);
   }
 }

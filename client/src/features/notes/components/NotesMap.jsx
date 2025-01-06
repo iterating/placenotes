@@ -4,10 +4,12 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useSpring, animated } from "@react-spring/web";
+import { useSelector, useDispatch } from "react-redux";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import './NotesMap.css';
 import './ToggleBar.css';
+import { toggleMapExpanded } from "../../../store/noteSlice.jsx";
 
 // Set up default icon
 let DefaultIcon = L.icon({
@@ -24,18 +26,20 @@ L.Marker.prototype.options.icon = DefaultIcon;
 const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+  const dispatch = useDispatch();
   const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation")) || null;
-  const [isExpanded, setIsExpanded] = useState(true);
+  const isExpanded = useSelector(state => state.notes.isMapExpanded);
+  
   const [{ height, opacity }, api] = useSpring(() => ({ 
-    height: isExpanded ? "500px" : "200px",
+    height: isExpanded ? 'var(--map-height-expanded)' : 'var(--map-height-collapsed)',
     opacity: 1,
     config: { tension: 300, friction: 20 }
   }));
 
   const toggleMap = () => {
-    setIsExpanded(!isExpanded);
+    dispatch(toggleMapExpanded());
     api.start({ 
-      height: !isExpanded ? "500px" : "200px",
+      height: !isExpanded ? 'var(--map-height-expanded)' : 'var(--map-height-collapsed)',
       opacity: !isExpanded ? 1 : 0.8,
     });
     

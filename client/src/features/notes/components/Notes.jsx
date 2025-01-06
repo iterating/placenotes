@@ -20,6 +20,7 @@ const Notes = () => {
   const markers = useRef([]);
   const [isLocationFiltered, setIsLocationFiltered] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const isMapExpanded = useSelector(state => state.notes.isMapExpanded);
   
   const notes = useSelector(selectAllNotes);
   const status = useSelector(selectNoteStatus);
@@ -125,8 +126,7 @@ const Notes = () => {
 
   return (
     <div className="note-container">
-
-      <div className="map-container" id="map-container-home">
+      <div className={`map-container ${!isMapExpanded ? 'collapsed' : ''}`} id="map-container-home">
         <NotesMap
           notes={notes}
           currentLocation={currentLocation}

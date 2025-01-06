@@ -14,6 +14,7 @@ const initialState = {
   location: null,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
+  isMapExpanded: true,
 };
 
 const noteSlice = createSlice({
@@ -35,6 +36,9 @@ const noteSlice = createSlice({
     },
     setLocation: (state, action) => {
       state.location = action.payload;
+    },
+    toggleMapExpanded: (state) => {
+      state.isMapExpanded = !state.isMapExpanded;
     }
   },
   extraReducers: (builder) => {
@@ -115,7 +119,12 @@ const noteSlice = createSlice({
 });
 
 // Export actions
-export const { clearNotes, setNoteVisibility, setLocation } = noteSlice.actions;
+export const { 
+  clearNotes, 
+  setNoteVisibility, 
+  setLocation, 
+  toggleMapExpanded 
+} = noteSlice.actions;
 
 // Selectors
 export const selectAllNotes = (state) => state.notes.notes;
