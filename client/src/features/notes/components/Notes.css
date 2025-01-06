@@ -10,9 +10,10 @@
 
 #map-container-home {
   position: sticky;
-  top: 0;
+  top: 80px;
   z-index: 1000;
   width: 100%;
+  margin-top: var(--spacing-xl);
 }
 
 .notes-list {
