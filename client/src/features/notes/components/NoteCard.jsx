@@ -10,6 +10,25 @@ const NoteCard = ({ note, markers }) => {
   const [showFullNote, setShowFullNote] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const noteScrollRef = React.useRef(null);
+
+  const handleToggle = () => {
+    if (noteScrollRef.current) {
+      const rect = noteScrollRef.current.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const noteTop = rect.top + scrollTop;
+      
+      setShowFullNote(!showFullNote);
+      
+      // Use requestAnimationFrame to wait for the DOM update
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: noteTop,
+          behavior: 'instant'
+        });
+      });
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -23,8 +42,8 @@ const NoteCard = ({ note, markers }) => {
   };
 
   return (
-    <div className="notecard">
-      <div className="toggle-bar" onClick={() => setShowFullNote(!showFullNote)}>
+    <div className="notecard" ref={noteScrollRef}>
+      <div className="toggle-bar" onClick={handleToggle}>
         <div className="toggle-handle">
           <span className="toggle-icon">{showFullNote ? '▼' : '▲'}</span>
           <span className="toggle-text">{showFullNote ? 'Minimize Note' : 'Expand Note'}</span>
@@ -33,7 +52,7 @@ const NoteCard = ({ note, markers }) => {
       <div
         className={`note-preview ${showFullNote ? 'expanded' : ''}`}
         data-note-id={note._id}
-        onClick={() => setShowFullNote(!showFullNote)}
+        onClick={handleToggle}
         onMouseOver={() => {
           const markerElement = markers.current.find((marker) => {
             const popupContent = marker.getPopup()?.getContent();
