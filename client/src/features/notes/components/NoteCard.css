@@ -7,6 +7,8 @@
   overflow: hidden;
   position: relative;
   transition: transform 0.2s ease;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Toggle Bar */
@@ -18,6 +20,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 2;
 }
 
 .notecard .toggle-handle {
@@ -35,11 +39,30 @@
 
 /* Note Preview */
 .note-preview {
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   margin: 0;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
   overflow: hidden;
+  position: relative;
+  max-height: 5em; /* Show roughly one line by default */
+  width: 100%;
+}
+
+.note-preview.expanded {
+  max-height: none;
+  padding-bottom: 1rem;
+}
+
+.note-preview:not(.expanded)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.5em;
+  background: linear-gradient(transparent, var(--white));
+  pointer-events: none;
 }
 
 .note-preview:hover {
@@ -49,14 +72,73 @@
 .note-body {
   color: var(--text-primary);
   margin: 0;
-  padding: var(--spacing-md);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 1;
-  text-align: left;
+  padding: 0.75rem;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .note-body p {
   text-align: left;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.note-body ul, 
+.note-body ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.note-body li {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+}
+
+.note-body code {
+  font-family: monospace;
+  font-size: 0.9rem;
+  background: var(--gray-50);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+.note-body blockquote {
+  border-left: 3px solid var(--gray-300);
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.note-body h1 {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.note-body h2 {
+  font-size: 1.25rem;
+  margin: 0.5rem 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.note-body h3 {
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.note-preview .note-body > *:first-child {
+  margin-top: 0;
+}
+
+.note-preview .note-body > *:last-child {
+  margin-bottom: 0;
 }
 
 .note-preview:not(.expanded) .note-body {
@@ -168,4 +250,30 @@
 
 .note-handle:hover .handle-icon {
   background: var(--gray-400);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .notecard {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0 -1rem;
+    width: calc(100% + 2rem);
+  }
+
+  .note-body {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .note-body img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Adjust list padding on mobile */
+  .note-body ul,
+  .note-body ol {
+    padding-left: 1.25rem;
+  }
 }

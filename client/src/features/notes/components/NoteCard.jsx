@@ -20,13 +20,15 @@ const NoteCard = ({ note, markers }) => {
       
       setShowFullNote(!showFullNote);
       
-      // Use requestAnimationFrame to wait for the DOM update
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: noteTop,
-          behavior: 'instant'
+      // Only scroll if we're expanding and the note is not fully visible
+      if (!showFullNote && rect.top < 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: noteTop,
+            behavior: 'smooth'
+          });
         });
-      });
+      }
     }
   };
 
