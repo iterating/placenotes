@@ -33,13 +33,15 @@ const NoteCard = ({ note, markers }) => {
   };
 
   const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this note?')) {
+      return;
+    }
+
     try {
-      const result = await dispatch(deleteNote({ id: note._id })).unwrap();
-      if (result) {
-        navigate("/notes");
-      }
+      await dispatch(deleteNote(note._id)).unwrap();
+      navigate("/notes");
     } catch (error) {
-      console.error("Error deleting note", error);
+      console.error("Error deleting note:", error);
     }
   };
 
