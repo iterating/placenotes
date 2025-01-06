@@ -2,7 +2,7 @@ Imagine this:
 
 Your daughter is about to walk into her dream job interview at a towering office building in downtown Seattle. As she approaches the entrance, her phone buzzes with a note you left just for this moment:
 
-"You've got this, sweetheart! You're not just qualified for this role; you're the perfect fit. Remember how you led that project at your last job? That's exactly what they're looking for. Take a deep breath, stand tall, and show them the incredible person I see every day. I'm so proud of you! 💖 - Mom"
+"You've got this, sweetheart! You're not just qualified for this role; you're the perfect fit. Remember how you led that project at your last job? That's exactly what they're looking for. Take a deep breath, stand tall, and show them the incredible person I see every day. I'm so proud of you! 💖 - Lilly"
 
 ---
 
