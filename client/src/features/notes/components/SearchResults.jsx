@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import apiClient from '../../../api/apiClient';
+import {apiClient} from '../../../api/apiClient';
 import './SearchResults.css';
 
 const SearchResults = () => {

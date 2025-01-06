@@ -5,12 +5,7 @@ import './App.css';
 import { SERVER } from './app/config';
 import { getToken } from './lib/tokenManager';
 import { setToken, setUser } from './store/authSlice';
-import apiClient from './api/apiClient';
-
-//auth persist
-import { PersistGate } from 'redux-persist/integration/react';
-import { persistor } from './store/store';
-
+import {apiClient} from './api/apiClient';
 
 // Feature imports
 import Login from './features/users/components/Login';
@@ -28,23 +23,16 @@ function App() {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          dispatch(setToken(token));
-          const response = await apiClient.get('/users/account');
-          
-          if (response.data) {
-            dispatch(setUser(response.data));
-          } else {
-            dispatch(setToken(null));
-            localStorage.removeItem('token');
-          }
-        } catch (error) {
-          console.error('Error initializing auth:', error);
+      try {
+        const response = await apiClient.get('/users/account');
+        if (response.data) {
+          dispatch(setUser(response.data));
+        } else {
           dispatch(setToken(null));
-          localStorage.removeItem('token');
         }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        dispatch(setToken(null));
       }
     };
 
@@ -52,9 +40,6 @@ function App() {
   }, [dispatch]);
 
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-
     <div className="app-container">
       <Heading />
       <div id="content" className="content-container">
@@ -93,8 +78,6 @@ function App() {
         </Routes>
       </div>
     </div>
-    </PersistGate>
-    </Provider>
   );
 }
 

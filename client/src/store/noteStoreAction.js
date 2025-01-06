@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { SERVER } from '../app/config';
-import apiClient from '../api/apiClient';
+import {apiClient} from '../api/apiClient';
 import { setLocation } from './noteSlice';
 
 // Select token from state
@@ -86,6 +86,7 @@ export const createNote = createAsyncThunk(
       // Ensure note data matches schema
       const formattedData = {
         userId,
+        email: noteData.email, // Add email field
         body: noteData.body.trim(),
         location: validateLocation(noteData.location),
         radius: Number(noteData.radius) || 1000,
@@ -101,7 +102,6 @@ export const createNote = createAsyncThunk(
     }
   }
 );
-
 // Update an existing note
 export const updateNote = createAsyncThunk(
   'notes/updateNote',

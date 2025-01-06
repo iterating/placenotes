@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { SERVER } from '../app/config';
+import store from '../store/store';
 
 const apiClient = axios.create({
   baseURL: SERVER,
@@ -11,7 +12,7 @@ let pendingRequests = [];
 // Add a request interceptor to add the token to all requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = store.getState().auth.token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -48,11 +49,6 @@ apiClient.interceptors.response.use(
       );
     }
 
-    if (error.response?.status === 401) {
-      // Clear token on unauthorized
-      localStorage.removeItem('token');
-    }
-
     return Promise.reject(error);
   }
 );
@@ -65,4 +61,4 @@ export const cancelPendingRequests = () => {
   pendingRequests = [];
 };
 
-export default apiClient;
+export { apiClient };

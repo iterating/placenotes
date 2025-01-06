@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setToken, setUser } from '../../../store/authSlice';
-import apiClient from '../../../api/apiClient';
+import { setToken, setUser, setCredentials } from '../../../store/authSlice';
+import {apiClient} from '../../../api/apiClient';
 import { Link } from 'react-router-dom';
 import './Login.css';
 
@@ -29,9 +29,10 @@ const Login = () => {
       });
 
       if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        dispatch(setToken(response.data.token));
-        dispatch(setUser(response.data.user));
+        dispatch(setCredentials({
+          token: response.data.token,
+          user: response.data.user
+        }));
         navigate('/notes');
       }
     } catch (error) {

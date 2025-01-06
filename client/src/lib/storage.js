@@ -1,10 +1,2 @@
-import { Platform } from 'react-native';
-
-let storage;
-if (Platform.OS === 'web') {
-  storage = require('redux-persist/lib/storage').default;
-} else {
-  storage = require('@react-native-async-storage/async-storage').default;
-}
-
+import storage from 'redux-persist/lib/storage';
 export default storage;
