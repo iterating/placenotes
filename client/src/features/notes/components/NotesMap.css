@@ -92,6 +92,7 @@
   position: sticky;
   top: 0;
   width: 100%;
+  height: calc(100vh - 60px);
   border-radius: 0 0 8px 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -202,13 +203,15 @@
 /* Responsive styles */
 @media (max-width: 768px) {
   .map-section {
+    position: relative;
     height: 50vh;
-    min-height: 100px;
-    max-height: 400px;
+    min-height: 300px;
+    margin-bottom: var(--spacing-md);
   }
 
-  .leaflet-control-geocoder input {
-    width: 150px;
+  .map-container {
+    border-radius: 0;
+    height: 300px;
   }
 }
 

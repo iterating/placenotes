@@ -33,6 +33,8 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--spacing-xs);
   align-items: start;
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 /* Loading states */
@@ -49,6 +51,8 @@
   .content-wrapper {
     grid-template-columns: 1fr;
     gap: var(--spacing-xs);
+    height: auto;
+    overflow: visible;
   }
 }
 

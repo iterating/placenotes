@@ -5,6 +5,7 @@ import { loginSuccess } from '../../../store/authSlice';
 import axios from 'axios';
 import { SERVER } from '../../../app/config';
 import { Link } from 'react-router-dom';
+import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Login = () => {
   };
 
   return (
-    <div id="form" className="form">
+    <div id="form" className="login-form">
       <h1 className="title">Login</h1>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
