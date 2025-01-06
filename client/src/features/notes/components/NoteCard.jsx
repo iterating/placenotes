@@ -31,7 +31,7 @@ const NoteCard = ({ note, markers }) => {
         </div>
       </div>
       <div
-        className="note-preview"
+        className={`note-preview ${showFullNote ? 'expanded' : ''}`}
         data-note-id={note._id}
         onClick={() => setShowFullNote(!showFullNote)}
         onMouseOver={() => {

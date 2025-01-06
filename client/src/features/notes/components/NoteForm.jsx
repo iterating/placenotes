@@ -66,7 +66,7 @@ const NoteForm = ({
 
   return (
     <div className="edit-note-form">
-      <h1 style={{ textAlign: 'center' }}>
+      <h1 className="form-title">
         {initialNote?._id ? 'Edit Note' : 'Create New Note'}
       </h1>
       <form onSubmit={handleSubmit} className="note-form">

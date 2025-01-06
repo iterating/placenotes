@@ -48,7 +48,11 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
 
       const geocoder = L.Control.Geocoder.nominatim();
-      const geocoderControl = L.Control.geocoder({ geocoder })
+      const geocoderControl = L.Control.geocoder({ 
+        geocoder,
+        position: 'topright',
+        placeholder: 'Search location...'
+      })
         .on("markgeocode", (e) => {
           const latlng = e.geocode.center;
           updateLocation(latlng.lat, latlng.lng);

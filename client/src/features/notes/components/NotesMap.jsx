@@ -69,7 +69,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         placeholder: 'Search location...',
         collapsed: false,
         showResultIcons: false,
-        position: 'topleft',
+        position: 'topright',
         expand: 'click',
         iconLabel: 'Search location'
       }).addTo(mapInstance.current);
