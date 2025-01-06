@@ -1,0 +1,93 @@
+/* Notes List */
+.notes-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: var(--spacing-md);
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.notecard {
+  background: var(--white);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease;
+  margin-bottom: var(--spacing-xs);
+}
+
+.note-preview {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: var(--spacing-xs) 0;
+}
+
+.note-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+/* Loading and empty states */
+.loading,
+.no-notes {
+  text-align: center;
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Scrollbar */
+.notes-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notes-container::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+}
+
+.notes-container::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: var(--radius-md);
+}
+
+/* Button styles */
+.button {
+  padding: var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-color);
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.button-group {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.button-group > button {
+  font-size: 0.875rem;
+  padding: var(--spacing-xs);
+}
+
+.note-actions-ui {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}

@@ -263,6 +263,6 @@
 }
 
 .content {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xs);
   transition: margin-left 0.3s ease;
 }

@@ -125,21 +125,7 @@ const Notes = () => {
 
   return (
     <div className="note-container">
-      <div className="notes-header">
-        <h1 className="title">Your Notes</h1>
-        <div className="toggle-container">
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={isLocationFiltered}
-              onChange={handleLocationFilter}
-              disabled={!currentLocation}
-            />
-            <span className="toggle-slider"></span>
-          </label>
-          <span className="toggle-label">Show Nearby Notes</span>
-        </div>
-      </div>
+
       <div className="map-container" id="map-container-home">
         <NotesMap
           notes={notes}
