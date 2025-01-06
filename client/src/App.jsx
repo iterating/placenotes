@@ -7,6 +7,11 @@ import { getToken } from './lib/tokenManager';
 import { setToken, setUser } from './store/authSlice';
 import apiClient from './api/apiClient';
 
+//auth persist
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor } from './store/store';
+
+
 // Feature imports
 import Login from './features/users/components/Login';
 import Signup from './features/users/components/Signup';
@@ -47,6 +52,9 @@ function App() {
   }, [dispatch]);
 
   return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+
     <div className="app-container">
       <Heading />
       <div id="content" className="content-container">
@@ -85,6 +93,8 @@ function App() {
         </Routes>
       </div>
     </div>
+    </PersistGate>
+    </Provider>
   );
 }
 

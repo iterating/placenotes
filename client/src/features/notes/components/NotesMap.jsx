@@ -9,7 +9,7 @@ import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import './NotesMap.css';
 import './ToggleBar.css';
-import { toggleMapExpanded } from "../../../store/noteSlice.jsx";
+import { toggleMapExpanded } from "../../../store/noteSlice.js";
 
 // Set up default icon
 let DefaultIcon = L.icon({

@@ -1,13 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { setToken as setTokenInManager, getToken } from '../lib/tokenManager';
-
-// Get initial token from localStorage
-const storedToken = localStorage.getItem('token');
 
 const initialState = {
-  token: storedToken,
+  token: null,
   user: null,
-  isAuthenticated: Boolean(storedToken),
+  isAuthenticated: false,
   notes: [],
   loading: false,
   error: null
@@ -17,16 +13,11 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setToken(state, action) {
-      const token = action.payload;
+    setCredentials: (state, { payload: { token, user } }) => {
       state.token = token;
+      state.user = user;
       state.isAuthenticated = Boolean(token);
-      
-      if (token) {
-        localStorage.setItem('token', token);
-      } else {
-        localStorage.removeItem('token');
-      }
+      state.error = null;
     },
     setUser(state, action) {
       state.user = action.payload;
@@ -46,7 +37,6 @@ const authSlice = createSlice({
       state.user = user;
       state.token = token;
       state.error = null;
-      localStorage.setItem('token', token);
     },
     loginFailure(state, action) {
       state.loading = false;
@@ -55,7 +45,6 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.notes = [];
-      localStorage.removeItem('token');
     },
     logout(state) {
       state.token = null;
@@ -64,13 +53,12 @@ const authSlice = createSlice({
       state.notes = [];
       state.loading = false;
       state.error = null;
-      localStorage.removeItem('token');
     }
   }
 });
 
 export const { 
-  setToken, 
+  setCredentials,
   setUser, 
   setNotes,
   loginStart,
