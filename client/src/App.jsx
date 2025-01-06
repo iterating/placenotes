@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import './App.css';
-
+import { SERVER } from './app/config';
+import { getToken } from './lib/tokenManager';
+import { setToken, setUser } from './store/authSlice';
+import apiClient from './api/apiClient';
 
 // Feature imports
 import Login from './features/users/components/Login';
@@ -15,6 +19,33 @@ import RequireAuth from './components/auth/RequireAuth';
 import Home from './components/Home';
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          dispatch(setToken(token));
+          const response = await apiClient.get('/users/account');
+          
+          if (response.data) {
+            dispatch(setUser(response.data));
+          } else {
+            dispatch(setToken(null));
+            localStorage.removeItem('token');
+          }
+        } catch (error) {
+          console.error('Error initializing auth:', error);
+          dispatch(setToken(null));
+          localStorage.removeItem('token');
+        }
+      }
+    };
+
+    initAuth();
+  }, [dispatch]);
+
   return (
     <div className="app-container">
       <Heading />

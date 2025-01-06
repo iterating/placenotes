@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../../store/authSlice';
-import axios from 'axios';
-import { SERVER } from '../../../app/config';
+import { setToken, setUser } from '../../../store/authSlice';
+import apiClient from '../../../api/apiClient';
 import { Link } from 'react-router-dom';
 import './Login.css';
 
@@ -24,16 +23,15 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(`${SERVER}/users/login`, {
+      const response = await apiClient.post('/users/login', {
         email,
         password,
       });
 
       if (response.data?.token) {
-        dispatch(loginSuccess({
-          token: response.data.token,
-          user: response.data.user
-        }));
+        localStorage.setItem('token', response.data.token);
+        dispatch(setToken(response.data.token));
+        dispatch(setUser(response.data.user));
         navigate('/notes');
       }
     } catch (error) {
@@ -50,28 +48,28 @@ const Login = () => {
         <label htmlFor="email">Email</label>
         <input
           type="email"
-          name="email"
           id="email"
-          autoComplete="username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="form-input"
         />
+
         <label htmlFor="password">Password</label>
         <input
           type="password"
-          name="password"
           id="password"
-          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="form-input"
         />
-        <button type="submit" className="btn btn-primary">Login</button>
-        <Link to="/users/signup" className="btn btn-outline-primary">Sign Up For Account</Link>
+
+        <button type="submit" className="btn btn-primary">
+          Login
+        </button>
       </form>
+      <p>
+        Don't have an account? <Link to="/users/signup">Sign up</Link>
+      </p>
     </div>
   );
 };

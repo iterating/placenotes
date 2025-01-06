@@ -35,9 +35,14 @@ export const setCurrentLocation = (location) => (dispatch) => {
 // Fetch all notes for the current user
 export const fetchUsersNotes = createAsyncThunk(
   'notes/fetchUsersNotes',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const response = await apiClient.get('/notes');
+      const token = selectToken(getState());
+      const response = await apiClient.get('/notes', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching notes:', error);
@@ -49,20 +54,24 @@ export const fetchUsersNotes = createAsyncThunk(
 // Fetch notes by location
 export const fetchNotesByLocation = createAsyncThunk(
   'notes/fetchNotesByLocation',
-  async ({ latitude, longitude }, { rejectWithValue }) => {
+  async ({ location, radius }, { rejectWithValue, getState }) => {
     try {
-      const response = await apiClient.get(`/notes/nearby`, {
+      const validatedLocation = validateLocation(location);
+      const token = selectToken(getState());
+      const response = await apiClient.get('/notes/nearby', {
         params: {
-          location: JSON.stringify({
-            type: 'Point',
-            coordinates: [longitude, latitude]
-          })
-        }
+          longitude: validatedLocation.coordinates[0],
+          latitude: validatedLocation.coordinates[1],
+          radius: radius || 1000 // Default radius of 1km
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data;
     } catch (error) {
       console.error('Error fetching notes by location:', error);
-      return rejectWithValue(error.response?.data || 'Error fetching notes by location');
+      return rejectWithValue(error.response?.data?.message || 'Error fetching notes by location');
     }
   }
 );
@@ -70,11 +79,14 @@ export const fetchNotesByLocation = createAsyncThunk(
 // Create a new note
 export const createNote = createAsyncThunk(
   'notes/createNote',
-  async (noteData, { rejectWithValue }) => {
+  async (noteData, { rejectWithValue, getState }) => {
     try {
-      console.log('Creating note with data:', noteData);
-      const response = await apiClient.post('/notes/new', noteData);
-      console.log('Note created successfully:', response.data);
+      const token = selectToken(getState());
+      const response = await apiClient.post('/notes', noteData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating note:', error);
@@ -86,9 +98,14 @@ export const createNote = createAsyncThunk(
 // Update an existing note
 export const updateNote = createAsyncThunk(
   'notes/updateNote',
-  async ({ id, ...updateData }, { rejectWithValue }) => {
+  async ({ id, noteData }, { rejectWithValue, getState }) => {
     try {
-      const response = await apiClient.put(`/notes/${id}`, { ...updateData });
+      const token = selectToken(getState());
+      const response = await apiClient.put(`/notes/${id}`, noteData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error updating note:', error);
@@ -100,9 +117,14 @@ export const updateNote = createAsyncThunk(
 // Delete a note
 export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
-  async ({ id }, { rejectWithValue }) => {
+  async (id, { rejectWithValue, getState }) => {
     try {
-      await apiClient.delete(`/notes/${id}`);
+      const token = selectToken(getState());
+      await apiClient.delete(`/notes/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return id;
     } catch (error) {
       console.error('Error deleting note:', error);

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { SERVER } from '../app/config';
-import { getToken, setToken } from '../lib/tokenManager';
 
 const apiClient = axios.create({
   baseURL: SERVER,
@@ -12,7 +11,7 @@ let pendingRequests = [];
 // Add a request interceptor to add the token to all requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = getToken();
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,7 +28,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Add a response interceptor to handle token updates and errors
+// Add a response interceptor to handle errors
 apiClient.interceptors.response.use(
   (response) => {
     // Remove request from pending list
@@ -37,12 +36,6 @@ apiClient.interceptors.response.use(
       pendingRequests = pendingRequests.filter(
         (source) => source.token !== response.config.cancelToken
       );
-    }
-
-    // Check for new token in response headers
-    const newToken = response.headers['x-auth-token'];
-    if (newToken) {
-      setToken(newToken);
     }
 
     return response;
@@ -55,9 +48,9 @@ apiClient.interceptors.response.use(
       );
     }
 
-    // Handle token expiration
     if (error.response?.status === 401) {
-      setToken(null);
+      // Clear token on unauthorized
+      localStorage.removeItem('token');
     }
 
     return Promise.reject(error);
