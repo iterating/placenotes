@@ -4,6 +4,8 @@ Your daughter is about to walk into her dream job interview at a towering office
 
 "You've got this, sweetheart! You're not just qualified for this role; you're the perfect fit. Remember how you led that project at your last job? That's exactly what they're looking for. Take a deep breath, stand tall, and show them the incredible person I see every day. I'm so proud of you! 💖 - Mom"
 
+---
+
 Later that day, you pull into Costco's parking lot, and Placenotes automatically surfaces your family's shared shopping list:
 
 "📝 Family Costco Run (last updated: 2 hours ago)
@@ -14,6 +16,8 @@ Later that day, you pull into Costco's parking lot, and Placenotes automatically
 - [ ] That Malbec wine Dad loves
 - [ ] Paper towels (we're almost out!)
 Note from Sarah: Don't forget to use the new membership card!"
+
+You'll have access to the information you need to remember, right when you arrive. 
 
 This is Placenotes - your messages and notes, exactly where and when you need them.
 
@@ -30,6 +34,7 @@ This is Placenotes - your messages and notes, exactly where and when you need th
 - Full Markdown support for rich formatting
 - Organize notes by location and time
 - Search and filter notes easily
+- Throughfully designed UI- Quickly scroll through your messages. Expand and collase them right where you were reading. 
 
  **Social Features**
 - Share notes with specific friends
@@ -46,11 +51,19 @@ Built with Express and MongoDB, featuring both GraphQL and REST APIs.
 
 ## Express server application
 
-### GraphQL API
+### The GraphQL API
 
-The Placenotes server includes a GraphQL API. The API is defined in the `server/models/graphqlSchema.js` file.
+The Placenotes server leverages GraphQL for its API, offering several advantages:
 
-### RESTful API
+1. Flexible data fetching: Clients can request exactly the data they need, reducing over-fetching and under-fetching.
+2. Strongly typed schema: Provides clear contract between client and server, enhancing development efficiency.
+3. Single endpoint: Simplifies API management and reduces network overhead.
+4. Real-time updates: Facilitates subscription-based features for live data.
+5. Introspection: Allows for self-documenting APIs, improving developer experience.
+
+These benefits make GraphQL an ideal choice for Placenotes' complex, interconnected data model and real-time features.
+
+### The REST API
 
 The Placenotes server is a RESTful API build on Express that supports the following actions:
 

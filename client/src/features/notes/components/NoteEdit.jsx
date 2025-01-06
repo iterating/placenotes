@@ -46,7 +46,8 @@ const NoteEdit = () => {
         coordinates: [-118.243683, 34.052235] // Default to LA coordinates [longitude, latitude]
       },
       radius: 1000,
-      email: user.email
+      email: user.email,
+      userId: user._id
     };
     setNote(initialNote);
 
@@ -79,7 +80,8 @@ const NoteEdit = () => {
 
       const noteData = {
         ...formData,
-        email: user.email
+        email: user.email,
+        userId: user._id
       };
 
       if (isEditMode) {
