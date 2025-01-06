@@ -193,7 +193,10 @@ const NoteTiptap = ({ content = '', onUpdate, editable = true }) => {
     ],
     content: content,
     editable,
-    onUpdate,
+    onUpdate: ({ editor }) => {
+      const content = editor.storage.markdown.getMarkdown();
+      onUpdate(content);
+    },
     editorProps: {
       attributes: {
         class: 'editor-content',
