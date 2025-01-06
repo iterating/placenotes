@@ -1,8 +1,12 @@
 .header-container {
-  width: 100%;
-  position: sticky;
+  width: 100vw;
+  position: fixed;
   top: 0;
   z-index: 1100;
+  left: 0;
+  right: 0;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
 }
 
 .app-header {
@@ -15,6 +19,7 @@
   z-index: 1100;
   height: 56px;
   gap: var(--spacing-md);
+  width: 100%;
 }
 
 .header-left, 
@@ -245,7 +250,7 @@
 
 /* Content transition */
 #content {
-  margin-top: 56px;
+  padding-top: 72px;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: calc(100vh - 56px);
   padding: var(--spacing-xs);
