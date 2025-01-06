@@ -33,6 +33,7 @@ const NoteCard = ({ note, markers }) => {
       <div
         className="note-preview"
         data-note-id={note._id}
+        onClick={() => setShowFullNote(!showFullNote)}
         onMouseOver={() => {
           const markerElement = markers.current.find((marker) => {
             const popupContent = marker.getPopup()?.getContent();

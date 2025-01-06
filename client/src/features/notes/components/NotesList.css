@@ -91,7 +91,7 @@
 .note-actions-ui {
   display: flex;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
+  margin: 0 !important;  
 }
 
 /* Search button styles */

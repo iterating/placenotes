@@ -42,27 +42,40 @@
   font-size: 1rem;
   cursor: pointer;
   margin-bottom: 0.1rem;
-  padding: var(--spacing-sm);
+  padding: 0 !important;
+  margin: 0 !important;
+  transition: background-color 0.2s ease;
+}
+
+.note-preview:hover {
+  background-color: var(--gray-50);
 }
 
 .note-body {
   color: var(--text-primary);
+  margin-bottom: 0 !important;
+
 }
 
 .note-actions-ui, .button-group {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0 var(--spacing-sm);
+  margin-top: -30px;
+  padding: var(--spacing-sm);
   border-top: 1px solid var(--gray-100);
   background: var(--gray-50);
   flex-wrap: wrap;
 }
 
+p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .note-actions-ui button,
 .button-group button {
   min-width: 44px;
-  min-height: 44px;
+  min-height: 24px;
   padding: var(--spacing-sm);
   border-radius: var(--radius-sm);
   border: 1px solid var(--primary-color);
@@ -78,8 +91,7 @@
 
 .note-actions-ui button:hover,
 .button-group button:hover {
-  background: var(--primary-color-dark);
-  border-color: var(--primary-color-dark);
+  filter: brightness(1.1);
 }
 
 .note-actions-ui button.secondary,
@@ -91,7 +103,7 @@
 
 .note-actions-ui button.secondary:hover,
 .button-group button.secondary:hover {
-  background: var(--primary-color-light);
+  background: var(--gray-50);
 }
 
 .note-actions-ui button.danger,
@@ -103,8 +115,7 @@
 
 .note-actions-ui button.danger:hover,
 .button-group button.danger:hover {
-  background: var(--error-text);
-  border-color: var(--error-text);
+  filter: brightness(1.1);
 }
 
 .note-actions-ui button svg,
