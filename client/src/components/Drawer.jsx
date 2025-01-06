@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../store/authSlice.js';
@@ -11,6 +11,10 @@ const DrawerContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector(state => state.auth.user);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const minSwipeDistance = 50;
 
   const closeDrawer = () => {
     const drawer = document.getElementById("drawer");
@@ -23,6 +27,56 @@ const DrawerContent = () => {
       content.classList.remove("drawer-open");
     }
   };
+
+  const openDrawer = () => {
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("overlay");
+    const content = document.getElementById("content");
+    
+    if (drawer && overlay && content) {
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+      content.classList.add("drawer-open");
+    }
+  };
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    const drawer = document.getElementById("drawer");
+    const isOpen = drawer?.classList.contains("open");
+    
+    if (isLeftSwipe && isOpen) {
+      closeDrawer();
+    } else if (isRightSwipe && !isOpen && touchStart < 50) {
+      // Only open if swipe starts from left edge (within 50px)
+      openDrawer();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('touchstart', onTouchStart);
+    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [touchStart, touchEnd]);
 
   const handleLogout = (e) => {
     e.preventDefault();

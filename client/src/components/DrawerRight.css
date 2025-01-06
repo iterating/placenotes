@@ -1,0 +1,80 @@
+.drawer-right {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: var(--white);
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1090;
+  touch-action: pan-x;
+  transform: translateX(0);
+  will-change: transform;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.drawer-right:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.drawer-right.open {
+  transform: translateX(-400px);
+}
+
+.drawer-right-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  visibility: visible;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1080;
+  backdrop-filter: blur(2px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure content is accessible when drawer is open */
+body.drawer-open {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0px);
+}
+
+/* Reduce motion if user prefers */
+@media (prefers-reduced-motion: reduce) {
+  .drawer-right,
+  .drawer-right-overlay {
+    transition: none;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 600px) {
+  .drawer-right {
+    width: 100%;
+    right: -100%;
+    max-width: 100%;
+  }
+
+  .drawer-right.open {
+    transform: translateX(-100%);
+  }
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  .drawer-right {
+    border: 1px solid CanvasText;
+  }
+  
+  .drawer-right-overlay {
+    background-color: Canvas;
+    opacity: 0.7;
+  }
+}

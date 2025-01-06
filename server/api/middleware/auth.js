@@ -2,14 +2,12 @@ import jwt from "jsonwebtoken";
 import {  generateToken } from "../../controllers/auth.controllers.js";
 
 const getTokenFromHeader = (req) => {
-  console.log("Extracting token from header...");
   if (req.headers.authorization) {
     const authHeader = req.headers.authorization;
     const token = authHeader.replace("Bearer ", "");
-    console.log("Token found:", token);
     return token;
   }
-  console.log("No token found in header");
+  console.log("Warning: No token found in authorization header");
   return { error: "No token found" };
 };
 
@@ -32,6 +30,9 @@ export const setUser = (req, res, next) => {
   );
 };
 
-console.log("JWT middleware initialized with secret:", process.env.JWT_SECRET || "secret");
+// Only log on initialization
+if (process.env.NODE_ENV !== 'production') {
+  console.log("JWT middleware initialized with secret:", process.env.JWT_SECRET ? '[SECRET]' : 'default');
+}
 
 export default setUser;

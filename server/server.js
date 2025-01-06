@@ -5,6 +5,7 @@ import { dirname } from "path"
 import middleware from "./api/middleware/middleware.js"
 import users from "./api/routes/userRoutes.js"
 import notes from "./api/routes/noteRoutes.js"
+import messages from "./routes/messages.routes.js"
 import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
 import dotenv from "dotenv"
 import cors from 'cors'
@@ -62,6 +63,7 @@ middleware(app)
 // API Routes
 app.use("/api/users", users)
 app.use("/api/notes", notes)
+app.use("/api/messages", messages)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
