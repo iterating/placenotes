@@ -248,7 +248,7 @@
   margin-top: 56px;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: calc(100vh - 56px);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xs);
 }
 
 #content.drawer-open {

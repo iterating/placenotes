@@ -2,8 +2,8 @@
 .note-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-xs);
+  padding: 0;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -12,6 +12,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 0;
+  padding: var(--spacing-xs) 0;
 }
 
 .search-location-container {
@@ -731,7 +733,7 @@
 
 @media (max-width: 768px) {
   .note-container {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
 
   .map-section {
