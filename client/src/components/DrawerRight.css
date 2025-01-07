@@ -1,29 +1,23 @@
 .drawer-right {
   position: fixed;
   top: 0;
-  right: 0;
-  width: 400px;
+  right: -320px;
+  width: 320px;
   height: 100vh;
   background: var(--white);
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
   z-index: 1090;
-  touch-action: pan-x;
-  transform: translateX(100%);
-  will-change: transform;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-top: 56px; /* Match header height */
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-top: 56px;
 }
 
 .drawer-right:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--primary-color);
   outline-offset: -2px;
 }
 
 .drawer-right.open {
-  transform: translateX(0);
+  right: 0;
 }
 
 .drawer-right-overlay {
@@ -35,8 +29,8 @@
   background-color: rgba(0, 0, 0, 0.3);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1080;
+  transition: all var(--transition-normal) var(--ease-out);
+  z-index: var(--z-overlay);
   backdrop-filter: blur(2px);
   -webkit-tap-highlight-color: transparent;
 }
@@ -54,8 +48,7 @@ body.drawer-open {
 
 /* Reduce motion if user prefers */
 @media (prefers-reduced-motion: reduce) {
-  .drawer-right,
-  .drawer-right-overlay {
+  .drawer-right {
     transition: none;
   }
 }
@@ -65,11 +58,10 @@ body.drawer-open {
   .drawer-right {
     width: 100%;
     right: -100%;
-    max-width: 100%;
   }
 
   .drawer-right.open {
-    transform: translateX(-100%);
+    right: 0;
   }
 }
 

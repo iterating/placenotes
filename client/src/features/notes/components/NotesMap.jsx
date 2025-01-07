@@ -270,11 +270,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
         <span className="toggle-icon">▼</span>
         {isExpanded ? "Collapse map" : "Expand map"}
       </div>
-      <MessageList
-        isOpen={isMessageDrawerOpen}
-        onClose={() => setIsMessageDrawerOpen(false)}
-        mapCenter={mapCenter}
-      />
+
     </div>
   )
 }

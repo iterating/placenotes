@@ -1,253 +1,230 @@
-.editor-container {
-  position: relative;
-  z-index: 10;
-  background: white;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: calc(100vh - 200px);
-  min-height: 200px;
-  overflow: hidden;
+/* Obsidian-like Variables (Light Theme) */
+:root {
+  --editor-text-normal: #2e3338;
+  --editor-text-muted: #666;
+  --editor-text-faint: #999;
+  --editor-text-error: #dc2626;
+  --editor-text-accent: #705dcf;
+  --editor-interactive-accent: #7b6cd9;
+  --editor-background-primary: #ffffff;
+  --editor-background-secondary: #f5f6f8;
+  --editor-background-modifier-border: #e2e8f0;
+  --editor-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --editor-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 
+/* Editor Container */
 .editor {
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   width: 100%;
+  background: var(--editor-background-primary);
+  border-radius: 4px;
   overflow: hidden;
-}
-
-.editor-menu {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: white;
-  padding: 0.5rem;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.editor-menu > div {
-  display: flex;
-  gap: 2px;
-  padding: 0 4px;
-  border-right: 1px solid #ccc;
-}
-
-.editor-menu > div:last-child {
-  border-right: none;
-}
-
-.editor-menu .is-active {
-  background-color: #e2e8f0;
-  color: var(--text-primary);
-}
-
-.editor-menu button {
-  padding: 0.25rem 0.5rem;
-  min-width: 2rem;
-  min-height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: manipulation;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.editor-menu button:hover {
-  background-color: var(--gray-100);
-}
-
-.editor-menu button.is-active {
-  background-color: var(--gray-200);
-  border-color: var(--gray-300);
-}
-
-.ProseMirror {
-  padding: 0.2em;
-  border: 1px solid var(--gray-200);
-  min-height: 60px;
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-sm);
-}
-
-.ProseMirror p {
-  margin: 0.1em 0;
-}
-
-.ProseMirror h1 {
-  font-size: var(--font-size-lg);
-  margin: 0.2em 0 0.1em;
-  line-height: var(--line-height-sm);
-}
-
-.ProseMirror h2 {
-  font-size: var(--font-size-base);
-  margin: 0.15em 0 0.1em;
-  line-height: var(--line-height-sm);
-}
-
-.ProseMirror h3 {
-  font-size: var(--font-size-sm);
-  margin: 0.1em 0;
-  line-height: var(--line-height-sm);
-}
-
-.ProseMirror ul,
-.ProseMirror ol {
-  padding-left: 0.8em;
-  margin: 0.1em 0;
-}
-
-.ProseMirror li {
-  margin: 0.05em 0;
-  font-size: var(--font-size-sm);
-}
-
-.ProseMirror code {
-  background: var(--gray-100);
-  padding: 0.05em 0.1em;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
-  font-family: monospace;
-}
-
-.ProseMirror blockquote {
-  border-left: 2px solid var(--gray-300);
-  margin: 0.1em 0;
-  padding-left: 0.3em;
-  color: var(--gray-600);
-  font-size: var(--font-size-sm);
-}
-
-.ProseMirror:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 1px var(--primary-100);
-}
-
-.editor-toolbar {
-  display: flex;
-  gap: 0.15em;
-  padding: 0.15em;
-  border: 1px solid var(--gray-200);
-  border-bottom: none;
-  background: var(--gray-50);
-}
-
-.editor-toolbar button {
-  padding: 0.15em 0.3em;
-  font-size: var(--font-size-xs);
-  color: var(--gray-700);
-  border-radius: var(--radius-sm);
-  min-height: 1.1em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gray-100);
-  transition: all 0.1s ease;
-}
-
-.editor-toolbar button:hover {
-  background: var(--gray-200);
-  color: var(--gray-900);
-}
-
-.editor-toolbar button.is-active {
-  background: var(--primary-100);
-  color: var(--primary-700);
 }
 
 .editor-content {
-  text-align: left;
-  width: 100%;
+  padding: 0.5rem;
+  min-height: 200px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
 }
 
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  .editor-container {
-    padding: 0.25rem;
-    border: none;
-    border-radius: 0;
-    margin: 0;
-    width: 100%;
-    height: calc(100vh - 150px);
-    position: relative;
-  }
+/* Editor Menu Bar */
+.editor-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--editor-background-secondary);
+  border-radius: 4px 4px 0 0;
+  border-bottom: 1px solid var(--editor-background-modifier-border);
+}
 
-  .editor {
-    border: none;
-    border-radius: 0;
-  }
+.format-group,
+.heading-group,
+.list-group {
+  display: flex;
+  gap: 0.125rem;
+}
 
+.btn {
+  background: transparent;
+  border: 1px solid var(--editor-background-modifier-border);
+  color: var(--editor-text-normal);
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--editor-background-modifier-border);
+  color: var(--editor-text-accent);
+}
+
+.btn.is-active {
+  background: var(--editor-interactive-accent);
+  color: white;
+  border-color: var(--editor-interactive-accent);
+}
+
+/* Content Styling */
+.ProseMirror {
+  all: revert;
+  font-family: var(--editor-font-family);
+  color: var(--editor-text-normal);
+  line-height: 1.1;
+  outline: none !important;
+  display: block !important;
+  flex: none !important;
+  flex-direction: unset !important;
+  column-count: unset !important;
+}
+
+/* Headings */
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  all: revert;
+  display: block !important;
+  color: var(--editor-text-accent);
+  font-weight: 600;
+  line-height: 1;
+  margin: 0.4em 0 0.1em;
+}
+
+.ProseMirror h1 { font-size: 2em; }
+.ProseMirror h2 { font-size: 1.75em; }
+.ProseMirror h3 { font-size: 1.5em; }
+.ProseMirror h4 { font-size: 1.25em; }
+.ProseMirror h5 { font-size: 1.1em; }
+.ProseMirror h6 { font-size: 1em; }
+
+/* Paragraphs */
+.ProseMirror p {
+  all: revert;
+  display: block !important;
+  margin: 0.1em 0;
+  line-height: 1.1;
+}
+
+/* Links */
+.ProseMirror a {
+  color: var(--editor-interactive-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.ProseMirror a:hover {
+  border-bottom-color: var(--editor-interactive-accent);
+}
+
+/* Lists */
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1em;
+  line-height: 1.1;
+}
+
+.ProseMirror li {
+  margin: 0;
+  line-height: 1.1;
+}
+
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+}
+
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+  border: 1px solid var(--editor-background-modifier-border);
+  border-radius: 2px;
+  width: 0.8em;
+  height: 0.8em;
+  margin: 0.2em 0.4em 0 0;
+}
+
+/* Code blocks */
+.ProseMirror pre {
+  font-family: var(--editor-font-mono);
+  background: var(--editor-background-secondary);
+  color: var(--editor-text-normal);
+  padding: 0.4em 0.6em;
+  border-radius: 3px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  line-height: 1.1;
+}
+
+.ProseMirror code {
+  font-family: var(--editor-font-mono);
+  background: var(--editor-background-secondary);
+  color: var(--editor-text-normal);
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Blockquotes */
+.ProseMirror blockquote {
+  border-left: 2px solid var(--editor-interactive-accent);
+  margin: 0.3em 0;
+  padding: 0.2em 0.5em;
+  background: var(--editor-background-secondary);
+  border-radius: 0 3px 3px 0;
+  color: var(--editor-text-muted);
+  line-height: 1.1;
+}
+
+/* Horizontal rule */
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--editor-background-modifier-border);
+  margin: 1em 0;
+}
+
+/* Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--editor-text-faint);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Selection */
+.ProseMirror ::selection {
+  background: rgba(127, 109, 242, 0.2);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .editor-content {
+    padding: 0.5rem;
+  }
+  
   .editor-menu {
-    padding: 0.25rem;
-    justify-content: flex-start;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    background: var(--white);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    padding: 0.125rem;
   }
-
-  .editor-menu::-webkit-scrollbar {
-    display: none;
-  }
-
-  .editor-menu button {
-    padding: 0.25rem;
-    min-width: 1.75rem;
-    min-height: 1.75rem;
-    font-size: 0.75rem;
-  }
-
-  .ProseMirror {
-    font-size: var(--font-size-xs);
-    min-height: 50px;
-    padding: 0.1em;
-    border-left: none;
-    border-right: none;
-  }
-
-  .ProseMirror h1 { font-size: var(--font-size-base); }
-  .ProseMirror h2 { font-size: var(--font-size-sm); }
-  .ProseMirror h3 { font-size: var(--font-size-xs); }
-
-  .ProseMirror li { font-size: var(--font-size-xs); }
-  .ProseMirror code { font-size: var(--font-size-xs); }
-  .ProseMirror blockquote { font-size: var(--font-size-xs); }
-
-  .editor-toolbar {
-    padding: 0.1em;
-    gap: 0.1em;
-    border-left: none;
-    border-right: none;
-  }
-
-  .editor-toolbar button {
-    padding: 0.1em 0.2em;
-    min-height: 1em;
+  
+  .btn {
+    padding: 0.125rem;
   }
 }
 
-@media (max-width: 480px) {
-  .editor-container {
-    height: calc(100vh - 120px);
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .ProseMirror a,
+  .btn {
+    transition: none;
   }
 }

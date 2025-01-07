@@ -33,14 +33,10 @@
 .header-right {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-  min-width: 48px;
-  margin-left: auto;
+  margin-right: var(--spacing-sm);
 }
 
-.drawer-icon, 
-.message-drawer-icon {
+.drawer-icon {
   font-size: 24px;
   cursor: pointer;
   color: var(--gray-600);
@@ -54,37 +50,14 @@
   padding: var(--spacing-xs);
 }
 
-.drawer-icon:hover, 
-.message-drawer-icon:hover {
+.drawer-icon:hover {
   color: var(--gray-900);
   background-color: var(--gray-100);
 }
 
-.drawer-icon:focus-visible,
-.message-drawer-icon:focus-visible {
+.drawer-icon:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
-}
-
-.message-drawer-icon {
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: var(--text-primary);
-  margin-left: 1rem;
-  transition: color 0.2s ease;
-}
-
-.message-drawer-icon:hover {
-  color: var(--primary);
-}
-
-.message-drawer-icon:focus {
-  outline: none;
-  color: var(--primary);
-}
-
-.message-drawer-icon i {
-  font-size: 20px;
 }
 
 .search-container {
