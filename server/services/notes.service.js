@@ -11,7 +11,7 @@ const checkConnection = () => {
 
 export const allNotes = async () => {
   checkConnection();
-  return Note.find();
+  return Note.model.find();
 }
 
 export const getNotes = async (userId) => {
@@ -23,7 +23,7 @@ export const getNotes = async (userId) => {
       throw new Error('Invalid user ID');
     }
 
-    const notes = await Note.find({ userId })
+    const notes = await Note.model.find({ userId })
       .sort({ createdAt: -1 })
       .lean()
       .exec();
@@ -38,17 +38,17 @@ export const getNotes = async (userId) => {
 
 export const recentNotes = async (userId) => {
   checkConnection();
-  return Note.find({ userId }).sort({ time: -1 }).limit(20);
+  return Note.model.find({ userId }).sort({ time: -1 }).limit(20);
 }
 
 export const oldestNotes = async (userId) => {
   checkConnection();
-  return Note.find({ userId }).sort({ time: 1 }).limit(20);
+  return Note.model.find({ userId }).sort({ time: 1 }).limit(20);
 }
 
 export const newNote = async (noteData) => {
   checkConnection();
-  return Note.create({ _id: _id(), ...noteData });
+  return Note.model.create({ _id: _id(), ...noteData });
 }
 
 export const editNote = async (id) => {
@@ -56,7 +56,7 @@ export const editNote = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid note ID format');
   }
-  return Note.findById(id);
+  return Note.model.findById(id);
 }
 
 export const updateNote = async (note) => {
@@ -68,7 +68,7 @@ export const updateNote = async (note) => {
       throw new Error('Invalid note ID format');
     }
 
-    const updatedNote = await Note
+    const updatedNote = await Note.model
       .findOneAndUpdate(
         { _id: note._id },
         { $set: { ...note, updatedAt: new Date() } },
@@ -93,17 +93,17 @@ export const deleteNote = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid note ID format');
   }
-  return Note.findByIdAndDelete(id);
+  return Note.model.findByIdAndDelete(id);
 }
 
 export const getNoteByTime = async ({ userId, time }) => {
   checkConnection();
-  return Note.findOne({ userId, time });
+  return Note.model.findOne({ userId, time });
 }
 
 export const updateNoteByTime = async ({ userId, time, body }) => {
   checkConnection();
-  return Note.findOneAndUpdate(
+  return Note.model.findOneAndUpdate(
     { userId, time },
     { $set: { body, updatedAt: new Date() } },
     { new: true }
@@ -112,7 +112,7 @@ export const updateNoteByTime = async ({ userId, time, body }) => {
 
 export const deleteNoteByTime = async ({ userId, time }) => {
   checkConnection();
-  return Note.findOneAndDelete({ userId, time });
+  return Note.model.findOneAndDelete({ userId, time });
 }
 
 export const getNoteById = async (id) => {
@@ -120,7 +120,7 @@ export const getNoteById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error('Invalid note ID format');
   }
-  return Note.findById(id);
+  return Note.model.findById(id);
 }
 
 export const getNotesByLocation = async ({ userId, location }) => {
@@ -153,7 +153,7 @@ export const getNotesByLocation = async ({ userId, location }) => {
 
     console.log('Executing geospatial query:', JSON.stringify(query, null, 2));
     
-    const notes = await Note.find(query).lean().exec();
+    const notes = await Note.model.find(query).lean().exec();
     console.log(`Found ${notes.length} notes near location`);
     
     return notes;
@@ -164,16 +164,16 @@ export const getNotesByLocation = async ({ userId, location }) => {
 }
 
 export const getUserNotes = (userId) =>
-  Note.find({ userId })
+  Note.model.find({ userId })
 
 export const getUserNoteById = (userId, noteId) =>
-  Note.findOne({ userId, _id: noteId })
+  Note.model.findOne({ userId, _id: noteId })
 
 export const updateUserNote = (userId, noteId, update) =>
-  Note.findOneAndUpdate({ userId, _id: noteId }, { $set: update }, { new: true })
+  Note.model.findOneAndUpdate({ userId, _id: noteId }, { $set: update }, { new: true })
 
 export const deleteUserNote = (userId, noteId) =>
-  Note.findOneAndDelete({ userId, _id: noteId })
+  Note.model.findOneAndDelete({ userId, _id: noteId })
 
 export const searchNotes = async ({ userId, query, limit = 20 }) => {
   console.log(`[SearchNotes] Starting search for user ${userId} with query: "${query}"`);
@@ -196,7 +196,7 @@ export const searchNotes = async ({ userId, query, limit = 20 }) => {
       - Limit: ${limit}
     `);
 
-    const searchResults = await Note.find({
+    const searchResults = await Note.model.find({
       userId,
       $or: [
         { title: { $regex: query, $options: 'i' } },

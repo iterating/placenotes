@@ -75,6 +75,11 @@ const userSchema = new Schema({
 // Create a 2dsphere index on the currentLocation field
 userSchema.index({ currentLocation: "2dsphere" });
 
+// Add schema methods
+userSchema.methods.matchPassword = async function(password) {
+  return await bcrypt.compare(password, this.password);
+};
+
 class UserModel extends BaseModel {
   constructor() {
     super('User', userSchema);
@@ -84,10 +89,6 @@ class UserModel extends BaseModel {
   async encryptPassword(password) {
     const salt = await bcrypt.genSalt(1);
     return await bcrypt.hash(password, salt);
-  }
-
-  async matchPassword(password, hashedPassword) {
-    return await bcrypt.compare(password, hashedPassword);
   }
 
   async findByEmail(email) {

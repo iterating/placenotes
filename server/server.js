@@ -13,6 +13,8 @@ import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { typeDefs } from './graphql/schema.js'
 import { resolvers } from './graphql/resolvers.js'
+import session from 'express-session'
+import passport from 'passport'
 dotenv.config()
 
 const app = express()
@@ -54,23 +56,46 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization']
 }
 
+// Apply middleware
 app.use(cors(corsOptions))
-app.options('*', cors(corsOptions))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-// Initialize middleware
-middleware(app)
+// Configure session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}))
 
-// API Routes
-app.use("/api/users", users)
-app.use("/api/notes", notes)
-app.use("/api/messages", messages)
+// Initialize Passport
+app.use(passport.initialize())
+app.use(passport.session())
+
+// Mount API routes
+app.use('/api/users', users)
+app.use('/api/notes', notes)
+app.use('/api/messages', messages)
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')))
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'))
+  })
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: err.message || 'Internal server error'
   });
 });
 
@@ -117,13 +142,12 @@ const startServer = async () => {
     app.use(
       '/graphql',
       cors(corsOptions),
-      express.json(),
       expressMiddleware(apolloServer, {
         context: async ({ req }) => ({ req })
       })
     );
 
-    const port = process.env.PORT || 5050
+    const port = process.env.PORT || 5000
     app.listen(port, () => {
       console.log(`Server is running on port: ${port}`)
       console.log(`GraphQL endpoint: http://localhost:${port}/graphql`)
