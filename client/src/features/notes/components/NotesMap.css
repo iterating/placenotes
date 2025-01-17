@@ -1,4 +1,3 @@
-
 .map-container .leaflet-container {
   height: 100%;
   min-height: inherit;
@@ -16,6 +15,7 @@
 
 .map-container .leaflet-control-layers {
 }
+
 .map-marker {
   display: flex;
   align-items: center;
@@ -119,6 +119,7 @@
   overflow: hidden;
   border-radius: 0;
 }
+
 .map-section.expanded .toggle-icon {
   transform: rotate(180deg);
 }
@@ -197,22 +198,28 @@
 }
 
 .leaflet-control-geocoder {
-  margin: var(--spacing-xs) !important;
   background: var(--white);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   border: 0.0625rem solid var(--gray-200);
   margin: 0.75rem;
-  width: calc(75% - 1.5rem);
-  max-width: 15rem;
-  position: relative;
+  width: calc(100% - 1.5rem);
+  max-width: 20rem;
+  position: absolute;
   top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   transition: all 0.3s ease;
+  z-index: 1000;
 }
 
 .leaflet-control-geocoder.collapsed {
-  width: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: var(--radius-full);
+  left: auto;
+  right: 0.75rem;
+  transform: none;
 }
 
 .leaflet-control-geocoder.collapsed input {
@@ -227,19 +234,19 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   background-size: contain;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .leaflet-control-geocoder input {
   width: 100%;
-  height: 2.5rem;
-  padding: 0 2.5rem 0 0.75rem;
+  height: 2.75rem;
+  padding: 0 2.75rem 0 1rem;
   border: none;
   background: transparent;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--text-primary);
   transition: all 0.3s ease;
 }
@@ -250,89 +257,85 @@
 
 .leaflet-control-geocoder-icon {
   position: absolute;
-  right: 0.75rem;
+  right: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
   background-size: contain;
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
 .leaflet-control-geocoder-icon:hover {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .leaflet-control-geocoder-alternatives {
   position: absolute;
-  top: calc(100% + 0.25rem);
+  top: calc(100% + 0.375rem);
   left: 0;
   right: 0;
   background: var(--white);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  max-height: 16rem;
+  box-shadow: var(--shadow-lg);
+  max-height: 50vh;
   overflow-y: auto;
   z-index: 1000;
+  -webkit-overflow-scrolling: touch;
 }
 
 .leaflet-control-geocoder-alternatives li {
-  padding: 0.625rem 0.75rem;
+  padding: 0.875rem 1rem;
   cursor: pointer;
   border-bottom: 0.0625rem solid var(--gray-100);
-  font-size: 0.875rem;
-  line-height: 1.25;
+  font-size: 0.9375rem;
+  line-height: 1.4;
 }
 
 .leaflet-control-geocoder-alternatives li:last-child {
   border-bottom: none;
 }
 
-.leaflet-control-geocoder-alternatives li:hover {
+.leaflet-control-geocoder-alternatives li:hover,
+.leaflet-control-geocoder-alternatives li:active {
   background-color: var(--gray-50);
 }
 
+/* Mobile-specific styles */
 @media (max-width: 768px) {
-  .main-map-section {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
-  }
-
-  .map-container {
-    flex: 1;
-  }
-
-  .map-handle {
-    height: 14px;
-  }
-
-  .toggle-bar {
-    height: 20px;
-  }
-
   .leaflet-control-geocoder {
-    margin: var(--spacing-xs) !important;
+    width: calc(100% - 2rem);
+    max-width: none;
+    margin: 1rem;
   }
 
-  .leaflet-control-zoom {
-    margin: var(--spacing-xs) !important;
-    right: var(--spacing-xs) !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .map-handle {
-    height: 12px;
+  .leaflet-control-geocoder.collapsed {
+    width: 3rem;
+    height: 3rem;
   }
 
-  .toggle-bar {
-    height: 18px;
+  .leaflet-control-geocoder input {
+    height: 3rem;
+    font-size: 1rem;
+    padding: 0 3rem 0 1.25rem;
+  }
+
+  .leaflet-control-geocoder-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    right: 1rem;
+  }
+
+  .leaflet-control-geocoder-alternatives {
+    max-height: 40vh;
+    border-radius: var(--radius-lg);
+  }
+
+  .leaflet-control-geocoder-alternatives li {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
   }
 }
 

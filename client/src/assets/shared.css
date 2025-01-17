@@ -1,7 +1,7 @@
 /* CSS Variables */
 :root {
-  --map-height-expanded: 500px;
-  --map-height-collapsed: 200px;
+  --map-height-expanded: 400px;
+  --map-height-collapsed: 100px;
   /* Colors */
   --primary-color: #007bff;
   --primary-hover: #0056b3;
