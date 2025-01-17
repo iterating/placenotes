@@ -1,8 +1,12 @@
-import mongoose from "mongoose"
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
+import dbAdapter from '../db/connection.js';
+import BaseModel from './BaseModel.js';
 
-const userSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
+const client = dbAdapter.getClient();
+const { Schema } = client;
+
+const userSchema = new Schema({
+  _id: Schema.Types.ObjectId,
   email: {
     type: String,
     unique: true,
@@ -49,10 +53,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
   friendRequests: [{
     from: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
@@ -66,17 +70,52 @@ const userSchema = new mongoose.Schema({
       default: Date.now
     }
   }]
-})
+});
 
 // Create a 2dsphere index on the currentLocation field
 userSchema.index({ currentLocation: "2dsphere" });
 
-userSchema.methods.encryptPassword = async function(password) {
-  const salt = await bcrypt.genSalt(1)
-  return await bcrypt.hash(password, salt)
-}
-userSchema.methods.matchPassword = async function (password) {
-  return await bcrypt.compare(password, this.password)
+class UserModel extends BaseModel {
+  constructor() {
+    super('User', userSchema);
+  }
+
+  // User-specific methods
+  async encryptPassword(password) {
+    const salt = await bcrypt.genSalt(1);
+    return await bcrypt.hash(password, salt);
+  }
+
+  async matchPassword(password, hashedPassword) {
+    return await bcrypt.compare(password, hashedPassword);
+  }
+
+  async findByEmail(email) {
+    return await this.findOne({ email: email.toLowerCase() });
+  }
+
+  async findNearbyUsers(coordinates, maxDistance, query = {}) {
+    return await this.model.find({
+      ...query,
+      currentLocation: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: coordinates
+          },
+          $maxDistance: maxDistance
+        }
+      }
+    });
+  }
+
+  async updateLastActive(userId) {
+    return await this.updateOne(
+      { _id: userId },
+      { $set: { lastActive: new Date() } }
+    );
+  }
 }
 
-export default mongoose.model("User", userSchema)
+const userModel = new UserModel();
+export default userModel;

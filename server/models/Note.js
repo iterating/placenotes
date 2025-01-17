@@ -1,12 +1,16 @@
-import mongoose from "mongoose"
+import dbAdapter from '../db/connection.js';
+import BaseModel from './BaseModel.js';
 
-const noteSchema = new mongoose.Schema({
+const client = dbAdapter.getClient();
+const { Schema } = client;
+
+const noteSchema = new Schema({
   _id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'User',
     index: true
@@ -46,7 +50,7 @@ const noteSchema = new mongoose.Schema({
   },
   radius: {
     type: Number,
-    default: 1000, // Default radius in meters
+    default: 1000,
     min: [0, 'Radius cannot be negative']
   },
   tags: [{
@@ -87,12 +91,37 @@ noteSchema.pre('save', function(next) {
   next();
 });
 
-const Note = mongoose.model("Note", noteSchema);
+class NoteModel extends BaseModel {
+  constructor() {
+    super('Note', noteSchema);
+  }
+
+  // Add Note-specific methods here
+  async findNearby(coordinates, maxDistance, query = {}) {
+    return await this.model.find({
+      ...query,
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: coordinates
+          },
+          $maxDistance: maxDistance
+        }
+      }
+    });
+  }
+
+  async findByUserId(userId) {
+    return await this.find({ userId });
+  }
+}
+
+const noteModel = new NoteModel();
 
 export const createNoteIndexes = async () => {
   try {
-    await Note.collection.createIndex({ location: "2dsphere" });
-    await Note.createIndexes();
+    await noteModel.createIndexes();
     console.log('Note indexes created successfully');
   } catch (err) {
     console.error('Error creating Note indexes:', err);
@@ -100,4 +129,4 @@ export const createNoteIndexes = async () => {
   }
 };
 
-export default Note;
+export default noteModel;
