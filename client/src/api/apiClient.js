@@ -86,8 +86,10 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await apiClient.post('/auth/refresh', {
-          token: store.getState().auth.token
+        const response = await apiClient.post('/api/auth/refresh', {}, {
+          headers: {
+            'Authorization': `Bearer ${store.getState().auth.token}`
+          }
         });
         const { token } = response.data;
         

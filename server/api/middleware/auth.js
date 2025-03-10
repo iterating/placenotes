@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import { generateToken } from "../../controllers/auth.controllers.js";
-
 const getTokenFromHeader = (req) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     return req.headers.authorization.split(' ')[1];

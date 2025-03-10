@@ -17,7 +17,7 @@ export const generateToken = (user) => {
   if (!payload._id || !payload.email) {
     throw new Error("User payload cannot be null")
   }
-  const secret = process.env.JWT_SECRET || "defaultSecretKey"
+  const secret = process.env.JWT_SECRET || "secret"
   const options = { expiresIn: "6h" }
   const token = jwt.sign(payload, secret, options)
   console.log("Token generated:", token)
@@ -182,7 +182,7 @@ export const refreshToken = async (req, res) => {
   }
 
   try {
-    const secret = process.env.JWT_SECRET || "defaultSecretKey"
+    const secret = process.env.JWT_SECRET || "secret"
     const decoded = jwt.verify(oldToken, secret, { ignoreExpiration: true })
     
     if (!decoded._id || !decoded.email) {
