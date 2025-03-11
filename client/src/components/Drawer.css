@@ -1,95 +1,31 @@
 .drawer {
-  height: 100vh;
   width: 280px;
-  position: fixed;
-  top: 0;
   left: 0;
-  background-color: var(--white);
-  box-shadow: var(--shadow-lg);
-  transition: transform var(--transition-normal) var(--ease-out);
-  z-index: var(--z-drawer);
-  padding-top: 56px;
   transform: translateX(-100%);
   will-change: transform;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 .drawer.open {
   transform: translateX(0);
 }
 
-/* Header with user profile */
-.drawer-header {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--gray-200);
-  flex-shrink: 0;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  background: var(--gray-100);
-  flex-shrink: 0;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.user-info {
-  flex: 1;
-  min-width: 0;
-}
-
+/* Keep only drawer-specific styles that aren't covered by utility classes */
 .username {
-  margin: 0;
   font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
 }
 
 .email {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Navigation content */
-.drawer-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-sm);
-}
-
 .drawer-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  color: var(--text-primary);
   text-decoration: none;
-  border-radius: var(--radius-md);
   transition: background-color var(--transition-fast) var(--ease-in-out);
   cursor: pointer;
   border: none;
   background: none;
-  width: 100%;
-  text-align: left;
   font-size: 1rem;
 }
 
@@ -97,33 +33,10 @@
   background-color: var(--gray-100);
 }
 
-.drawer-item.active {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
-}
-
 .drawer-icon {
   font-size: 1.25rem;
-  flex-shrink: 0;
   width: 24px;
   height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Mobile styles */
-@media (max-width: 600px) {
-  .drawer {
-    width: 100%;
-  }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .drawer {
-    transition: none;
-  }
 }
 
 /* Overlay */
@@ -137,7 +50,6 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1080;
   backdrop-filter: blur(2px);
 }
 

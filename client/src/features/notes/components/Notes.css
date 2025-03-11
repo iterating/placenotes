@@ -1,8 +1,4 @@
 .note-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -28,27 +24,10 @@
 
 .notes-list {
   margin-top: 32px;
-  overflow-y: auto;
-  padding: var(--spacing-xs);
-}
-
-.notes-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-sm) 0;
-}
-
-.search-location-container {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
 }
 
 .title {
   font-size: var(--font-size-xl);
-  font-weight: 600;
-  color: var(--text-primary);
   margin: 0;
 }
 
@@ -59,18 +38,12 @@
   padding: var(--spacing-sm) 0;
   align-items: start;
   height: calc(100vh - 60px);
-  overflow-y: auto;
 }
 
 /* Loading states */
 .loading,
 .no-notes {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 200px;
-  text-align: center;
-  padding: var(--spacing-xl);
   color: var(--text-secondary);
   font-size: var(--font-size-lg);
 }

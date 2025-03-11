@@ -1,286 +1,203 @@
 /* Note Card Container */
 .notecard {
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s ease;
+  width: 100%;
+  max-width: 1400px; /* Match map width */
+  margin: 0 auto;
+}
 
-    background: var(--white);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    border: 0.0625rem solid var(--gray-200);
-    overflow: hidden;
-    position: relative;
-    transition: transform 0.2s ease;
-    width: 100%;
-    max-width: 1400px; /* Match map width */
-    margin: 0 auto;
-    text-align: left;
+/* Toggle Bar */
+.notecard .toggle-bar {
+  border-bottom: 0.0625rem solid rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.notecard .toggle-handle {
+  color: #666;
+  font-weight: 500;
+}
+
+.notecard .toggle-icon {
+  font-size: 0.625rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Note Preview */
+.note-preview {
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin: 0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  max-height: 5em; /* Show roughly one line by default */
+  width: 100%;
+}
+
+.note-preview.expanded {
+  max-height: none;
+  padding-bottom: 1rem;
+}
+
+.note-preview:not(.expanded)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.5em;
+  background: linear-gradient(transparent, var(--white));
+  pointer-events: none;
+}
+
+.note-preview:hover {
+  background-color: var(--gray-50);
+}
+
+.note-body {
+  line-height: 1.2;
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.note-preview:not(.expanded) .note-body {
+  max-height: 3rem;
+  opacity: 0.8;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.note-preview.expanded .note-body {
+  max-height: none;
+  opacity: 1;
+}
+
+.note-preview.expanded .toggle-icon {
+  transform: rotate(180deg);
+}
+
+/* Button Styles */
+.button-group {
+  justify-content: flex-end;
+  padding: var(--spacing-md);
+  background: var(--white);
+  border-top-color: var(--gray-200);
+}
+
+/* Action Buttons */
+.note-actions-ui {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--gray-50);
+  border-top: 0.0625rem solid var(--gray-100);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+/* Button Styles */
+.note-actions-ui button,
+.button-group button {
+  min-width: 2.75rem;
+  min-height: 1.5rem;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 0.0625rem solid var(--primary-color);
+  background: var(--primary-color);
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.note-actions-ui button:hover,
+.button-group button:hover {
+  filter: brightness(1.1);
+}
+
+/* Secondary Button */
+.note-actions-ui button.secondary,
+.button-group button.secondary {
+  background: var(--white);
+  color: var(--primary-color);
+}
+
+.note-actions-ui button.secondary:hover,
+.button-group button.secondary:hover {
+  background: var(--gray-50);
+}
+
+/* Danger Button */
+.note-actions-ui button.danger,
+.button-group button.danger {
+  background: var(--error-background);
+  color: var(--white);
+  border-color: var(--error-border);
+}
+
+/* Button Icons */
+.note-actions-ui button svg,
+.button-group button svg {
+  width: var(--spacing-sm);
+  height: var(--spacing-sm);
+  margin-right: var(--spacing-xs);
+}
+
+/* Note Handle */
+.note-handle {
+  height: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.note-handle:hover {
+  background: var(--gray-200);
+}
+
+.handle-icon {
+  width: 2.5rem;
+  height: 0.25rem;
+  background: var(--gray-300);
+  border-radius: 0.125rem;
+}
+
+.note-handle:hover .handle-icon {
+  background: var(--gray-400);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .notecard {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0 -1rem;
+    width: calc(100% + 2rem);
   }
-  
-  /* Toggle Bar */
-  .notecard .toggle-bar {
-    padding: 0.25rem 0.75rem;
-    background: white;
-    border-bottom: 0.0625rem solid rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    z-index: 2;
-  }
-  
-  .notecard .toggle-handle {
-    display: flex;
-    align-items: center;
-    color: #666;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-align: left;
-  }
-  
-  .notecard .toggle-icon {
-    font-size: 0.625rem;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  /* Note Preview */
-  .note-preview {
-    font-size: 0.95rem;
-    cursor: pointer;
-    margin: 0;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    position: relative;
-    max-height: 5em; /* Show roughly one line by default */
-    width: 100%;
-    text-align: left;
-  }
-  
-  .note-preview.expanded {
-    max-height: none;
-    padding-bottom: 1rem;
-  }
-  
-  .note-preview:not(.expanded)::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1.5em;
-    background: linear-gradient(transparent, var(--white));
-    pointer-events: none;
-  }
-  
-  .note-preview:hover {
-    background-color: var(--gray-50);
-  }
-  
+
   .note-body {
-    color: var(--text-primary);
-    margin: 0;
-    padding: 0.75rem;
-    line-height: 1.2;
-    font-size: 0.95rem;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: left;
+    padding: 0.5rem 0.75rem;
   }
-  
-  .note-body p {
-    text-align: left;
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
+
+  .note-body img {
+    max-width: 100%;
+    height: auto;
   }
-  
-  .note-body ul, 
+
+  /* Adjust list padding on mobile */
+  .note-body ul,
   .note-body ol {
-    margin: 0.5rem 0;
-    padding-left: 1.5rem;
+    padding-left: 1.25rem;
   }
-  
-  .note-body li {
-    margin: 0.25rem 0;
-    font-size: 0.95rem;
-  }
-  
-  .note-body code {
-    font-family: monospace;
-    font-size: 0.9rem;
-    background: var(--gray-50);
-    padding: 0.1rem 0.3rem;
-    border-radius: 3px;
-  }
-  
-  .note-body blockquote {
-    border-left: 3px solid var(--gray-300);
-    margin: 0.5rem 0;
-    padding-left: 1rem;
-    color: var(--text-secondary);
-    font-style: italic;
-  }
-  
-  .note-body h1 {
-    font-size: 1.5rem;
-    margin: 0.5rem 0;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .note-body h2 {
-    font-size: 1.25rem;
-    margin: 0.5rem 0;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .note-body h3 {
-    font-size: 1.1rem;
-    margin: 0.5rem 0;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  
-  .note-preview .note-body > *:first-child {
-    margin-top: 0;
-  }
-  
-  .note-preview .note-body > *:last-child {
-    margin-bottom: 0;
-  }
-  
-  .note-preview:not(.expanded) .note-body {
-    max-height: 3rem;
-    opacity: 0.8;
-    overflow: hidden;
-    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  }
-  
-  .note-preview.expanded .note-body {
-    max-height: none;
-    opacity: 1;
-  }
-  
-  .note-preview.expanded .toggle-icon {
-    transform: rotate(180deg);
-  }
-  
-  /* Action Buttons */
-  .note-actions-ui {
-    display: flex;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    background: var(--gray-50);
-    border-top: 0.0625rem solid var(--gray-100);
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-  
-  .button-group {
-    justify-content: flex-end;
-    padding: var(--spacing-md);
-    background: var(--white);
-    border-top-color: var(--gray-200);
-  }
-  
-  /* Button Styles */
-  .note-actions-ui button,
-  .button-group button {
-    min-width: 2.75rem;
-    min-height: 1.5rem;
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    border: 0.0625rem solid var(--primary-color);
-    background: var(--primary-color);
-    color: var(--white);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-  }
-  
-  .note-actions-ui button:hover,
-  .button-group button:hover {
-    filter: brightness(1.1);
-  }
-  
-  /* Secondary Button */
-  .note-actions-ui button.secondary,
-  .button-group button.secondary {
-    background: var(--white);
-    color: var(--primary-color);
-  }
-  
-  .note-actions-ui button.secondary:hover,
-  .button-group button.secondary:hover {
-    background: var(--gray-50);
-  }
-  
-  /* Danger Button */
-  .note-actions-ui button.danger,
-  .button-group button.danger {
-    background: var(--error-background);
-    color: var(--white);
-    border-color: var(--error-border);
-  }
-  
-  /* Button Icons */
-  .note-actions-ui button svg,
-  .button-group button svg {
-    width: var(--spacing-sm);
-    height: var(--spacing-sm);
-    margin-right: var(--spacing-xs);
-  }
-  
-  /* Note Handle */
-  .note-handle {
-    height: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-  }
-  
-  .note-handle:hover {
-    background: var(--gray-200);
-  }
-  
-  .handle-icon {
-    width: 2.5rem;
-    height: 0.25rem;
-    background: var(--gray-300);
-    border-radius: 0.125rem;
-  }
-  
-  .note-handle:hover .handle-icon {
-    background: var(--gray-400);
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .notecard {
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-      margin: 0 -1rem;
-      width: calc(100% + 2rem);
-    }
-  
-    .note-body {
-      padding: 0.5rem 0.75rem;
-    }
-  
-    .note-body img {
-      max-width: 100%;
-      height: auto;
-    }
-  
-    /* Adjust list padding on mobile */
-    .note-body ul,
-    .note-body ol {
-      padding-left: 1.25rem;
-    }
-  }
-  
+}

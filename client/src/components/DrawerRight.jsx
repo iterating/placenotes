@@ -4,7 +4,7 @@ import './DrawerRight.css';
 
 const DrawerRight = ({ isOpen, onClose }) => {
   return (
-    <div className={`drawer-right ${isOpen ? 'open' : ''}`}>
+    <div className={`drawer-right drawer-base ${isOpen ? 'open' : ''}`}>
       <MessageList isOpen={isOpen} />
     </div>
   );

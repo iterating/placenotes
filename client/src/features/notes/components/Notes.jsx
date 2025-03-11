@@ -121,11 +121,11 @@ const Notes = () => {
     }
   };
 
-  if (status === 'loading') return <div>Loading...</div>;
-  if (status === 'failed') return <div>Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>;
+  if (status === 'loading') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Loading...</div>;
+  if (status === 'failed') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>;
 
   return (
-    <div className="note-container">
+    <div className="note-container flex flex-col gap-md p-md">
       <div className={`map-container ${!isMapExpanded ? 'collapsed' : ''}`} id="map-container-home">
         <NotesMap
           notes={notes}
@@ -136,7 +136,18 @@ const Notes = () => {
           handleMouseOut={handleMouseOut}
         />
       </div>
-      <div className="notes-list">
+      <div className="notes-list overflow-y-auto p-xs">
+        <div className="notes-header flex justify-between items-center p-sm-y">
+          <h2 className="title font-semibold text-primary">Your Notes</h2>
+          <div className="search-location-container flex gap-sm items-center">
+            <button 
+              className="btn btn-secondary"
+              onClick={handleLocationFilter}
+            >
+              {isLocationFiltered ? "Show All Notes" : "Filter by Location"}
+            </button>
+          </div>
+        </div>
         <NotesList
           notes={notes}
           onNoteClick={handleNoteClick}
@@ -144,8 +155,8 @@ const Notes = () => {
           onMouseOut={handleMouseOut}
           markers={markers}
         />
-        <p>
-          <Link to="/notes/new" className="create-note-link">Create a new note</Link>
+        <p className="mt-md">
+          <Link to="/notes/new" className="create-note-link btn btn-primary">Create a new note</Link>
         </p>
       </div>
     </div>

@@ -35,49 +35,6 @@
   box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
 }
 
-.map-popup {
-  padding: var(--spacing-sm);
-}
-
-.map-popup h3 {
-  margin: 0 0 var(--spacing-sm) 0;
-  color: var(--text-primary);
-  font-size: 1.1rem;
-}
-
-.map-popup p {
-  margin: 0 0 var(--spacing-sm) 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.3;
-}
-
-.map-popup button {
-  background: var(--primary-color);
-  color: var(--white);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s ease;
-}
-
-.map-popup button:hover {
-  background: var(--primary-hover);
-}
-
-.map-popup.search-result {
-  text-align: center;
-}
-
-.map-popup.search-result button {
-  background: var(--success-color);
-}
-
-.map-popup.search-result button:hover {
-  background: var(--success-hover);
-}
 
 @keyframes bounce {
   0% {
@@ -305,9 +262,7 @@
     height: 350px;
   }
 
-  .map-popup {
-    max-width: calc(100vw - 2rem);
-  }
+
 }
 
 @media (max-width: 480px) {

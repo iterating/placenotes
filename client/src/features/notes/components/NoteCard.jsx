@@ -46,15 +46,15 @@ const NoteCard = ({ note, markers }) => {
   };
 
   return (
-    <div className="notecard" ref={noteScrollRef}>
-      <div className="toggle-bar" onClick={handleToggle}>
-        <div className="toggle-handle">
+    <div className="notecard bg-white rounded-md shadow-md border border-gray-200" ref={noteScrollRef}>
+      <div className="toggle-bar cursor-pointer flex justify-center items-center p-xs" onClick={handleToggle}>
+        <div className="toggle-handle flex items-center gap-sm">
           <span className="toggle-icon">{showFullNote ? '▼' : '▲'}</span>
-          <span className="toggle-text">{showFullNote ? 'Minimize Note' : 'Expand Note'}</span>
+          <span className="toggle-text text-sm">{showFullNote ? 'Minimize Note' : 'Expand Note'}</span>
         </div>
       </div>
       <div
-        className={`note-preview ${showFullNote ? 'expanded' : ''}`}
+        className={`note-preview p-md ${showFullNote ? 'expanded' : ''}`}
         data-note-id={note._id}
         onClick={handleToggle}
         onMouseOver={() => {
@@ -81,13 +81,13 @@ const NoteCard = ({ note, markers }) => {
         }}
       >
         <div
-          className="note-body"
+          className="note-body prose"
           dangerouslySetInnerHTML={{
             __html: marked(showFullNote ? note.body : note.body.split("\n")[0]),
           }}
         />
       </div>
-      <div className="note-actions-ui">
+      <div className="note-actions-ui flex gap-md p-md border-t border-gray-200">
         <button 
           className="btn btn-primary"
           onClick={(e) => {

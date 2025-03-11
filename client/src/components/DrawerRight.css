@@ -6,9 +6,9 @@
   height: 100vh;
   background: var(--white);
   box-shadow: var(--shadow-lg);
-  z-index: 1090;
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding-top: 56px;
+  z-index: 1090;
 }
 
 .drawer-right:focus-visible {

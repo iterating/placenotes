@@ -32,56 +32,56 @@ const Drawer = ({ isOpen, onClose }) => {
 
   return (
     <div 
-      className={`drawer ${isOpen ? 'open' : ''}`}
+      className={`drawer ${isOpen ? 'open' : ''} drawer-base`}
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="drawer-header">
-        <div className="user-profile">
-          <div className="avatar">
+      <div className="drawer-header border-b p-md flex-shrink-0">
+        <div className="user-profile flex items-center gap-md">
+          <div className="avatar rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
             <img 
               src={user?.avatar || defaultAvatar} 
               alt={`${user?.username || 'User'}'s avatar`}
-              className="avatar-image"
+              className="w-full h-full"
             />
           </div>
-          <div className="user-info">
-            <h3 className="username">{user?.name || 'Welcome'}</h3>
-            <p className="email">{user?.email}</p>
+          <div className="user-info flex-1">
+            <h3 className="username m-0 font-semibold text-primary">{user?.name || 'Welcome'}</h3>
+            <p className="email m-0 text-sm text-secondary">{user?.email}</p>
           </div>
         </div>
       </div>
 
-      <nav className="drawer-content">
+      <nav className="drawer-content flex-1 overflow-y-auto p-sm">
         <Link 
           to="/notes" 
-          className={`drawer-item ${location.pathname === '/notes' ? 'active' : ''}`}
+          className={`drawer-item flex items-center gap-md p-md text-primary rounded-md ${location.pathname === '/notes' ? 'active bg-primary-light text-primary-color' : ''}`}
           onClick={onClose}
         >
-          <span className="drawer-icon">🏠</span>
+          <span className="drawer-icon flex-shrink-0 flex items-center justify-center">🏠</span>
           Home
         </Link>
         <Link 
           to="/notes/new" 
-          className={`drawer-item ${location.pathname === '/notes/new' ? 'active' : ''}`}
+          className={`drawer-item flex items-center gap-md p-md text-primary rounded-md ${location.pathname === '/notes/new' ? 'active bg-primary-light text-primary-color' : ''}`}
           onClick={onClose}
         >
-          <span className="drawer-icon">📝</span>
+          <span className="drawer-icon flex-shrink-0 flex items-center justify-center">📝</span>
           New Note
         </Link>
         <Link 
           to="/users/settings" 
-          className={`drawer-item ${location.pathname === '/users/settings' ? 'active' : ''}`}
+          className={`drawer-item flex items-center gap-md p-md text-primary rounded-md ${location.pathname === '/users/settings' ? 'active bg-primary-light text-primary-color' : ''}`}
           onClick={onClose}
         >
-          <span className="drawer-icon">🗺️</span>
+          <span className="drawer-icon flex-shrink-0 flex items-center justify-center">🗺️</span>
           Settings
         </Link>
         <button 
-          className="drawer-item"
+          className="drawer-item flex items-center gap-md p-md text-primary rounded-md w-full text-left"
           onClick={handleLogout}
         >
-          <span className="drawer-icon">🚪</span>
+          <span className="drawer-icon flex-shrink-0 flex items-center justify-center">🚪</span>
           Logout
         </button>
       </nav>
