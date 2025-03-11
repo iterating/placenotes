@@ -17,7 +17,7 @@
   box-shadow: var(--shadow-sm);
   position: relative;
   z-index: 1100;
-  height: 56px;
+  height: 40px;
   gap: var(--spacing-md);
   width: 100%;
   justify-content: space-between;

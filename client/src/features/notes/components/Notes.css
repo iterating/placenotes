@@ -10,8 +10,8 @@
 
 #map-container-home {
   position: sticky;
-  top: 50px;
-  z-index: 1000;
+  top: 55px;
+  z-index: 999;
   width: 100%;
   margin-top: var(--spacing-xl);
   min-height: var(--map-height-expanded);
