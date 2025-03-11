@@ -1,0 +1,196 @@
+/* 
+ * Consolidated Drawer Styles
+ * This file contains all drawer-related styles from:
+ * - Heading.css
+ * - Drawer.css
+ * - DrawerRight.css
+ */
+
+/* Common drawer base styles */
+.drawer-base {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  background: var(--white);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-drawer, 1090);
+  padding-top: 56px;
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Left drawer specific styles */
+.drawer {
+  width: 280px;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* Right drawer specific styles */
+.drawer-right {
+  width: 320px;
+  right: 0;
+  transform: translateX(100%);
+}
+
+.drawer-right.open {
+  transform: translateX(0);
+}
+
+.drawer-right:focus-visible,
+.drawer:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+/* Drawer header and content */
+.drawer-header {
+  flex-shrink: 0;
+}
+
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Drawer items and icons */
+.drawer-item {
+  text-decoration: none;
+  transition: background-color var(--transition-fast, 0.2s) var(--ease-in-out, ease);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1rem;
+}
+
+.drawer-item:hover {
+  background-color: var(--gray-100);
+}
+
+.drawer-item.active {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.drawer-icon {
+  font-size: 1.25rem;
+  width: 24px;
+  height: 24px;
+}
+
+/* Header icons */
+.header-icon {
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  padding: var(--spacing-xs);
+}
+
+.header-icon:hover {
+  color: var(--gray-900);
+  background-color: var(--gray-100);
+}
+
+.header-icon:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* User profile styles */
+.username {
+  font-size: 1rem;
+}
+
+.email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Overlay styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: var(--z-overlay, 1080);
+  backdrop-filter: blur(2px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Content shift when drawer is open */
+#content {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#content.drawer-open {
+  margin-left: 280px;
+}
+
+/* Ensure content is accessible when drawer is open */
+body.drawer-open,
+body.drawer-right-open {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0px);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  #content.drawer-open {
+    margin-left: 0;
+  }
+  
+  .drawer-right,
+  .drawer {
+    width: 100%;
+  }
+}
+
+/* Reduce motion if user prefers */
+@media (prefers-reduced-motion: reduce) {
+  .drawer-right,
+  .drawer {
+    transition: none;
+  }
+  
+  #content {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  .drawer-right,
+  .drawer {
+    border: 1px solid CanvasText;
+  }
+  
+  .overlay {
+    background-color: Canvas;
+    opacity: 0.7;
+  }
+}

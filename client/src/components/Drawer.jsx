@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../store/authSlice.js';
 import { clearNotes } from '../store/noteSlice.js';
 import defaultAvatar from '../assets/default-avatar.svg';
-import './Drawer.css';
+import './drawers.css';
 
 const Drawer = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();

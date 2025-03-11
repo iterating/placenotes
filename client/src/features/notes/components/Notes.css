@@ -10,7 +10,7 @@
 
 #map-container-home {
   position: sticky;
-  top: 80px;
+  top: 50px;
   z-index: 1000;
   width: 100%;
   margin-top: var(--spacing-xl);

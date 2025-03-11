@@ -197,78 +197,6 @@
   font-size: 0.875rem;
 }
 
-/* Drawer styles */
-.drawer {
-  height: 100vh;
-  width: 280px;
-  position: fixed;
-  top: 0;
-  left: -280px;
-  background-color: var(--white);
-  box-shadow: var(--shadow-lg);
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1090;
-  padding-top: 56px;
-}
-
-.drawer.open {
-  left: 0;
-}
-
-.drawer a {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  text-decoration: none;
-  color: var(--text-primary);
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-}
-
-.drawer a:hover {
-  background-color: var(--gray-50);
-  color: var(--primary-color);
-}
-
-.drawer a.active {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-/* Overlay styles */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1080;
-  backdrop-filter: blur(2px);
-}
-
-.overlay.open {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Content transition */
-#content {
-  padding-top: 72px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: calc(100vh - 56px);
-  padding: var(--spacing-xs);
-}
-
-#content.drawer-open {
-  margin-left: 280px;
-}
-
 /* App container */
 .app-container {
   display: flex;
@@ -279,4 +207,15 @@
 .content {
   padding: var(--spacing-xs);
   transition: margin-left 0.3s ease;
+}
+
+#content {
+  padding-top: 72px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: calc(100vh - 56px);
+  padding: var(--spacing-xs);
+}
+
+#content.drawer-open {
+  margin-left: 280px;
 }

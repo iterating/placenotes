@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Drawer from './Drawer';
 import DrawerRight from './DrawerRight';
 import SearchBar from '../features/search/SearchBar';
 import './Heading.css';
+import './drawers.css';
 
 const Heading = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMessageDrawerOpen, setIsMessageDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    // Handle body class for scroll locking
+    if (isDrawerOpen || isMessageDrawerOpen) {
+      document.body.classList.add(isDrawerOpen ? 'drawer-open' : 'drawer-right-open');
+    } else {
+      document.body.classList.remove('drawer-open', 'drawer-right-open');
+    }
+
+    // Handle content shift for left drawer
+    const content = document.getElementById('content');
+    if (content) {
+      if (isDrawerOpen) {
+        content.classList.add('drawer-open');
+      } else {
+        content.classList.remove('drawer-open');
+      }
+    }
+
+    return () => {
+      document.body.classList.remove('drawer-open', 'drawer-right-open');
+      if (content) {
+        content.classList.remove('drawer-open');
+      }
+    };
+  }, [isDrawerOpen, isMessageDrawerOpen]);
 
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);
@@ -21,7 +48,7 @@ const Heading = () => {
       <header className="app-header">
         <div className="header-left">
           <span 
-            className="drawer-icon" 
+            className="header-icon" 
             id="sidebar-icon" 
             role="button" 
             tabIndex={0}
@@ -36,7 +63,7 @@ const Heading = () => {
         <SearchBar />
         <div className="header-right">
           <span 
-            className="drawer-icon"
+            className="header-icon"
             role="button" 
             tabIndex={0}
             onClick={() => setIsMessageDrawerOpen(!isMessageDrawerOpen)}
