@@ -6,6 +6,7 @@ import { SERVER } from './app/config';
 import { getToken } from './lib/tokenManager';
 import { setToken, setUser } from './store/authSlice';
 import { apiClient } from './api/apiClient';
+import { ToastProvider, useToast, setToastContextForExternalUse } from './components/ToastManager';
 
 // Feature imports
 import Login from './features/users/components/Login';
@@ -20,8 +21,15 @@ import Heading from './components/Heading';
 import RequireAuth from './components/auth/RequireAuth';
 import Home from './components/Home';
 
-function App() {
+// Main App content component (separated to allow useToast hook usage)
+function AppContent() {
   const dispatch = useDispatch();
+  const toast = useToast();
+  
+  // Make toast available for use outside of React components
+  useEffect(() => {
+    setToastContextForExternalUse(toast);
+  }, [toast]);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -96,6 +104,14 @@ function App() {
         </Routes>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
   );
 }
 

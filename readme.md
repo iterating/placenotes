@@ -23,6 +23,9 @@ This is Placenotes - your messages and notes, exactly where and when you need th
 
 **Placenotes** is a powerful location-aware messaging and note-taking platform that brings context to your communications. By combining the convenience of messaging with location intelligence, it helps you share the right information at the right place and time.
 
+[![Placenotes](https://raw.githubusercontent.com/iterating/placenotes/refs/heads/main/public/portfolio.placenotes.qr.200.png)](https://placenotes.vercel.app/)
+**Try it out!**
+
 ### Key Features
 
  **Location-Aware Messages**

@@ -3,6 +3,7 @@ import { SERVER } from '../app/config';
 import store from '../store/store';
 import { logout } from '../store/authSlice';
 import { validateToken, setToken } from '../lib/tokenManager';
+import { showToast } from '../components/ToastManager';
 
 const apiClient = axios.create({
   baseURL: SERVER,
@@ -67,6 +68,12 @@ apiClient.interceptors.response.use(
 
     const originalRequest = error.config;
 
+    // Check if the URL contains 'notes' to prevent logout on note editing
+    const isNoteEditRequest = originalRequest.url && (
+      originalRequest.url.includes('/notes/') || 
+      originalRequest.url.includes('/notes/new')
+    );
+
     // Handle 401 errors with token refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -78,6 +85,21 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return apiClient(originalRequest);
         } catch (err) {
+          // Don't automatically logout for note edit requests
+          if (!isNoteEditRequest) {
+            store.dispatch(logout());
+            showToast({
+              message: 'Your session has expired. Please log in again.',
+              type: 'error',
+              duration: 7000
+            });
+          } else {
+            showToast({
+              message: 'Authentication issue detected. Your work is safe, but you may need to login again soon.',
+              type: 'warning',
+              duration: 10000
+            });
+          }
           return Promise.reject(err);
         }
       }
@@ -95,6 +117,11 @@ apiClient.interceptors.response.use(
         
         if (validateToken(token)) {
           store.dispatch(setToken(token));
+          showToast({
+            message: 'Session refreshed successfully',
+            type: 'success',
+            duration: 3000
+          });
           processQueue(null, token);
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return apiClient(originalRequest);
@@ -103,11 +130,40 @@ apiClient.interceptors.response.use(
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
-        store.dispatch(logout());
+        
+        // Don't automatically logout for note edit requests
+        if (!isNoteEditRequest) {
+          store.dispatch(logout());
+          showToast({
+            message: 'Your session has expired. Please log in again.',
+            type: 'error',
+            duration: 7000
+          });
+        } else {
+          console.warn('Token refresh failed during note edit. Continuing without logout.');
+          showToast({
+            message: 'Please save your changes! Your session is expiring but we\'re keeping you logged in to finish this edit.',
+            type: 'warning',
+            duration: 0 // Won't auto-dismiss
+          });
+        }
+        
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
+    } else if (error.response?.status === 403) {
+      showToast({
+        message: 'You don\'t have permission to perform this action',
+        type: 'error',
+        duration: 5000
+      });
+    } else if (error.response?.status >= 500) {
+      showToast({
+        message: 'Server error. Please try again later.',
+        type: 'error',
+        duration: 5000
+      });
     }
 
     return Promise.reject(error);
