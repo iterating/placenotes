@@ -20,6 +20,7 @@ const Notes = () => {
   const markers = useRef([]);
   const [isLocationFiltered, setIsLocationFiltered] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [sortMethod, setSortMethod] = useState('time'); // Default sort by time created
   const isMapExpanded = useSelector(state => state.notes.isMapExpanded);
   
   const notes = useSelector(selectAllNotes);
@@ -129,6 +130,81 @@ const Notes = () => {
     }
   };
 
+  const sortNotes = (notes) => {
+    // Make a copy of the array to avoid mutating the original
+    const notesCopy = [...notes];
+
+    switch (sortMethod) {
+      case 'time':
+        return notesCopy.sort((a, b) => {
+          const dateA = a?.createdAt ? new Date(a.createdAt) : new Date(0);
+          const dateB = b?.createdAt ? new Date(b.createdAt) : new Date(0);
+          return dateB - dateA;
+        });
+      case 'alphabetical':
+        return notesCopy.sort((a, b) => {
+          const bodyA = a?.body || '';
+          const bodyB = b?.body || '';
+          return bodyA.localeCompare(bodyB);
+        });
+      case 'reverseAlphabetical':
+        return notesCopy.sort((a, b) => {
+          const bodyA = a?.body || '';
+          const bodyB = b?.body || '';
+          return bodyB.localeCompare(bodyA); // Reversed order
+        });
+      case 'location':
+        if (!currentLocation) return notesCopy;
+        return notesCopy.sort((a, b) => {
+          // Extract coordinates from GeoJSON format if available
+          const locationA = a?.location?.coordinates 
+            ? { latitude: a.location.coordinates[1], longitude: a.location.coordinates[0] }
+            : a?.location || null;
+          const locationB = b?.location?.coordinates 
+            ? { latitude: b.location.coordinates[1], longitude: b.location.coordinates[0] }
+            : b?.location || null;
+          
+          const distanceA = calculateDistance(currentLocation, locationA);
+          const distanceB = calculateDistance(currentLocation, locationB);
+          return distanceA - distanceB;
+        });
+      default:
+        return notesCopy;
+    }
+  };
+
+  const calculateDistance = (location1, location2) => {
+    // Handle missing location data
+    if (!location1 || !location2 || 
+        typeof location1.latitude !== 'number' || typeof location1.longitude !== 'number' ||
+        typeof location2.latitude !== 'number' || typeof location2.longitude !== 'number' ||
+        isNaN(location1.latitude) || isNaN(location1.longitude) ||
+        isNaN(location2.latitude) || isNaN(location2.longitude)) {
+      return Infinity; // Place items with missing location at the end
+    }
+    
+    const lat1 = location1.latitude;
+    const lon1 = location1.longitude;
+    const lat2 = location2.latitude;
+    const lon2 = location2.longitude;
+    const R = 6371; // km
+    
+    try {
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const lat1Rad = lat1 * Math.PI / 180;
+      const lat2Rad = lat2 * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad); 
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+      const distance = R * c;
+      return isNaN(distance) ? Infinity : distance;
+    } catch (error) {
+      console.error('Error calculating distance:', error);
+      return Infinity;
+    }
+  };
+
   if (status === 'loading') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Loading...</div>;
   if (status === 'failed') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>;
   if (notes.length === 0 && isLocationFiltered) {
@@ -150,11 +226,13 @@ const Notes = () => {
     );
   }
 
+  const sortedNotes = sortNotes(notes);
+
   return (
     <div className="note-container flex flex-col gap-md p-md">
       <div className={`map-container ${!isMapExpanded ? 'collapsed' : ''}`} id="map-container-home">
         <NotesMap
-          notes={notes}
+          notes={sortedNotes}
           currentLocation={currentLocation}
           markers={markers}
           onMarkerClick={handleNoteClick}
@@ -167,18 +245,40 @@ const Notes = () => {
           <h2 className="title font-semibold text-primary">Your Notes</h2>
           <div className="search-location-container flex gap-sm items-center">
             <button 
-              className="btn btn-secondary"
+              className={`btn btn-secondary flex items-center gap-xs ${isLocationFiltered ? 'active' : ''}`}
               onClick={handleLocationFilter}
             >
-              {isLocationFiltered ? "Show All Notes" : "Filter by Location"}
+              <i className="fas fa-map-marker-alt"></i>
+              <span className="hidden sm:inline">{isLocationFiltered ? "Show All Notes" : "Filter by Location"}</span>
             </button>
+            <div className="sort-container relative">
+              <select 
+                value={sortMethod} 
+                onChange={(e) => setSortMethod(e.target.value)}
+                className="px-md py-sm bg-white border border-gray-300 rounded hover:border-gray-400 focus:ring-2 focus:ring-primary focus:outline-none transition-colors appearance-none pl-8 pr-8"
+              >
+                <option value="time">Sort by Time</option>
+                <option value="alphabetical">Sort Alphabetically by Note Text</option>
+                <option value="reverseAlphabetical">Sort Reverse Alphabetically by Note Text</option>
+                <option value="location">Sort by Distance</option>
+              </select>
+              <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none text-gray-500 icon-left">
+                {sortMethod === 'time' && <i className="fas fa-clock"></i>}
+                {sortMethod === 'alphabetical' && <i className="fas fa-align-left"></i>}
+                {sortMethod === 'reverseAlphabetical' && <i className="fas fa-align-right"></i>}
+                {sortMethod === 'location' && <i className="fas fa-map-marker-alt"></i>}
+              </div>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-gray-500 icon-right">
+                <i className="fas fa-chevron-down"></i>
+              </div>
+            </div>
           </div>
         </div>
-        {notes.length === 0 ? (
+        {sortedNotes.length === 0 ? (
           <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">You don't have any notes yet. Create your first note!</div>
         ) : (
           <NotesList
-            notes={notes}
+            notes={sortedNotes}
             onNoteClick={handleNoteClick}
             onMouseOver={handleMouseOver}
             onMouseOut={handleMouseOut}

@@ -11,7 +11,7 @@ import "./NotesMap.css"
 import "./ToggleBar.css"
 import { toggleMapExpanded } from "../../../store/noteSlice.js"
 import { fetchMessagesByLocation } from "../../../store/messageStoreAction"
-import MessageList from "../../messages/components/MessageList"
+import MessageList from "../../messages/components/MessageList" 
 
 // Set up default icon
 let DefaultIcon = L.icon({
