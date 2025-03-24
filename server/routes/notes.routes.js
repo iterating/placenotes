@@ -43,6 +43,7 @@ router.get("/recent", recentNotes);
 router.get("/oldest", oldestNotes);
 
 // Location-based routes
+router.get("/nearby", getNotesByLocation);
 router.get("/location/:lat/:lon", getNotesByLocation);
 router.get("/current-location", getNotesByCurrentLocation);
 

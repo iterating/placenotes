@@ -229,25 +229,33 @@ export const oldestNotes = async (req, res) => {
 
 export const getNotesByLocation = async (req, res) => {
   try {
-    console.log("GET /notes/nearby called with query params:", req.query);
+    console.log("GET /notes/nearby or /notes/location/:lat/:lon called with params:", req.params);
+    console.log("Query params:", req.query);
     
     // Try to parse the location from different possible sources
     let location = null;
     
-    if (req.query.location) {
+    // First check for path parameters (/:lat/:lon route)
+    if (req.params.lat && req.params.lon) {
+      location = {
+        type: 'Point',
+        coordinates: [parseFloat(req.params.lon), parseFloat(req.params.lat)]
+      };
+      console.log("Created location from path parameters:", location);
+    } else if (req.query.latitude && req.query.longitude) {
+      // Handle direct lat/lon parameters from query string
+      location = {
+        type: 'Point',
+        coordinates: [parseFloat(req.query.longitude), parseFloat(req.query.latitude)]
+      };
+      console.log("Created location from latitude/longitude query params:", location);
+    } else if (req.query.location) {
       try {
         location = JSON.parse(req.query.location);
         console.log("Successfully parsed location from query.location:", location);
       } catch (err) {
         console.error("Error parsing location from JSON string:", err);
       }
-    } else if (req.query.latitude && req.query.longitude) {
-      // Handle direct lat/lon parameters
-      location = {
-        type: 'Point',
-        coordinates: [parseFloat(req.query.longitude), parseFloat(req.query.latitude)]
-      };
-      console.log("Created location from latitude/longitude params:", location);
     }
     
     if (!location) {
@@ -262,13 +270,19 @@ export const getNotesByLocation = async (req, res) => {
 
     console.log("Calling notes service with userId and location:", { userId, location });
     
+    // Get radius parameter from query, default to 5000 meters (5km)
+    const radius = req.query.radius ? parseInt(req.query.radius) : 5000;
+    
     const notes = await NotesService.getNotesByLocation({
       userId,
-      location
+      location,
+      radius
     });
 
+    // Return an empty array instead of a 404 status when no notes are found
     if (!notes || notes.length === 0) {
-      return res.status(404).send("No notes found at the specified location");
+      console.log("No notes found at the specified location - returning empty array");
+      return res.status(200).json([]);
     }
     
     console.log(`Found ${notes.length} notes near location`);

@@ -123,7 +123,7 @@ export const getNoteById = async (id) => {
   return Note.model.findById(id);
 }
 
-export const getNotesByLocation = async ({ userId, location }) => {
+export const getNotesByLocation = async ({ userId, location, radius = 5000 }) => {
   checkConnection();
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -146,7 +146,7 @@ export const getNotesByLocation = async ({ userId, location }) => {
       location: {
         $near: {
           $geometry: location,
-          $maxDistance: 5000 // 5km radius
+          $maxDistance: radius 
         }
       }
     };

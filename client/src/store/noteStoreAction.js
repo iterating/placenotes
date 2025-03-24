@@ -66,7 +66,7 @@ export const fetchNotesByLocation = createAsyncThunk(
           params: {
             latitude,
             longitude,
-            radius: radius || 1000
+            radius: radius || 10000
           }
         });
         
