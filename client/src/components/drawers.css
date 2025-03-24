@@ -6,6 +6,10 @@
  * - DrawerRight.css
  */
 
+:root {
+  --primary-rgb: 59, 130, 246; /* RGB version of primary color for opacity support */
+}
+
 /* Common drawer base styles */
 .drawer-base {
   position: fixed;
@@ -47,6 +51,48 @@
 .drawer:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: -2px;
+}
+
+/* Swipe indicators for edge detection */
+.swipe-indicator-left,
+.swipe-indicator-right {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 5px;
+  background-color: rgba(var(--primary-rgb), 0.5);
+  z-index: var(--z-drawer-indicator, 1080);
+  opacity: 0;
+  transition: opacity 0.2s ease, width 0.2s ease;
+  pointer-events: none;
+}
+
+.swipe-indicator-left {
+  left: 0;
+  border-radius: 0 2px 2px 0;
+}
+
+.swipe-indicator-right {
+  right: 0;
+  border-radius: 2px 0 0 2px;
+}
+
+.swipe-indicator-left.active,
+.swipe-indicator-right.active {
+  opacity: 1;
+  width: 10px;
+}
+
+/* Add a subtle animation for the swipe indicators when active */
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+.swipe-indicator-left.active,
+.swipe-indicator-right.active {
+  animation: pulse 1.5s infinite;
 }
 
 /* Drawer header and content */
