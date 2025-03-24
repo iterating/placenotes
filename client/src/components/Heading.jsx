@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Drawer from './Drawer';
 import DrawerRight from './DrawerRight';
-import SearchBar from '../features/search/SearchBar';
 import './Heading.css';
 import './drawers.css';
 
@@ -44,37 +43,33 @@ const Heading = () => {
   };
 
   return (
-    <div className="header-container">
-      <header className="app-header">
-        <div className="header-left">
-          <span 
-            className="header-icon" 
-            id="sidebar-icon" 
-            role="button" 
-            tabIndex={0}
-            onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-            onKeyPress={(e) => e.key === 'Enter' && setIsDrawerOpen(!isDrawerOpen)}
-            aria-label="Toggle navigation menu"
-            aria-expanded={isDrawerOpen}
-          >
-            &#9776;
-          </span>
-        </div>
-        <SearchBar />
-        <div className="header-right">
-          <span 
-            className="header-icon"
-            role="button" 
-            tabIndex={0}
-            onClick={() => setIsMessageDrawerOpen(!isMessageDrawerOpen)}
-            onKeyPress={(e) => e.key === 'Enter' && setIsMessageDrawerOpen(!isMessageDrawerOpen)}
-            aria-label="Toggle messages"
-            aria-expanded={isMessageDrawerOpen}
-          >
-            &#9776;
-          </span>
-        </div>
-      </header>
+    <div className="drawer-buttons-container">
+      {/* Floating left drawer button */}
+      <span 
+        className="drawer-toggle-button drawer-toggle-left" 
+        id="sidebar-icon" 
+        role="button" 
+        tabIndex={0}
+        onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+        onKeyPress={(e) => e.key === 'Enter' && setIsDrawerOpen(!isDrawerOpen)}
+        aria-label="Toggle navigation menu"
+        aria-expanded={isDrawerOpen}
+      >
+        &#9776;
+      </span>
+
+      {/* Floating right drawer button */}
+      <span 
+        className="drawer-toggle-button drawer-toggle-right"
+        role="button" 
+        tabIndex={0}
+        onClick={() => setIsMessageDrawerOpen(!isMessageDrawerOpen)}
+        onKeyPress={(e) => e.key === 'Enter' && setIsMessageDrawerOpen(!isMessageDrawerOpen)}
+        aria-label="Toggle messages"
+        aria-expanded={isMessageDrawerOpen}
+      >
+        &#9776;
+      </span>
 
       <Drawer
         isOpen={isDrawerOpen}
@@ -89,10 +84,11 @@ const Heading = () => {
       <div 
         className={`overlay ${isDrawerOpen || isMessageDrawerOpen ? 'open' : ''}`}
         onClick={() => {
-          if (isDrawerOpen) handleDrawerClose();
-          if (isMessageDrawerOpen) handleMessageDrawerClose();
+          if (isDrawerOpen) setIsDrawerOpen(false);
+          if (isMessageDrawerOpen) setIsMessageDrawerOpen(false);
         }}
         role="presentation"
+        aria-hidden="true"
       />
     </div>
   );

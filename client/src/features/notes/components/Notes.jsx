@@ -205,32 +205,12 @@ const Notes = () => {
     }
   };
 
-  if (status === 'loading') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Loading...</div>;
-  if (status === 'failed') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>;
-  if (notes.length === 0 && isLocationFiltered) {
-    return (
-      <div className="note-container flex flex-col gap-md p-md">
-        <div className="flex flex-col justify-center items-center min-h-200 text-center p-xl">
-          <p className="text-secondary text-lg mb-md">No notes found near your current location.</p>
-          <button 
-            onClick={() => {
-              dispatch(fetchUsersNotes());
-              setIsLocationFiltered(false);
-            }}
-            className="px-md py-sm bg-primary text-white rounded hover:bg-primary-dark transition-colors"
-          >
-            Show all notes
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const sortedNotes = sortNotes(notes);
 
   return (
-    <div className="note-container flex flex-col gap-md p-md">
-      <div className={`map-container ${!isMapExpanded ? 'collapsed' : ''}`} id="map-container-home">
+    <div className="note-container">
+      {/* Map container as the fixed bottom layer */}
+      <div className="map-container">
         <NotesMap
           notes={sortedNotes}
           currentLocation={currentLocation}
@@ -240,55 +220,111 @@ const Notes = () => {
           handleMouseOut={handleMouseOut}
         />
       </div>
-      <div className="notes-list overflow-y-auto p-xs">
-        <div className="notes-header flex justify-between items-center p-sm-y">
-          <h2 className="title font-semibold text-primary">Your Notes</h2>
-          <div className="search-location-container flex gap-sm items-center">
-            <button 
-              className={`btn btn-secondary flex items-center gap-xs ${isLocationFiltered ? 'active' : ''}`}
-              onClick={handleLocationFilter}
-            >
-              <i className="fas fa-map-marker-alt"></i>
-              <span className="hidden sm:inline">{isLocationFiltered ? "Show All Notes" : "Filter by Location"}</span>
-            </button>
-            <div className="sort-container relative">
-              <select 
-                value={sortMethod} 
-                onChange={(e) => setSortMethod(e.target.value)}
-                className="px-md py-sm bg-white border border-gray-300 rounded hover:border-gray-400 focus:ring-2 focus:ring-primary focus:outline-none transition-colors appearance-none pl-8 pr-8"
-              >
-                <option value="time">Sort by Time</option>
-                <option value="alphabetical">Sort Alphabetically by Note Text</option>
-                <option value="reverseAlphabetical">Sort Reverse Alphabetically by Note Text</option>
-                <option value="location">Sort by Distance</option>
-              </select>
-              <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none text-gray-500 icon-left">
-                {sortMethod === 'time' && <i className="fas fa-clock"></i>}
-                {sortMethod === 'alphabetical' && <i className="fas fa-align-left"></i>}
-                {sortMethod === 'reverseAlphabetical' && <i className="fas fa-align-right"></i>}
-                {sortMethod === 'location' && <i className="fas fa-map-marker-alt"></i>}
-              </div>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-gray-500 icon-right">
-                <i className="fas fa-chevron-down"></i>
-              </div>
-            </div>
+
+      {/* Notes panel at the bottom of the screen */}
+      <div className="notes-panel">
+        {/* Toggle bar at the bottom, controls visibility of notes content */}
+        <div className="toggle-bar" onClick={() => dispatch({ type: 'notes/toggleNotesPanel' })}>
+          <div className="toggle-handle">
+            <span>{isMapExpanded ? 'Expand Notes' : 'Collapse Notes'}</span>
+            <i className={`fas fa-chevron-${isMapExpanded ? 'up' : 'down'} toggle-icon`}></i>
           </div>
         </div>
-        {sortedNotes.length === 0 ? (
-          <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">You don't have any notes yet. Create your first note!</div>
-        ) : (
-          <NotesList
-            notes={sortedNotes}
-            onNoteClick={handleNoteClick}
-            onMouseOver={handleMouseOver}
-            onMouseOut={handleMouseOut}
-            markers={markers}
-          />
-        )}
-        <p className="mt-md">
-          <Link to="/notes/new" className="create-note-link btn btn-primary">Create a new note</Link>
-        </p>
+        
+        {/* Notes content - visible when expanded, hidden when collapsed */}
+        <div className={`notes-content ${!isMapExpanded ? 'expanded' : 'collapsed'}`}>
+          <div className="notes-list-container">
+            <div className="notes-header flex justify-between items-center p-sm-y">
+              <h2 className="title font-semibold text-primary">Your Notes</h2>
+              <div className="search-location-container flex gap-sm items-center">
+                <button 
+                  className={`btn btn-secondary flex items-center gap-xs ${isLocationFiltered ? 'active' : ''}`}
+                  onClick={handleLocationFilter}
+                >
+                  <i className="fas fa-map-marker-alt"></i>
+                  <span className="hidden sm:inline">{isLocationFiltered ? "Show All Notes" : "Filter by Location"}</span>
+                </button>
+                <div className="sort-container relative">
+                  <select 
+                    value={sortMethod} 
+                    onChange={(e) => setSortMethod(e.target.value)}
+                    className="px-md py-sm bg-white border border-gray-300 rounded hover:border-gray-400 focus:ring-2 focus:ring-primary focus:outline-none transition-colors appearance-none pl-8 pr-8"
+                  >
+                    <option value="time">Sort by Time</option>
+                    <option value="alphabetical">Sort Alphabetically by Note Text</option>
+                    <option value="reverseAlphabetical">Sort Reverse Alphabetically by Note Text</option>
+                    <option value="location">Sort by Distance</option>
+                  </select>
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none text-gray-500 icon-left">
+                    {sortMethod === 'time' && <i className="fas fa-clock"></i>}
+                    {sortMethod === 'alphabetical' && <i className="fas fa-align-left"></i>}
+                    {sortMethod === 'reverseAlphabetical' && <i className="fas fa-align-right"></i>}
+                    {sortMethod === 'location' && <i className="fas fa-map-marker-alt"></i>}
+                  </div>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-gray-500 icon-right">
+                    <i className="fas fa-chevron-down"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="notes-content-area">
+              {sortedNotes.length === 0 ? (
+                <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">You don't have any notes yet. Create your first note!</div>
+              ) : (
+                <NotesList
+                  notes={sortedNotes}
+                  onNoteClick={handleNoteClick}
+                  onMouseOver={handleMouseOver}
+                  onMouseOut={handleMouseOut}
+                  markers={markers}
+                />
+              )}
+              
+              <p className="mt-md">
+                <Link to="/notes/new" className="create-note-link btn btn-primary">Create a new note</Link>
+              </p>
+            </div>
+            
+            {/* Status messages inside notes panel */}
+            {status === 'loading' && (
+              <div className="notes-status-message">Loading...</div>
+            )}
+            {status === 'failed' && (
+              <div className="notes-status-message">Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>
+            )}
+            {notes.length === 0 && isLocationFiltered && (
+              <div className="notes-status-message">
+                <p className="text-secondary mb-md">No notes found near your current location.</p>
+                <button 
+                  onClick={() => {
+                    dispatch(fetchUsersNotes());
+                    setIsLocationFiltered(false);
+                  }}
+                  className="px-md py-sm bg-primary text-white rounded hover:bg-primary-dark transition-colors"
+                >
+                  Show all notes
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Overlay messages only shown for critical errors/states */}
+      {status === 'critical-failure' && (
+        <div className="overlay-message">
+          <div className="flex flex-col justify-center items-center min-h-200 text-center p-xl">
+            <p className="text-secondary text-lg mb-md">Critical error loading application.</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-md py-sm bg-primary text-white rounded hover:bg-primary-dark transition-colors"
+            >
+              Refresh page
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

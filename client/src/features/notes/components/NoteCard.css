@@ -3,12 +3,8 @@
   overflow: hidden;
   position: relative;
   transition: all 0.2s ease;
-  max-width: 1400px; /* Match map width */
-  margin: 0 auto;
   margin-bottom: 0.75rem;
   border-radius: 0.375rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .notecard:hover {
@@ -16,30 +12,17 @@
   transform: translateY(-1px);
 }
 
-/* Toggle Bar */
+/* NoteCard-specific toggle-bar overrides */
 .notecard .toggle-bar {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background-color: rgba(0, 0, 0, 0.01);
-  position: relative;
   z-index: 2;
-  padding: 0.3rem 0;
-  display: flex;
-  justify-content: center;
 }
 
 .notecard .toggle-icon {
   font-size: 0.625rem;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: rgba(0, 0, 0, 0.5);
-}
-
-.toggle-handle {
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.toggle-bar:hover .toggle-handle {
-  opacity: 1;
 }
 
 /* Note Preview */
@@ -74,56 +57,14 @@
   background-color: rgba(0, 0, 0, 0.01);
 }
 
-.note-body {
-  line-height: 1.15;
-  font-size: 0.9rem;
-  margin: 0;
-  color: rgba(0, 0, 0, 0.8);
-}
-
-.note-body p {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-.note-body p:first-child {
-  margin-top: 0;
-}
-
-.note-body p:last-child {
-  margin-bottom: 0;
-}
-
-.note-body br {
-  display: inline;
-  line-height: inherit;
+.note-preview:not(.expanded)::after {
   content: '';
-}
-
-.note-body ul, 
-.note-body ol {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-  padding-left: 1rem;
-}
-
-.note-body li {
-  margin-bottom: 0.15rem;
-}
-
-.note-body li:last-child {
-  margin-bottom: 0;
-}
-
-.note-preview:not(.expanded) .note-body {
-  max-height: 2.5rem;
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-}
-
-.note-preview.expanded .note-body {
-  max-height: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1.5em;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
 }
 
 .note-preview.expanded .toggle-icon {
@@ -171,16 +112,6 @@
     border-radius: 0.25rem;
     margin: 0 0 0.75rem 0;
     width: 100%;
-  }
-
-  .note-body {
-    padding: 0.25rem 0.5rem;
-  }
-
-  .note-body img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.25rem;
   }
 
   /* Adjust list padding on mobile */

@@ -65,7 +65,7 @@ const NoteForm = ({
   };
 
   return (
-<>
+    <>
       <form onSubmit={handleSubmit} className="note-form">
         {error && <div className="error-message">{error}</div>}
         <div className="editor-container">
@@ -82,36 +82,40 @@ const NoteForm = ({
             radius={note?.radius}
           />
         </div>
-        <div className="radius-slider-container">
-          <label htmlFor="radius">Radius:</label>
-          <input
-            type="range"
-            id="radius"
-            min="50"
-            max="5000"
-            step="50"
-            value={note?.radius || 100}
-            onChange={(e) => handleRadiusChange(Number(e.target.value))}
-            className="radius-slider"
-          />
-          <span className="radius-value">{note?.radius || 100}m</span>
-        </div>
-        <div className="button-group">
-          <button 
-            type="button" 
-            onClick={() => navigate("/notes")} 
-            className="btn btn-secondary"
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit" 
-            disabled={isSubmitting} 
-            className="btn btn-primary"
-          >
-            {isSubmitting ? "Saving..." : (initialNote?._id ? "Save Changes" : "Create Note")}
-          </button>
+        
+        {/* Fixed action bar for always-visible controls */}
+        <div className="note-form-actions">
+          <div className="radius-slider-container">
+            <label htmlFor="radius">Radius:</label>
+            <input
+              type="range"
+              id="radius"
+              min="50"
+              max="5000"
+              step="50"
+              value={note?.radius || 100}
+              onChange={(e) => handleRadiusChange(Number(e.target.value))}
+              className="radius-slider"
+            />
+            <span className="radius-value">{note?.radius || 100}m</span>
+          </div>
+          <div className="button-group">
+            <button 
+              type="button" 
+              onClick={() => navigate("/notes")} 
+              className="btn btn-secondary"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting} 
+              className="btn btn-primary"
+            >
+              {isSubmitting ? "Saving..." : (initialNote?._id ? "Save Changes" : "Create Note")}
+            </button>
+          </div>
         </div>
       </form>
       {initialNote?._id && (
@@ -125,8 +129,8 @@ const NoteForm = ({
           </button>
         </div>
       )}
-</>
-    );
+    </>
+  );
 };
 
 export default NoteForm;

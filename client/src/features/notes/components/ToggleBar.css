@@ -1,38 +1,39 @@
-/* Shared toggle bar styles */
-.toggle-bar {
-  position: relative;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
-  user-select: none;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s ease;
-}
-
-.toggle-bar:hover {
-  background: rgba(255, 255, 255, 0.98);
-}
-
+/* Base toggle bar component - shared across the app */
 .toggle-handle {
-  height: 100%;
-  gap: 8px;  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   font-size: 14px;
-  transition: color 0.2s ease;
+  color: var(--gray-700);
+  padding: 10px 16px;
 }
 
 .toggle-handle:hover {
-  color: #333;
+  color: var(--gray-900);
 }
 
 .toggle-icon {
   font-size: 12px;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
 }
 
+/* Icon rotation based on expanded/collapsed state */
 .expanded .toggle-icon {
-  transform: translateY(1px);
+  transform: rotate(180deg);
 }
 
 .collapsed .toggle-icon {
-  transform: translateY(-1px);
+  transform: rotate(0deg);
+}
+
+/* For accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .toggle-bar {
+    transition: none;
+  }
+  
+  .toggle-icon {
+    transition: none;
+  }
 }

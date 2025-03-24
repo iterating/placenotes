@@ -37,7 +37,10 @@ const noteSlice = createSlice({
     setLocation: (state, action) => {
       state.location = action.payload;
     },
-    toggleMapExpanded: (state) => {
+    toggleNotesPanel: (state) => {
+      // The isMapExpanded state now controls the notes panel visibility
+      // When true, map is fully visible and notes panel is collapsed
+      // When false, notes panel is expanded over the map
       state.isMapExpanded = !state.isMapExpanded;
     }
   },
@@ -123,7 +126,7 @@ export const {
   clearNotes, 
   setNoteVisibility, 
   setLocation, 
-  toggleMapExpanded 
+  toggleNotesPanel 
 } = noteSlice.actions;
 
 // Selectors

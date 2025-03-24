@@ -121,7 +121,7 @@
   white-space: nowrap;
 }
 
-/* Overlay styles */
+/* Overlay that appears when drawers are open */
 .overlay {
   position: fixed;
   top: 0;
@@ -132,14 +132,17 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: var(--z-overlay, 1080);
+  z-index: var(--z-overlay, 1085); /* Ensure this is between drawer and higher elements */
   backdrop-filter: blur(2px);
   -webkit-tap-highlight-color: transparent;
+  cursor: pointer; /* Indicate it's clickable */
+  touch-action: manipulation; /* Optimize for touch */
 }
 
 .overlay.open {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto; /* Ensure it can receive pointer events when visible */
 }
 
 /* Content shift when drawer is open */

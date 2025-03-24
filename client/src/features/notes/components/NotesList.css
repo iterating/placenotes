@@ -55,30 +55,18 @@
 
 .empty-state-icon {
   font-size: 2rem;
-  margin-bottom: var(--spacing-sm);
-  color: var(--gray-400);
-}
-
-.empty-state-text {
+  color: var(--gray-300);
   margin-bottom: var(--spacing-md);
 }
 
-/* Mobile Optimizations */
-@media (max-width: 768px) {
-  .notes-container {
-    padding: 0;
-    height: calc(100vh - var(--header-height));
-  }
+.empty-state-text {
+  font-size: 1rem;
+  margin-bottom: var(--spacing-sm);
+}
 
-  .notes-list {
-    gap: 0;
-  }
-
-  .notecard {
-    border-radius: 0;
-    margin: 0;
-    padding: 0;
-  }
+.empty-state-subtext {
+  font-size: 0.875rem;
+  color: var(--gray-400);
 }
 
 /* Scrollbar Styles */
@@ -102,9 +90,8 @@
 
 /* Animations */
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes slideIn {
