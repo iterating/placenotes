@@ -120,12 +120,17 @@ const Notes = () => {
         longitude: currentLocation.longitude
       });
       
-      // Filter by location with simpler direct parameters
+      // Try using a more direct approach with path parameters instead of query parameters
+      const lat = currentLocation.latitude;
+      const lon = currentLocation.longitude;
+      
+      // Use the path parameter endpoint that works consistently
       dispatch(fetchNotesByLocation({
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        radius: 10000 // Default radius of 10km
+        latitude: lat,
+        longitude: lon,
+        radius: 50000 // 10km radius
       }));
+      
       setIsLocationFiltered(true);
     }
   };

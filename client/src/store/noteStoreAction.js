@@ -60,26 +60,52 @@ export const fetchNotesByLocation = createAsyncThunk(
         return rejectWithValue('Invalid coordinates. Both latitude and longitude must be provided.');
       }
       
-      // Make the request with direct latitude/longitude parameters
+      // Make the request with direct path parameters instead of query params
       try {
+        console.log('Sending request to: /notes/nearby with query params:', {
+          latitude, longitude, radius
+        });
+        
+        // Make sure API client has the token set properly for authentication
+        const token = getState().auth.token;
+        if (!token) {
+          return rejectWithValue('Authentication token is missing. Please log in again.');
+        }
+        
+        // Make the request to /nearby endpoint with query parameters
         const response = await apiClient.get('/notes/nearby', {
           params: {
             latitude,
             longitude,
-            radius: radius || 10000
+            radius: radius || 50000 // Use larger radius for better results
           }
         });
         
         console.log('Received response:', response.data);
         return response.data;
       } catch (error) {
-        // If the error is a 404 (no notes found), return an empty array instead of rejecting
-        if (error.response && error.response.status === 404) {
+        console.error('Error fetching notes by location:', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data
+        });
+        
+        // If we get a 404 error, it just means no notes were found at this location
+        // Return an empty array instead of treating it as an error
+        if (error.response?.status === 404) {
           console.log('No notes found near this location - returning empty array');
           return [];
         }
-        // For other errors, reject as usual
-        throw error;
+        
+        // If error is 401 (Unauthorized), it might be an authentication issue
+        if (error.response?.status === 401) {
+          return rejectWithValue('Authentication error. Please try logging in again.');
+        }
+        
+        return rejectWithValue(
+          error.response?.data || error.message || 'Error fetching notes by location'
+        );
       }
     } catch (error) {
       console.error('Error fetching notes by location:', error);

@@ -3,6 +3,12 @@ import * as notesController from "../../controllers/notes.controllers.js";
 import { setUser } from "../middleware/auth.js";
 const router = express.Router();
 
+// Test route that doesn't require authentication - must be defined FIRST
+router.get("/test-nearby", (req, res) => {
+  console.log("TEST route called with query params:", req.query);
+  res.status(200).json({ success: true, message: "Test route working" });
+});
+
 // Get all notes (admin only)
 router.get("/all", setUser, (req, res, next) => {
   console.log("GET /notes/all called");
