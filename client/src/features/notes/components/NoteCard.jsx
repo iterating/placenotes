@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { deleteNote } from "../../../store/noteStoreAction";
@@ -12,14 +12,25 @@ const NoteCard = ({ note, markers }) => {
   const dispatch = useDispatch();
   const noteScrollRef = React.useRef(null);
 
+  // Configure marked options to prevent excessive HTML elements
+  useEffect(() => {
+    marked.setOptions({
+      gfm: true,
+      breaks: false,
+      headerIds: false,
+      mangle: false,
+      smartLists: true
+    });
+  }, []);
+
   const handleToggle = () => {
     if (noteScrollRef.current) {
       const rect = noteScrollRef.current.getBoundingClientRect();
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       const noteTop = rect.top + scrollTop;
-      
+
       setShowFullNote(!showFullNote);
-      
+
       // Only scroll if we're expanding and the note is not fully visible
       if (!showFullNote && rect.top < 0) {
         requestAnimationFrame(() => {
@@ -83,7 +94,12 @@ const NoteCard = ({ note, markers }) => {
         <div
           className="note-body prose"
           dangerouslySetInnerHTML={{
-            __html: marked(showFullNote ? note.body : note.body.split("\n")[0]),
+            __html: marked(
+              // Clean and sanitize the note text to prevent unwanted elements
+              (showFullNote ? note.body : note.body.split("\n")[0])
+                .replace(/\n\s*\n/g, '\n') // Replace double line breaks with single
+                .replace(/\/\s*$/g, '') // Remove trailing slashes
+            ),
           }}
         />
       </div>

@@ -102,20 +102,28 @@ const Notes = () => {
   }, [markers]);
 
   const handleLocationFilter = () => {
-    if (!currentLocation) {
-      alert("Location is not available. Please ensure location services are enabled.");
-      return;
-    }
-
     if (isLocationFiltered) {
       // If already filtered by location, show all notes
       dispatch(fetchUsersNotes());
       setIsLocationFiltered(false);
     } else {
-      // Filter by location
-      dispatch(fetchNotesByLocation({
+      // Check if we have a valid current location
+      if (!currentLocation || !currentLocation.latitude || !currentLocation.longitude) {
+        console.error("No valid location available for filtering");
+        alert("Unable to filter by location. Please make sure location services are enabled.");
+        return;
+      }
+      
+      console.log("Filtering by location:", {
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude
+      });
+      
+      // Filter by location with simpler direct parameters
+      dispatch(fetchNotesByLocation({
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        radius: 10000 // Default radius of 10km
       }));
       setIsLocationFiltered(true);
     }
@@ -123,6 +131,24 @@ const Notes = () => {
 
   if (status === 'loading') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Loading...</div>;
   if (status === 'failed') return <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">Error: {typeof error === 'string' ? error : 'Failed to load notes'}</div>;
+  if (notes.length === 0 && isLocationFiltered) {
+    return (
+      <div className="note-container flex flex-col gap-md p-md">
+        <div className="flex flex-col justify-center items-center min-h-200 text-center p-xl">
+          <p className="text-secondary text-lg mb-md">No notes found near your current location.</p>
+          <button 
+            onClick={() => {
+              dispatch(fetchUsersNotes());
+              setIsLocationFiltered(false);
+            }}
+            className="px-md py-sm bg-primary text-white rounded hover:bg-primary-dark transition-colors"
+          >
+            Show all notes
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="note-container flex flex-col gap-md p-md">
@@ -148,13 +174,17 @@ const Notes = () => {
             </button>
           </div>
         </div>
-        <NotesList
-          notes={notes}
-          onNoteClick={handleNoteClick}
-          onMouseOver={handleMouseOver}
-          onMouseOut={handleMouseOut}
-          markers={markers}
-        />
+        {notes.length === 0 ? (
+          <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">You don't have any notes yet. Create your first note!</div>
+        ) : (
+          <NotesList
+            notes={notes}
+            onNoteClick={handleNoteClick}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
+            markers={markers}
+          />
+        )}
         <p className="mt-md">
           <Link to="/notes/new" className="create-note-link btn btn-primary">Create a new note</Link>
         </p>

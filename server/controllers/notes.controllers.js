@@ -229,8 +229,29 @@ export const oldestNotes = async (req, res) => {
 
 export const getNotesByLocation = async (req, res) => {
   try {
-    const location = req.query.location ? JSON.parse(req.query.location) : null;
+    console.log("GET /notes/nearby called with query params:", req.query);
+    
+    // Try to parse the location from different possible sources
+    let location = null;
+    
+    if (req.query.location) {
+      try {
+        location = JSON.parse(req.query.location);
+        console.log("Successfully parsed location from query.location:", location);
+      } catch (err) {
+        console.error("Error parsing location from JSON string:", err);
+      }
+    } else if (req.query.latitude && req.query.longitude) {
+      // Handle direct lat/lon parameters
+      location = {
+        type: 'Point',
+        coordinates: [parseFloat(req.query.longitude), parseFloat(req.query.latitude)]
+      };
+      console.log("Created location from latitude/longitude params:", location);
+    }
+    
     if (!location) {
+      console.error("No location found in request:", req.query);
       return res.status(400).send("Location must be provided");
     }
 
@@ -239,6 +260,8 @@ export const getNotesByLocation = async (req, res) => {
       return res.status(401).send("User not authenticated");
     }
 
+    console.log("Calling notes service with userId and location:", { userId, location });
+    
     const notes = await NotesService.getNotesByLocation({
       userId,
       location
@@ -247,9 +270,11 @@ export const getNotesByLocation = async (req, res) => {
     if (!notes || notes.length === 0) {
       return res.status(404).send("No notes found at the specified location");
     }
+    
+    console.log(`Found ${notes.length} notes near location`);
     res.json(notes);
   } catch (err) {
-    console.error("Error retrieving notes:", err);
+    console.error("Error retrieving notes by location:", err);
     if (err.message.includes('Invalid location format')) {
       return res.status(400).send(err.message);
     }

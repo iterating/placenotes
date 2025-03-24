@@ -49,20 +49,41 @@ export const fetchUsersNotes = createAsyncThunk(
 // Fetch notes by location
 export const fetchNotesByLocation = createAsyncThunk(
   'notes/fetchNotesByLocation',
-  async ({ location, radius }, { rejectWithValue, getState }) => {
+  async ({ latitude, longitude, radius }, { rejectWithValue, getState }) => {
     try {
-      const validatedLocation = validateLocation(location);
-      const response = await apiClient.get('/notes/nearby', {
-        params: {
-          longitude: validatedLocation.coordinates[0],
-          latitude: validatedLocation.coordinates[1],
-          radius: radius || 1000 // Default radius of 1km
+      // Debug logging for troubleshooting
+      console.log('Sending location data:', { latitude, longitude, radius });
+      
+      // Validate the coordinates
+      if (latitude === undefined || longitude === undefined) {
+        console.error('Invalid coordinates:', { latitude, longitude });
+        return rejectWithValue('Invalid coordinates. Both latitude and longitude must be provided.');
+      }
+      
+      // Make the request with direct latitude/longitude parameters
+      try {
+        const response = await apiClient.get('/notes/nearby', {
+          params: {
+            latitude,
+            longitude,
+            radius: radius || 1000
+          }
+        });
+        
+        console.log('Received response:', response.data);
+        return response.data;
+      } catch (error) {
+        // If the error is a 404 (no notes found), return an empty array instead of rejecting
+        if (error.response && error.response.status === 404) {
+          console.log('No notes found near this location - returning empty array');
+          return [];
         }
-      });
-      return response.data;
+        // For other errors, reject as usual
+        throw error;
+      }
     } catch (error) {
       console.error('Error fetching notes by location:', error);
-      return rejectWithValue(error.response?.data?.message || 'Error fetching notes by location');
+      return rejectWithValue(error.response?.data || 'Error fetching notes by location');
     }
   }
 );
