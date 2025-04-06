@@ -25,7 +25,7 @@ export const fetchMessages = createAsyncThunk(
   'messages/fetchMessages',
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      const response = await apiClient.get('/messages');
+      const response = await apiClient.get('/message/list');
       dispatch(setMessages(response.data));
       return response.data;
     } catch (error) {
@@ -47,7 +47,7 @@ export const sendMessage = createAsyncThunk(
         radius: Number(messageData.radius) || 1000
       };
 
-      const response = await apiClient.post('/messages/new', formattedData);
+      const response = await apiClient.post('/message/create', formattedData);
       dispatch(addMessage(response.data));
       return response.data;
     } catch (error) {
@@ -62,7 +62,7 @@ export const markMessageAsRead = createAsyncThunk(
   'messages/markAsRead',
   async (messageId, { dispatch, rejectWithValue }) => {
     try {
-      await apiClient.put(`/messages/${messageId}/read`);
+      await apiClient.put(`/message/${messageId}/read`);
       dispatch(markAsRead(messageId));
     } catch (error) {
       console.error('Error marking message as read:', error);
@@ -77,7 +77,7 @@ export const fetchMessagesByLocation = createAsyncThunk(
   async ({ location, radius }, { dispatch, rejectWithValue }) => {
     try {
       const validatedLocation = validateLocation(location);
-      const response = await apiClient.get('/messages/nearby', {
+      const response = await apiClient.get('/message/nearby', {
         params: {
           longitude: validatedLocation.coordinates[0],
           latitude: validatedLocation.coordinates[1],
