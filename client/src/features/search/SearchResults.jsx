@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {apiClient} from '../../api/apiClient';
-import './SearchResults.css';
+// Using shared CSS classes instead of component-specific CSS
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();

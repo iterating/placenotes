@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { generateToken } from "../../controllers/auth.controllers.js";
 const getTokenFromHeader = (req) => {
+  console.log('Auth headers:', req.headers.authorization);
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     return req.headers.authorization.split(' ')[1];
   }
@@ -9,7 +10,9 @@ const getTokenFromHeader = (req) => {
 
 export const setUser = (req, res, next) => {
   try {
+    console.log('Request path:', req.path);
     const token = getTokenFromHeader(req);
+    console.log('Token received:', token ? 'Yes' : 'No');
     
     if (!token) {
       return res.status(401).json({ 

@@ -7,7 +7,7 @@ import {
   selectPagination
 } from '../../../store/messageSlice';
 import { fetchMessages, markMessageAsRead, fetchMessagesByLocation } from '../../../store/messageStoreAction';
-import './MessageList.css';
+// Using shared CSS classes instead of component-specific CSS
 
 const MessageList = ({ isOpen, onClose, mapCenter }) => {
   const dispatch = useDispatch();
@@ -20,8 +20,10 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   // Fetch messages when component mounts or when map center changes
   useEffect(() => {
     if (isOpen) {
+      console.log('MessageList: Fetching messages, mapCenter:', mapCenter);
       if (mapCenter && mapCenter.coordinates) {
         // If map center is available, fetch messages by location
+        console.log('MessageList: Fetching by location with coordinates:', mapCenter.coordinates);
         dispatch(fetchMessagesByLocation({
           location: {
             type: 'Point',
@@ -31,10 +33,29 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
         }));
       } else {
         // Otherwise fetch all messages
+        console.log('MessageList: Fetching all messages for inbox');
         dispatch(fetchMessages());
       }
     }
   }, [dispatch, isOpen, mapCenter]);
+  
+  // Debug log current messages state
+  useEffect(() => {
+    console.log('MessageList: Current messages in store:', messages);
+    if (messages && messages.length > 0) {
+      console.log('First message details:', {
+        id: messages[0]._id,
+        sender: messages[0].senderName || 'Unknown',
+        content: messages[0].content,
+        read: messages[0].read,
+        date: new Date(messages[0].createdAt).toLocaleString(),
+      });
+    } else {
+      console.log('No messages found in store');
+    }
+    console.log('MessageList: Loading state:', loading);
+    console.log('MessageList: Error state:', error);
+  }, [messages, loading, error]);
 
   // Handle message click - mark as read and show details
   const handleMessageClick = (message) => {
@@ -87,11 +108,11 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
 
   // Render message list header
   const renderHeader = () => (
-    <div className="message-list-header">
-      <h2>Messages</h2>
+    <div className="drawer-header flex-between items-center">
+      <h2 className="m-0">Messages</h2>
       {onClose && (
         <button 
-          className="close-button"
+          className="btn btn-sm"
           onClick={onClose}
           aria-label="Close messages"
         >
@@ -103,13 +124,14 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
 
   // Render a single message item
   const renderMessageItem = (message) => {
+    console.log('Rendering message item:', message._id, message.content.substring(0, 20));
     const isSelected = selectedMessage && selectedMessage._id === message._id;
     const distance = calculateDistance(message.location);
 
     return (
       <div 
         key={message._id}
-        className={`message-item ${!message.read ? 'unread' : ''} ${isSelected ? 'selected' : ''}`}
+        className={`card hover-bg-gray mb-sm ${!message.read ? 'unread' : ''} ${isSelected ? 'selected' : ''}`}
         onClick={() => handleMessageClick(message)}
       >
         <div className="message-avatar">
@@ -140,28 +162,31 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
 
   // Render empty state
   const renderEmptyState = () => (
-    <div className="empty-state">
+    <div className="empty-state flex-col flex-center">
       <div className="empty-icon">📭</div>
       <h3>No Messages</h3>
-      <p>You don't have any messages yet.</p>
+      <p className="text-secondary">You don't have any messages yet.</p>
     </div>
   );
 
   // Render loading state
   const renderLoading = () => (
-    <div className="loading-state">
+    <div className="loading-state flex-col flex-center">
       <div className="loading-spinner"></div>
-      <p>Loading messages...</p>
+      <p className="text-secondary">Loading messages...</p>
     </div>
   );
 
   // Render error state
   const renderError = () => (
-    <div className="error-state">
+    <div className="error-state flex-col flex-center">
       <div className="error-icon">⚠️</div>
       <h3>Error</h3>
-      <p>{error || 'Failed to load messages'}</p>
-      <button onClick={() => dispatch(fetchMessages())}>
+      <p className="text-secondary">{error || 'Failed to load messages'}</p>
+      <button 
+        onClick={() => dispatch(fetchMessages())}
+        className="btn btn-primary mt-sm"
+      >
         Try Again
       </button>
     </div>
@@ -172,15 +197,17 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     if (!pagination || pagination.totalPages <= 1) return null;
     
     return (
-      <div className="pagination-controls">
+      <div className="flex-between items-center mt-md">
         <button 
+          className="btn btn-secondary btn-sm"
           disabled={pagination.currentPage === 1}
           onClick={() => dispatch(fetchMessages(pagination.currentPage - 1))}
         >
           Previous
         </button>
-        <span>{pagination.currentPage} of {pagination.totalPages}</span>
+        <span className="text-secondary">{pagination.currentPage} of {pagination.totalPages}</span>
         <button 
+          className="btn btn-secondary btn-sm"
           disabled={pagination.currentPage === pagination.totalPages}
           onClick={() => dispatch(fetchMessages(pagination.currentPage + 1))}
         >
@@ -193,18 +220,20 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="message-list">
+    <div className={`drawer-base drawer-right ${isOpen ? 'open' : ''}`}>
       {renderHeader()}
       
-      <div className="message-list-content">
+      <div className="drawer-content">
         {loading ? renderLoading() : 
          error ? renderError() :
          messages.length === 0 ? renderEmptyState() :
          (
            <>
-             <div className="message-items">
-               {messages.map(renderMessageItem)}
-             </div>
+             {messages && messages.length > 0 ? (
+               messages.map(renderMessageItem)
+             ) : (
+               <div className="empty-state">No messages to display</div>
+             )}
              {renderPagination()}
            </>
          )

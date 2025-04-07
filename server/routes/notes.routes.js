@@ -1,5 +1,5 @@
 import express from "express";
-import { auth } from "../middleware/auth.js";
+import { setUser } from "../api/middleware/auth.js";
 import {
   getNoteById,
   allNotes,
@@ -22,7 +22,7 @@ import {
 const router = express.Router();
 
 // Protect all routes
-router.use(auth);
+router.use(setUser);
 
 // Note management routes
 router.get("/all", allNotes);

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './SearchBar.css';
+import { apiClient } from '../../api/apiClient';
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +18,7 @@ const SearchBar = () => {
 
     setIsLoading(true);
     try {
-      const response = await axios.get(`/api/users/search?email=${encodeURIComponent(query)}`);
+      const response = await apiClient.get(`/users/search?email=${encodeURIComponent(query)}`);
       if (response.data.success) {
         setSearchResults(response.data.users);
       }
@@ -50,7 +49,7 @@ const SearchBar = () => {
 
   const handleSendRequest = async (userId) => {
     try {
-      const response = await axios.post('/api/users/friend-request', {
+      const response = await apiClient.post('/users/friend-request', {
         targetUserId: userId
       });
       
@@ -80,9 +79,9 @@ const SearchBar = () => {
   }, []);
 
   return (
-    <div className="search-container" ref={searchRef}>
-      <div className="search-input-wrapper">
-        <span className="search-icon">
+    <div className="search-wrapper position-relative" ref={searchRef}>
+      <div className="input-with-icon">
+        <span className="input-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -93,33 +92,32 @@ const SearchBar = () => {
           value={searchTerm}
           onChange={handleInputChange}
           onFocus={() => setShowResults(true)}
-          className="search-input"
+          className="form-input"
           placeholder="Search notes or type @ to find users..."
           aria-label="Search"
         />
       </div>
 
-      <br />
-      <button type="submit" className="search-submit" aria-label="Submit search" onClick={handleSearch}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <button type="submit" className="btn btn-icon" aria-label="Submit search" onClick={handleSearch}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
           <line x1="5" y1="12" x2="19" y2="12"></line>
           <polyline points="12 5 19 12 12 19"></polyline>
         </svg>
       </button>
 
       {showResults && searchTerm.includes('@') && (
-        <div className="search-results">
+        <div className="dropdown-menu show position-absolute w-100">
           {isLoading ? (
-            <div className="search-loading">Searching users...</div>
+            <div className="dropdown-item text-center">Searching users...</div>
           ) : searchResults.length > 0 ? (
-            <div className="results-list">
+            <div className="dropdown-list">
               {searchResults.map(user => (
-                <div key={user._id} className="search-result-item">
+                <div key={user._id} className="dropdown-item d-flex justify-content-between align-items-center p-2">
                   <span>{user.email}</span>
                   {!user.isFriend && !user.hasPendingRequest && (
                     <button
                       onClick={() => handleSendRequest(user._id)}
-                      className="btn btn-outline-primary btn-sm"
+                      className="btn btn-sm btn-outline-primary"
                     >
                       Add Friend
                     </button>
@@ -127,7 +125,7 @@ const SearchBar = () => {
                   {user.hasPendingRequest && (
                     <button
                       disabled
-                      className="btn btn-secondary btn-sm"
+                      className="btn btn-sm btn-secondary"
                     >
                       Request Sent
                     </button>
@@ -136,7 +134,7 @@ const SearchBar = () => {
               ))}
             </div>
           ) : searchTerm.includes('@') && searchTerm.length > 2 && (
-            <div className="no-results">No users found</div>
+            <div className="dropdown-item text-center text-muted">No users found</div>
           )}
         </div>
       )}

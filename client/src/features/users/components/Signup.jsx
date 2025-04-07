@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../../store/authSlice';
-import axios from 'axios';
-import { SERVER } from '../../../app/config';
+import { setCredentials } from '../../../store/authSlice';
+import { apiClient } from '../../../api/apiClient';
 import { Link } from 'react-router-dom';
-import './Signup.css';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -23,7 +21,7 @@ const Signup = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${SERVER}/users/signup`, {
+      const response = await apiClient.post('/users/signup', {
         email,
         password,
         location: {
@@ -33,7 +31,7 @@ const Signup = () => {
       });
 
       if (response.data?.token) {
-        dispatch(loginSuccess({
+        dispatch(setCredentials({
           token: response.data.token,
           user: response.data.user
         }));
@@ -46,18 +44,18 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      <div className="signup-card">
-        <div className="signup-header">
-          <h1>Create Account</h1>
-          <p className="subtitle">Join PlaceNotes to start your journey</p>
+    <div className="center-container">
+      <div className="card form-container">
+        <div className="text-center mb-md">
+          <h1 className="m-0">Create Account</h1>
+          <p className="text-secondary">Join PlaceNotes to start your journey</p>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message mb-md">{error}</div>}
 
-        <form className="signup-form" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="signup-email" className="form-label">Email</label>
             <input
               type="email"
               id="signup-email"
@@ -70,7 +68,7 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="signup-password" className="form-label">Password</label>
             <input
               type="password"
               id="signup-password"
@@ -83,7 +81,7 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="currentLocation">Your City</label>
+            <label htmlFor="signup-currentLocation" className="form-label">Your City</label>
             <select
               id="signup-currentLocation"
               value={`${currentLocation.coordinates[0]},${currentLocation.coordinates[1]}`}
@@ -91,7 +89,7 @@ const Signup = () => {
                 type: 'Point',
                 coordinates: event.target.value.split(',').map(x => parseFloat(x))
               })}
-              className="form-select"
+              className="form-input"
             >
               <option value="-118.243683,34.052235">New York</option>
               <option value="-118.243683,34.052235">Los Angeles</option>
@@ -105,14 +103,14 @@ const Signup = () => {
             </select>
           </div>
 
-          <button type="submit" className="signup-button">
+          <button type="submit" className="btn btn-primary">
             Create Account
           </button>
 
-          <div className="form-footer">
-            <p>
+          <div className="text-center mt-md">
+            <p className="m-0">
               Already have an account?{' '}
-              <Link to="/users/login" className="login-link">
+              <Link to="/users/login">
                 Log in
               </Link>
             </p>

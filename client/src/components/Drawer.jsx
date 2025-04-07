@@ -74,6 +74,22 @@ const Drawer = ({ isOpen, onClose }) => {
           New Note
         </Link>
         <Link 
+          to="/friends" 
+          className={`${drawerItemClass} ${location.pathname === '/friends' ? 'active bg-primary-light text-primary-color' : ''}`}
+          onClick={onClose}
+        > 
+          <span className={iconClass}>👥</span>
+          Friends
+        </Link>
+        <Link 
+          to="/search"
+          className={`${drawerItemClass} ${location.pathname === '/search' ? 'active bg-primary-light text-primary-color' : ''}`}
+          onClick={onClose}
+        >
+          <span className={iconClass}>🔍</span>
+          Search Notes
+        </Link>
+        <Link 
           to="/users/settings" 
           className={`${drawerItemClass} ${location.pathname === '/users/settings' ? 'active bg-primary-light text-primary-color' : ''}`}
           onClick={onClose}

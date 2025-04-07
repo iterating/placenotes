@@ -1,5 +1,5 @@
 import express from "express";
-import { auth } from "../middleware/auth.js";
+import { setUser } from "../api/middleware/auth.js";
 import {
   allUsers,
   accountSet,
@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 // Protect all routes
-router.use(auth);
+router.use(setUser);
 
 // User management routes
 router.get("/all", allUsers);

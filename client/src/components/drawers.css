@@ -17,12 +17,13 @@
   height: 100vh;
   background: var(--white);
   box-shadow: var(--shadow-lg);
-  z-index: var(--z-drawer, 1090);
+  z-index: 1090; /* Explicit z-index higher than overlay */
   padding-top: 56px;
   will-change: transform;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  pointer-events: auto; /* Always allow interaction with drawer elements */
 }
 
 /* Left drawer specific styles */
@@ -113,6 +114,9 @@
   border: none;
   background: none;
   font-size: 1rem;
+  position: relative; /* Ensure proper stacking context */
+  z-index: 1; /* Give items their own stacking context */
+  pointer-events: auto; /* Explicitly enable clicks */
 }
 
 .drawer-item:hover {
@@ -166,7 +170,7 @@
   text-overflow: ellipsis;
   max-width: 100%;
   display: inline-block;
-  font-size: x-small;
+  font-size: xx-small;
 }
 
 /* Overlay that appears when drawers are open */
@@ -180,17 +184,18 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: var(--z-overlay, 1085); /* Ensure this is between drawer and higher elements */
+  z-index: 1075; /* Ensure this is WELL BELOW the drawer z-index (1090) */
   backdrop-filter: blur(2px);
   -webkit-tap-highlight-color: transparent;
   cursor: pointer; /* Indicate it's clickable */
   touch-action: manipulation; /* Optimize for touch */
+  pointer-events: none; /* Don't capture events when not visible */
 }
 
 .overlay.open {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto; /* Ensure it can receive pointer events when visible */
+  pointer-events: auto; /* Allow clicks only when visible */
 }
 
 /* Content shift when drawer is open */
