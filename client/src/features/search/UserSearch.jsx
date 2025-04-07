@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { searchUsers, sendFriendRequest } from '../../api/userService';
-import './UserSearch.css';
+import { apiClient } from '../../api/apiClient';
 
 const UserSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,9 +19,9 @@ const UserSearch = () => {
     setError('');
 
     try {
-      const { success, users } = await searchUsers(query);
-      if (success) {
-        setSearchResults(users);
+      const response = await apiClient.get(`/users/search?email=${encodeURIComponent(query)}`);
+      if (response.data.success) {
+        setSearchResults(response.data.users);
       }
     } catch (err) {
       setError('Error searching users');
@@ -35,9 +34,11 @@ const UserSearch = () => {
   const handleSendRequest = async (userId) => {
     try {
       setError('');
-      const { success, message } = await sendFriendRequest(userId);
+      const response = await apiClient.post('/users/friend-request', {
+        targetUserId: userId
+      });
       
-      if (success) {
+      if (response.data.success) {
         // Update the user's status in search results
         setSearchResults(prevResults =>
           prevResults.map(user =>
@@ -47,7 +48,7 @@ const UserSearch = () => {
           )
         );
       } else {
-        setError(message);
+        setError(response.data.message);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error sending friend request');
@@ -78,41 +79,41 @@ const UserSearch = () => {
   }, []);
 
   return (
-    <div className="user-search" ref={searchRef}>
-      <div className="search-input-container">
+    <div className="search-wrapper position-relative" ref={searchRef}>
+      <div className="input-group">
         <input
           type="email"
           placeholder="Search users by email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setShowResults(true)}
-          className="user-search-input"
+          className="form-input"
         />
       </div>
 
       {showResults && (searchTerm || isLoading) && (
-        <div className="user-search-results">
+        <div className="dropdown-menu show position-absolute w-100">
           {isLoading ? (
-            <div className="search-loading">Searching...</div>
+            <div className="dropdown-item text-center">Searching...</div>
           ) : error ? (
-            <div className="search-error">{error}</div>
+            <div className="dropdown-item text-danger">{error}</div>
           ) : searchResults.length > 0 ? (
-            <ul className="user-results-list">
+            <ul className="list-unstyled m-0">
               {searchResults.map(user => (
-                <li key={user._id} className="user-result-item">
-                  <div className="user-info">
-                    <span className="user-name">{user.name || 'Unnamed User'}</span>
-                    <span className="user-email">{user.email}</span>
+                <li key={user._id} className="dropdown-item d-flex justify-content-between align-items-center p-2">
+                  <div className="flex-grow-1">
+                    <div className="font-weight-bold">{user.name || 'Unnamed User'}</div>
+                    <div className="text-secondary small">{user.email}</div>
                   </div>
-                  <div className="user-actions">
+                  <div>
                     {user.isFriend ? (
-                      <span className="friend-badge">Friend</span>
+                      <span className="badge badge-success">Friend</span>
                     ) : user.hasPendingRequest ? (
-                      <span className="pending-badge">Request Sent</span>
+                      <span className="badge badge-secondary">Request Sent</span>
                     ) : (
                       <button
                         onClick={() => handleSendRequest(user._id)}
-                        className="send-request-btn"
+                        className="btn btn-sm btn-outline-primary"
                       >
                         Add Friend
                       </button>
@@ -122,9 +123,9 @@ const UserSearch = () => {
               ))}
             </ul>
           ) : searchTerm.length >= 2 ? (
-            <div className="no-results">No users found</div>
+            <div className="dropdown-item text-center text-muted">No users found</div>
           ) : (
-            <div className="search-hint">Type at least 2 characters to search</div>
+            <div className="dropdown-item text-center text-muted">Type at least 2 characters to search</div>
           )}
         </div>
       )}

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMessages } from '../../../store/messageStoreAction';
 import { selectMessages } from '../../../store/messageSlice';
 import MessageList from './MessageList';
-import './Messages.css';
+// Using shared CSS classes instead of component-specific CSS
 
 const Messages = ({ isOpen, onClose, mapCenter }) => {
   const [touchStart, setTouchStart] = useState(null);
@@ -51,7 +51,7 @@ const Messages = ({ isOpen, onClose, mapCenter }) => {
       />
       {isOpen && (
         <div 
-          className="messages-overlay" 
+          className="overlay open" 
           onClick={onClose}
         />
       )}

@@ -53,6 +53,19 @@ const messageSlice = createSlice({
     },
     setError(state, action) {
       state.error = action.payload;
+    },
+    deleteMessageById(state, action) {
+      const messageId = action.payload;
+      const messageIndex = state.messages.findIndex(msg => msg._id === messageId);
+      
+      if (messageIndex !== -1) {
+        // If deleted message was unread, update unread count
+        if (!state.messages[messageIndex].read) {
+          state.unreadCount -= 1;
+        }
+        // Remove the message from the array
+        state.messages.splice(messageIndex, 1);
+      }
     }
   }
 });
@@ -63,7 +76,8 @@ export const {
   markAsRead, 
   clearMessages,
   setLoading,
-  setError
+  setError,
+  deleteMessageById
 } = messageSlice.actions;
 
 export const selectMessages = (state) => state.messages.messages;

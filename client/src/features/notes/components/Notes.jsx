@@ -275,7 +275,7 @@ const Notes = () => {
             
             <div className="notes-content-area">
               {sortedNotes.length === 0 ? (
-                <div className="flex justify-center items-center min-h-200 text-center p-xl text-secondary text-lg">You don't have any notes yet. Create your first note!</div>
+                <div className="flex justify-center items-center text-center p-xl text-secondary text-lg">You don't have any notes yet. Create your first note!</div>
               ) : (
                 <NotesList
                   notes={sortedNotes}

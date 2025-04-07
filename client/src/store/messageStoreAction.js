@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../api/apiClient';
-import { setMessages, addMessage, markAsRead } from './messageSlice';
+import { setMessages, addMessage, markAsRead, deleteMessageById } from './messageSlice';
 
 // Utility to validate and format the location coordinates
 const validateLocation = (location) => {
@@ -20,12 +20,15 @@ const validateLocation = (location) => {
   };
 };
 
-// Fetch all messages for the current user
+// Fetch all messages for the current user by received time (inbox)
 export const fetchMessages = createAsyncThunk(
   'messages/fetchMessages',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (page = 1, { dispatch, rejectWithValue }) => {
     try {
-      const response = await apiClient.get('/message/list');
+      // Use the new list endpoint that returns messages by received time
+      const response = await apiClient.get('/messages/list', {
+        params: { page }
+      });
       dispatch(setMessages(response.data));
       return response.data;
     } catch (error) {
@@ -44,10 +47,11 @@ export const sendMessage = createAsyncThunk(
         recipientId: messageData.recipientId,
         content: messageData.content.trim(),
         location: validateLocation(messageData.location),
-        radius: Number(messageData.radius) || 1000
+        radius: Number(messageData.radius) || 1000,
+        parentMessageId: messageData.parentMessageId || null // Add parentMessageId for replies
       };
 
-      const response = await apiClient.post('/message/create', formattedData);
+      const response = await apiClient.post('/messages/create', formattedData);
       dispatch(addMessage(response.data));
       return response.data;
     } catch (error) {
@@ -62,8 +66,9 @@ export const markMessageAsRead = createAsyncThunk(
   'messages/markAsRead',
   async (messageId, { dispatch, rejectWithValue }) => {
     try {
-      await apiClient.put(`/message/${messageId}/read`);
+      await apiClient.put(`/messages/${messageId}/read`);
       dispatch(markAsRead(messageId));
+      return { success: true, messageId };
     } catch (error) {
       console.error('Error marking message as read:', error);
       return rejectWithValue(error.response?.data?.message || 'Error marking message as read');
@@ -71,17 +76,18 @@ export const markMessageAsRead = createAsyncThunk(
   }
 );
 
-// Fetch messages by location
+// Fetch messages by location (nearby)
 export const fetchMessagesByLocation = createAsyncThunk(
   'messages/fetchByLocation',
-  async ({ location, radius }, { dispatch, rejectWithValue }) => {
+  async ({ location, radius, page = 1 }, { dispatch, rejectWithValue }) => {
     try {
       const validatedLocation = validateLocation(location);
-      const response = await apiClient.get('/message/nearby', {
+      const response = await apiClient.get('/messages/nearby', {
         params: {
           longitude: validatedLocation.coordinates[0],
           latitude: validatedLocation.coordinates[1],
-          radius: radius || 1000
+          radius: radius || 1000,
+          page
         }
       });
       dispatch(setMessages(response.data));
@@ -89,6 +95,21 @@ export const fetchMessagesByLocation = createAsyncThunk(
     } catch (error) {
       console.error('Error fetching messages by location:', error);
       return rejectWithValue(error.response?.data?.message || 'Error fetching messages by location');
+    }
+  }
+);
+
+// Delete a message
+export const deleteMessage = createAsyncThunk(
+  'messages/deleteMessage',
+  async (messageId, { dispatch, rejectWithValue }) => {
+    try {
+      await apiClient.delete(`/messages/${messageId}`);
+      dispatch(deleteMessageById(messageId));
+      return { success: true, messageId };
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      return rejectWithValue(error.response?.data?.message || 'Error deleting message');
     }
   }
 );

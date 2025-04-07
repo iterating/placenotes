@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import './FriendRequests.css';
+import { apiClient } from '../../api/apiClient';
 
 const FriendRequests = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +12,7 @@ const FriendRequests = () => {
       setMessage('');
       setError('');
       
-      const response = await axios.post('/api/friends/request', { email });
+      const response = await apiClient.post('/friends/request', { email });
       setMessage(response.data.message);
       setEmail('');
     } catch (err) {
@@ -22,16 +21,20 @@ const FriendRequests = () => {
   };
 
   return (
-    <div className="friend-requests">
-      <form onSubmit={handleSendRequest} className="friend-request-form">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter friend's email"
-          required
-          className="form-input"
-        />
+    <div className="container">
+      <form onSubmit={handleSendRequest} className="form-container">
+        <div className="form-group">
+          <label htmlFor="friend-email" className="form-label">Friend's Email</label>
+          <input
+            id="friend-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter friend's email"
+            required
+            className="form-input"
+          />
+        </div>
         <button type="submit" className="btn btn-primary">
           Send Friend Request
         </button>

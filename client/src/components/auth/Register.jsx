@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../../../store/authActions';
-import './Auth.css';
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -57,19 +56,22 @@ const Register = () => {
   };
   
   return (
-    <div className="auth-container">
-      <div className="auth-form-container">
-        <h1>Create Account</h1>
+    <div className="center-container">
+      <div className="card form-container">
+        <div className="text-center mb-md">
+          <h1 className="m-0">Create Account</h1>
+          <p className="text-secondary">Join PlaceNotes today</p>
+        </div>
         
         {error && (
-          <div className="error-message">
+          <div className="error-message mb-md">
             {error}
           </div>
         )}
         
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="name" className="form-label">Full Name</label>
             <input
               type="text"
               id="name"
@@ -78,11 +80,12 @@ const Register = () => {
               onChange={handleChange}
               placeholder="Enter your name"
               disabled={isSubmitting}
+              className="form-input"
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email" className="form-label">Email</label>
             <input
               type="email"
               id="email"
@@ -91,11 +94,12 @@ const Register = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               disabled={isSubmitting}
+              className="form-input"
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password" className="form-label">Password</label>
             <input
               type="password"
               id="password"
@@ -104,11 +108,12 @@ const Register = () => {
               onChange={handleChange}
               placeholder="Enter your password"
               disabled={isSubmitting}
+              className="form-input"
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
             <input
               type="password"
               id="confirmPassword"
@@ -117,23 +122,26 @@ const Register = () => {
               onChange={handleChange}
               placeholder="Confirm your password"
               disabled={isSubmitting}
+              className="form-input"
             />
           </div>
           
           <button 
             type="submit" 
-            className="auth-button"
+            className="btn btn-primary w-100"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
         
-        <div className="auth-links">
-          Already have an account?{' '}
-          <Link to="/login" className="auth-link">
-            Sign In
-          </Link>
+        <div className="text-center mt-md">
+          <p className="m-0">
+            Already have an account?{' '}
+            <Link to="/login">
+              Sign In
+            </Link>
+          </p>
         </div>
       </div>
     </div>

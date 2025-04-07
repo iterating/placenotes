@@ -6,6 +6,7 @@ import middleware from "./api/middleware/middleware.js"
 import users from "./api/routes/userRoutes.js"
 import notes from "./api/routes/noteRoutes.js"
 import messages from "./routes/messages.routes.js"
+import friends from "./routes/friends.routes.js"
 import auth from "./api/routes/authRoutes.js"
 import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
 import dotenv from "dotenv"
@@ -82,6 +83,7 @@ app.use(passport.session())
 app.use('/api/users', users)
 app.use('/api/notes', notes)
 app.use('/api/messages', messages)
+app.use('/api/friends', friends)
 app.use('/api/auth', auth)
 
 // Serve static files in production

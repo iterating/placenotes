@@ -16,7 +16,8 @@ import Notes from './features/notes/components/Notes';
 import NoteEdit from './features/notes/components/NoteEdit';
 import SearchResults from './features/search/SearchResults';
 import Messages from './features/messages/components/Messages';
-
+import MessageCompose from './features/messages/components/MessageCompose';
+import Friends from './features/friends/Friends';
 import Heading from './components/Heading';
 import RequireAuth from './components/auth/RequireAuth';
 import Home from './components/Home';
@@ -100,7 +101,16 @@ function AppContent() {
               <Messages />
             </RequireAuth>
           } />
-          
+          <Route path="/messages/compose" element={
+            <RequireAuth>
+              <MessageCompose />
+            </RequireAuth>
+          } />
+          <Route path="/friends" element={
+            <RequireAuth>
+              <Friends />
+            </RequireAuth>
+          } />
         </Routes>
       </div>
     </div>

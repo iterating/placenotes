@@ -1,0 +1,62 @@
+/* Message thread styles */
+
+/* Message thread visual indicators */
+.card.is-reply {
+  border-left: 3px solid var(--primary-color);
+  margin-left: var(--spacing-sm);
+}
+
+/* Reply reference info */
+.reply-to-info {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  background-color: var(--gray-100);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.quoted-text {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Reply form specific styles */
+.reply-form {
+  margin-top: var(--spacing-sm);
+  border-top: 1px solid var(--gray-200);
+  padding-top: var(--spacing-sm);
+}
+
+/* Use existing form control styles with minor adjustments */
+.reply-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+/* Message actions section */
+.message-actions {
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Message status indicators */
+.message-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-full);
+  background-color: var(--gray-100);
+  color: var(--text-secondary);
+  margin-right: var(--spacing-xs);
+}
+
+.message-badge.sent {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
