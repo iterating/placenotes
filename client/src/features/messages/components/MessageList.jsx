@@ -1,44 +1,82 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { 
-  selectMessages, 
-  selectLoading, 
-  selectError,
-  selectPagination
-} from '../../../store/messageSlice';
-import { fetchMessages, markMessageAsRead, fetchMessagesByLocation } from '../../../store/messageStoreAction';
-// Using shared CSS classes instead of component-specific CSS
+  fetchMessages, 
+  deleteMessage, 
+  markMessageAsRead, 
+  setSelectedMessage,
+  clearSelectedMessage,
+  selectAllMessages,
+  selectMessagesLoading,
+  selectMessagesRefreshing,
+  selectMessagesError,
+  selectSelectedMessageId
+} from '../messagesSlice';
+import { selectUser } from '../../../store/authSlice';
+import MessageItem from './MessageItem';
+import MessageCompose from './MessageCompose';
+import MessageThread from './MessageThread';
+import './MessageStyles.css';
+
+import { useSelector, useDispatch } from 'react-redux';
 
 const MessageList = ({ isOpen, onClose, mapCenter }) => {
+  // Get messages from Redux store
+  const messages = useSelector(selectAllMessages);
+  const loading = useSelector(selectMessagesLoading);
+  const refreshing = useSelector(selectMessagesRefreshing);
+  const error = useSelector(selectMessagesError);
+  const selectedMessageId = useSelector(selectSelectedMessageId);
+  const currentUser = useSelector(selectUser);
+  // Note: pagination is handled in the Redux slice now
   const dispatch = useDispatch();
-  const messages = useSelector(selectMessages);
-  const loading = useSelector(selectLoading);
-  const error = useSelector(selectError);
-  const pagination = useSelector(selectPagination);
-  const [selectedMessage, setSelectedMessage] = useState(null);
+  // Local state for UI management
+  const [isComposing, setIsComposing] = useState(false);
+  const [showingThread, setShowingThread] = useState(false);
+  const [refreshTimerId, setRefreshTimerId] = useState(null);
+
+  // Function to fetch messages based on current location
+  const fetchUserMessages = useCallback(() => {
+    if (mapCenter && mapCenter.coordinates) {
+      // If map center is available, fetch messages by location
+      console.log('MessageList: Fetching by location with coordinates:', mapCenter.coordinates);
+      dispatch(fetchMessages({
+        page: 1,
+        limit: 20,
+        location: {
+          type: 'Point',
+          coordinates: mapCenter.coordinates
+        },
+        radius: 5000 // 5km radius
+      }));
+    } else {
+      dispatch(fetchMessages({ page: 1, limit: 20 }));
+    }
+  }, [dispatch, mapCenter]);
 
   // Fetch messages when component mounts or when map center changes
   useEffect(() => {
     if (isOpen) {
-      console.log('MessageList: Fetching messages, mapCenter:', mapCenter);
-      if (mapCenter && mapCenter.coordinates) {
-        // If map center is available, fetch messages by location
-        console.log('MessageList: Fetching by location with coordinates:', mapCenter.coordinates);
-        dispatch(fetchMessagesByLocation({
-          location: {
-            type: 'Point',
-            coordinates: mapCenter.coordinates
-          },
-          radius: 5000 // Default radius in meters
-        }));
-      } else {
-        // Otherwise fetch all messages
-        console.log('MessageList: Fetching all messages for inbox');
-        dispatch(fetchMessages());
-      }
+      fetchUserMessages();
     }
-  }, [dispatch, isOpen, mapCenter]);
-  
+  }, [isOpen, fetchUserMessages]);
+
+  // Set up automatic refresh interval (every 20 seconds)
+  useEffect(() => {
+    // Only set up the interval if the drawer is open
+    if (!isOpen) return;
+    
+    const refreshInterval = setInterval(() => {
+      console.log('Auto-refreshing messages');
+      fetchUserMessages();
+    }, 20000); // refresh every 20 seconds
+    
+    setRefreshTimerId(refreshInterval);
+    
+    return () => {
+      if (refreshTimerId) clearInterval(refreshTimerId);
+    };
+  }, [isOpen, dispatch, mapCenter, fetchUserMessages]);
+
   // Debug log current messages state
   useEffect(() => {
     console.log('MessageList: Current messages in store:', messages);
@@ -54,15 +92,29 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       console.log('No messages found in store');
     }
     console.log('MessageList: Loading state:', loading);
-    console.log('MessageList: Error state:', error);
-  }, [messages, loading, error]);
+    console.log('MessageList: Error state:', refreshing);
+  }, [messages, loading, refreshing]);
 
   // Handle message click - mark as read and show details
-  const handleMessageClick = (message) => {
-    if (!message.read) {
+  const handleMessageClick = useCallback((message) => {
+    // Mark as read if not already
+    if (!message.read && message.senderId !== currentUser?._id) {
       dispatch(markMessageAsRead(message._id));
     }
-    setSelectedMessage(message._id === selectedMessage?._id ? null : message);
+    dispatch(setSelectedMessage(message._id));
+    setShowingThread(true);
+  }, [dispatch, currentUser]);
+
+  // Handle message deletion
+  const handleDeleteMessage = (e, messageId) => {
+    e.stopPropagation(); // Prevent triggering the message click event
+    if (window.confirm('Are you sure you want to delete this message?')) {
+      dispatch(deleteMessage(messageId));
+      // If the deleted message was selected, clear the selection
+      if (selectedMessageId === messageId) {
+        dispatch(clearSelectedMessage());
+      }
+    }
   };
 
   // Format date to a readable format
@@ -77,88 +129,117 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     }).format(date);
   };
 
-  // Calculate distance from current location if available
-  const calculateDistance = (messageLocation) => {
-    if (!mapCenter || !messageLocation || !messageLocation.coordinates) return null;
-    
-    // Haversine formula to calculate distance between two points
-    const toRad = (value) => (value * Math.PI) / 180;
-    const R = 6371; // Earth radius in km
-    
-    const [lon1, lat1] = mapCenter.coordinates;
-    const [lon2, lat2] = messageLocation.coordinates;
-    
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-    
-    // Format distance
-    if (distance < 1) {
-      return `${Math.round(distance * 1000)}m away`;
-    }
-    return `${distance.toFixed(1)}km away`;
+  // Handle compose button click
+  const handleComposeClick = () => {
+    setIsComposing(true);
+    setShowingThread(false);
+    dispatch(clearSelectedMessage());
   };
 
-  // Render message list header
-  const renderHeader = () => (
-    <div className="drawer-header flex-between items-center">
-      <h2 className="m-0">Messages</h2>
-      {onClose && (
-        <button 
-          className="btn btn-sm"
-          onClick={onClose}
-          aria-label="Close messages"
-        >
-          &times;
-        </button>
-      )}
-    </div>
-  );
+  // Cancel composing a new message
+  const handleComposeCancel = () => {
+    setIsComposing(false);
+  };
 
-  // Render a single message item
-  const renderMessageItem = (message) => {
-    console.log('Rendering message item:', message._id, message.content.substring(0, 20));
-    const isSelected = selectedMessage && selectedMessage._id === message._id;
-    const distance = calculateDistance(message.location);
+  // Handle back button in thread view
+  const handleThreadClose = () => {
+    setShowingThread(false);
+    dispatch(clearSelectedMessage());
+  };
 
+  // Handle loading more messages
+  const handleLoadMore = () => {
+    const nextPage = Math.ceil(messages.length / 20) + 1;
+    fetchUserMessages(nextPage);
+  };
+
+  // Handle reply click
+  const handleReplyClick = (message) => {
+    setIsComposing(true);
+    dispatch(setSelectedMessage(message._id));
+  };
+
+  // Render the message list
+  const renderMessages = () => {
+    if (loading && !refreshing) {
+      return <div className="loading-indicator">Loading messages...</div>;
+    }
+    
+    if (messages.length === 0) {
+      return (
+        <div className="empty-state">
+          <p>No messages found in this area.</p>
+          <button 
+            className="btn btn-primary mt-sm"
+            onClick={handleComposeClick}
+          >
+            Compose Message
+          </button>
+        </div>
+      );
+    }
+    
     return (
-      <div 
-        key={message._id}
-        className={`card hover-bg-gray mb-sm ${!message.read ? 'unread' : ''} ${isSelected ? 'selected' : ''}`}
-        onClick={() => handleMessageClick(message)}
-      >
-        <div className="message-avatar">
-          <div className="avatar-placeholder">{(message.senderName || 'A').charAt(0).toUpperCase()}</div>
-          {!message.read && <span className="unread-indicator" />}
-        </div>
-        
-        <div className="message-content">
-          <div className="message-header">
-            <span className="sender-name">{message.senderName || 'Anonymous'}</span>
-            <span className="message-time">{formatDate(message.createdAt)}</span>
+      <div>
+        {messages.map(message => (
+          <div 
+            key={message._id} 
+            onClick={() => handleMessageClick(message)}
+            className="message-item-wrapper"
+          >
+            <MessageItem 
+              message={message} 
+              onReply={handleReplyClick} 
+              onDelete={handleDeleteMessage}
+            />
           </div>
-          
-          <p className="message-text">
-            {isSelected || message.content.length <= 100 
-              ? message.content 
-              : `${message.content.substring(0, 100)}...`
-            }
-          </p>
-          
-          {distance && (
-            <div className="message-distance">{distance}</div>
-          )}
-        </div>
+        ))}
+        {!refreshing && messages.length > 10 && (
+          <div className="load-more">
+            <button 
+              className="btn btn-outline-primary"
+              onClick={handleLoadMore}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Load More'}
+            </button>
+          </div>
+        )}
       </div>
     );
   };
+
+  // Render message list header
+  const renderHeader = () => {
+    return (
+      <div className="messages-header">
+        <h2 className="messages-title">
+          {showingThread ? 'Message Thread' : 
+           isComposing ? 'New Message' : 'Messages'}
+        </h2>
+        <button 
+          className="close-button"
+          onClick={onClose}
+          aria-label="Close messages"
+        >
+          <span className="icon">×</span>
+        </button>
+      </div>
+    );
+  };
+
+  // Render the compose new message form using the MessageCompose component
+  const renderComposeForm = () => {
+    return (
+      <MessageCompose
+        onCancel={() => setIsComposing(false)}
+        onSuccess={() => setIsComposing(false)}
+        parentMessage={selectedMessageId ? messages.find(m => m._id === selectedMessageId) : null}
+        mapCenter={mapCenter}
+      />
+    );
+  };
+
 
   // Render empty state
   const renderEmptyState = () => (
@@ -224,20 +305,30 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       {renderHeader()}
       
       <div className="drawer-content">
-        {loading ? renderLoading() : 
-         error ? renderError() :
-         messages.length === 0 ? renderEmptyState() :
-         (
-           <>
-             {messages && messages.length > 0 ? (
-               messages.map(renderMessageItem)
-             ) : (
-               <div className="empty-state">No messages to display</div>
-             )}
-             {renderPagination()}
-           </>
-         )
-        }
+        {/* Use MessageCompose directly instead of renderComposeForm */}
+        {isComposing && (
+          <MessageCompose 
+            onCancel={handleComposeCancel} 
+            mapCenter={mapCenter}
+          />
+        )}
+        {/* Show message compose form if composing */}
+        {isComposing && renderComposeForm()}
+        
+        {/* Show message thread if viewing a thread */}
+        {!isComposing && showingThread && selectedMessageId && (
+          <MessageThread 
+            threadId={selectedMessageId} 
+            onClose={handleThreadClose} 
+          />
+        )}
+        
+        {/* Show message list if not composing or viewing thread */}
+        {!isComposing && !showingThread && (
+          <div className="messages-container">
+            {renderMessages()}
+          </div>
+        )}
       </div>
     </div>
   );

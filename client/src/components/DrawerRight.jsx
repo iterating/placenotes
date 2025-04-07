@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react';
 import MessageList from '../features/messages/components/MessageList';
+import { useDispatch } from 'react-redux';
+import { fetchMessages } from '../store/messageStoreAction';
 import './drawers.css';
 
 const DrawerRight = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch();
+  
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isOpen) {
@@ -13,25 +17,21 @@ const DrawerRight = ({ isOpen, onClose }) => {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
+  
+  // Refresh messages when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchMessages());
+    }
+  }, [isOpen, dispatch]);
 
   return (
     <div 
       className={`drawer-right ${isOpen ? 'open' : ''} drawer-base`}
       role="complementary"
-      aria-label="Notifications panel"
+      aria-label="Messages panel"
     >
-      <div className="drawer-header border-b p-md flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <h3 className="m-0 font-semibold text-primary">Notifications</h3>
-          <button 
-            className="close-button p-sm rounded-full hover:bg-gray-100" 
-            onClick={onClose}
-            aria-label="Close notifications panel"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
+      {/* MessageList component now handles its own header */}
       <div className="drawer-content flex-1 overflow-y-auto p-sm">
         <MessageList isOpen={isOpen} />
       </div>

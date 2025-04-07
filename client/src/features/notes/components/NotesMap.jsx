@@ -10,7 +10,8 @@ import "./NotesMap.css"
 import "./ToggleBar.css"
 import { toggleNotesPanel } from "../../../store/noteSlice.js"
 import { fetchMessagesByLocation } from "../../../store/messageStoreAction"
-import MessageList from "../../messages/components/MessageList" 
+import MessageList from "../../messages/components/MessageList"
+import { selectAllMessages } from "../../messages/messagesSlice"
 
 // Set up default icon
 let DefaultIcon = L.icon({
@@ -32,10 +33,10 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
     JSON.parse(sessionStorage.getItem("currentLocation")) || null
   const isExpanded = useSelector((state) => state.notes.isMapExpanded)
 
-  // Messeges
+  // Messages
   const messageMarkersRef = useRef([])
   const [isMessageDrawerOpen, setIsMessageDrawerOpen] = useState(false)
-  const messages = useSelector((state) => state.messages.messages)
+  const messages = useSelector(selectAllMessages)
   const [mapCenter, setMapCenter] = useState(null)
 
   useEffect(() => {

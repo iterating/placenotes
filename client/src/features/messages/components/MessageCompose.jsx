@@ -1,49 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { apiClient } from '../../../api/apiClient';
+import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { sendMessage } from '../../../store/messageStoreAction';
+import { selectUser } from '../../../store/authSlice';
+import RecipientSelector from './RecipientSelector';
+import './MessageStyles.css';
 
-const MessageCompose = () => {
-  const [recipientId, setRecipientId] = useState(null);
+const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
+  const [recipientId, setRecipientId] = useState(parentMessage?.senderId || '');
+  const [recipientName, setRecipientName] = useState(parentMessage?.senderName || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [message, setMessage] = useState('');
-  const [coords, setCoords] = useState(null);
   
-  const navigate = useNavigate();
-  const location = useLocation();
+  const dispatch = useDispatch();
+  const currentUser = useSelector(selectUser);
+  const messageInputRef = useRef(null);
   
+  // Focus on message input when recipient is selected
   useEffect(() => {
-    // Parse recipientId from query parameters
-    const params = new URLSearchParams(location.search);
-    const id = params.get('recipient');
-    
-    if (id) {
-      setRecipientId(id);
-      // Get current user location for the message
-      getCurrentLocation();
-    } else {
-      setError('No recipient specified');
+    if (recipientId && messageInputRef.current) {
+      messageInputRef.current.focus();
     }
-  }, [location]);
+  }, [recipientId]);
   
-  const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCoords([position.coords.longitude, position.coords.latitude]);
-        },
-        (err) => {
-          console.error('Geolocation error:', err);
-          setError('Could not get your location. Your message will not have location data.');
-        }
-      );
-    } else {
-      setError('Geolocation is not supported by your browser.');
-    }
+  // Handle recipient selection from RecipientSelector
+  const handleSelectRecipient = (user) => {
+    setRecipientId(user._id);
+    setRecipientName(user.username || user.name || user.email);
+    // Clear any previous errors
+    setError('');
   };
   
-  const handleSubmit = async (e) => {
+
+  
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     if (!message.trim()) {
@@ -52,141 +43,161 @@ const MessageCompose = () => {
     }
     
     if (!recipientId) {
-      setError('Recipient information is missing');
+      setError('Please select a recipient');
       return;
     }
     
     setLoading(true);
     setError('');
     
-    try {
-      // Prepare message data
-      const messageData = {
-        content: message,
-        recipientId: recipientId,
-        location: coords ? {
-          type: 'Point',
-          coordinates: coords
-        } : {
-          // Default location if user doesn't provide one
-          type: 'Point',
-          coordinates: [-118.243683, 34.052235] // Default coordinates (Los Angeles)
-        },
-        radius: 1000 // Default radius in meters
-      };
-      
-      console.log('Sending message data:', JSON.stringify(messageData, null, 2));
-      console.log('RecipientId type:', typeof recipientId);
-      
-      // Send the message with more detailed error handling
-      try {
-        console.log('Sending to endpoint:', '/messages/create');
-        const response = await apiClient.post('/messages/create', messageData);
-        console.log('Message creation response:', response.data);
-        
+    // Prepare message data
+    const messageData = {
+      content: message,
+      recipientId: recipientId,
+      parentMessageId: parentMessage?._id || null,
+      location: mapCenter || {
+        // Default location if mapCenter isn't available
+        type: 'Point',
+        coordinates: [-118.243683, 34.052235] // Default coordinates
+      },
+      radius: 1000 // Default radius in meters
+    };
+    
+    // Dispatch the sendMessage action with Redux
+    dispatch(sendMessage(messageData))
+      .unwrap()
+      .then(() => {
         setSuccess('Message sent successfully!');
         setMessage('');
+        setRecipientId('');
+        setRecipientName('');
         
-        // Wait a moment to show success message before navigating away
+        // Clear success message after a delay
         setTimeout(() => {
-          navigate('/friends');
+          setSuccess('');
+          if (onCancel) onCancel();
         }, 1500);
-      } catch (networkErr) {
-        console.error('Network error details:', networkErr);
-        
-        if (networkErr.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.error('Server response error:', {
-            data: networkErr.response.data,
-            status: networkErr.response.status,
-            headers: networkErr.response.headers
-          });
-          
-          setError(`Server error: ${networkErr.response.data?.message || networkErr.response.statusText}`);
-        } else if (networkErr.request) {
-          // The request was made but no response was received
-          console.error('No response received:', networkErr.request);
-          setError('No response from server. Please check your connection.');
-        } else {
-          // Something happened in setting up the request that triggered an error
-          console.error('Request setup error:', networkErr.message);
-          setError(`Request error: ${networkErr.message}`);
-        }
-        throw networkErr; // re-throw to be caught by outer catch
-      }
-    } catch (err) {
-      console.error('Error in message submission process:', err);
-      setError('Failed to send message. Please check console for details.');
-    } finally {
-      setLoading(false);
-    }
+      })
+      .catch((err) => {
+        console.error('Error sending message:', err);
+        setError(`Failed to send message: ${err.message || 'Unknown error'}`);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
   
   return (
-    <div className="drawer-base drawer-right open">
-      <div className="drawer-header">
+    <div className="compose-form card mb-md">
+      <div className="card-header">
+        <h4 className="m-0">
+          {parentMessage ? (
+            <>
+              <span className="icon mr-xs">↩</span> Reply to Message
+            </>
+          ) : (
+            <>
+              <span className="icon mr-xs">✉️</span> New Message
+            </>
+          )}
+        </h4>
         <button 
-          className="btn btn-secondary"
-          onClick={() => navigate('/friends')}
+          className="btn btn-icon btn-sm"
+          onClick={onCancel}
+          aria-label="Cancel"
         >
-          ← Back to Friends
+          <span className="icon-close">×</span>
         </button>
-        <h2>New Message</h2>
       </div>
       
-      <div className="drawer-content">
-        <div className="card">
-          <div className="avatar-placeholder">
-            F
+      <form onSubmit={handleSubmit}>
+        {/* If replying, show original message */}
+        {parentMessage && (
+          <div className="reply-to-message">
+            <div className="reply-indicator">
+              <span className="icon">↩</span> Replying to:
+            </div>
+            <div className="original-message">
+              <p className="message-content">{parentMessage.content}</p>
+            </div>
           </div>
-          <div className="flex-col">
-            <h3 className="m-0">Friend</h3>
-            <p className="text-secondary">Sending to friend ID: {recipientId?.substring(0, 8)}...</p>
-          </div>
-        </div>
+        )}
+
+        {/* Recipient Selector - only show if not replying */}
+        {!parentMessage && <RecipientSelector onSelectRecipient={handleSelectRecipient} />}
         
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
-        
-        <form onSubmit={handleSubmit} className="form-container">
-        <div className="form-group">
-          <label htmlFor="message-input" className="form-label">Message</label>
-          <textarea
-            id="message-input"
-            className="form-input"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message here..."
-            rows={6}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        {coords ? (
-          <div className="location-info">
-            <span className="location-icon">📍</span>
-            Your current location will be attached to this message
-          </div>
-        ) : (
-          <div className="location-info">
-            <span className="location-icon">📍</span>
-            Using default location for this message
+        {recipientId && (
+          <div className="selected-recipient">
+            <span className="recipient-label">To:</span>
+            <span className="recipient-value">{recipientName}</span>
           </div>
         )}
         
-        <button 
-          type="submit" 
-          className="btn btn-primary"
-          disabled={loading || !message.trim() || !recipientId}
-        >
-          {loading ? 'Sending...' : 'Send Message'}
-        </button>
+        {/* Error and Success messages */}
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+        
+        {/* Message Input */}
+        <div className="form-group">
+          <label htmlFor="message-input" className="form-label">
+            <span className="icon mr-xs">💬</span> Message:
+          </label>
+          <textarea
+            id="message-input"
+            ref={messageInputRef}
+            className="form-control"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder={parentMessage ? "Type your reply here..." : "Type your message here..."}
+            rows={4}
+            disabled={loading}
+            required
+          />
+        </div>
+        
+        {/* Location Info */}
+        <div className="text-secondary mt-xs text-sm location-info">
+          <small>
+            <span className="mr-xs">📍</span>
+            {mapCenter ? 
+              'Your current location will be attached to this message' : 
+              'Using default location for this message'}
+          </small>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="form-actions">
+          <button 
+            type="button" 
+            className="btn btn-sm btn-secondary"
+            onClick={onCancel}
+            disabled={loading}
+          >
+            <span className="icon mr-xs">✕</span> Cancel
+          </button>
+          <button 
+            type="submit" 
+            className="btn btn-sm btn-primary ml-xs"
+            disabled={loading || !message.trim() || !recipientId}
+          >
+            {loading ? (
+              <>
+                <span className="icon spin mr-xs">⟳</span> Sending...
+              </>
+            ) : parentMessage ? (
+              <>
+                <span className="icon mr-xs">↩</span> Send Reply
+              </>
+            ) : (
+              <>
+                <span className="icon mr-xs">➤</span> Send Message
+              </>
+            )}
+          </button>
+        </div>
       </form>
-      </div>
     </div>
-  );
+);
 };
 
 export default MessageCompose;

@@ -4,7 +4,8 @@ import {
   getMessagesByLocation,
   createMessage,
   getMessagesList,
-  markMessageAsRead
+  markMessageAsRead,
+  deleteMessage
 } from '../controllers/messages.controllers.js';
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get('/list', getMessagesList);
 router.get('/nearby', getMessagesByLocation);
 router.post('/create', createMessage);
 router.put('/:messageId/read', markMessageAsRead); // endpoint to mark message as read
+router.delete('/:messageId', deleteMessage); // endpoint to delete a message
 
 export default router;

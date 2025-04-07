@@ -67,7 +67,13 @@
   padding: var(--spacing-md);
   overflow-y: auto;
   height: 100%;
-  background-color: var(--white);
+}
+
+.sort-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
 }
 
 /* Notes header with controls */
@@ -75,11 +81,15 @@
   padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: 1px solid var(--gray-100);
   margin-bottom: var(--spacing-sm);
+  /* display: flex; */
+  justify-content: center;
+  gap: var(--spacing-xl);
 }
 
 .notes-header .title {
   font-size: var(--font-size-lg);
   margin: 0;
+  justify-content: center;
   color: var(--text-primary);
 }
 

@@ -1,102 +1,46 @@
-/* 
- * Consolidated Drawer Styles
- * This file contains all drawer-related styles from:
- * - Heading.css
- * - Drawer.css
- * - DrawerRight.css
- */
+/* Drawer Styles */
 
- :root {
-  --primary-rgb: 59, 130, 246; /* RGB version of primary color for opacity support */
-}
-
-/* Common drawer base styles */
+/* Base drawer - shared properties */
 .drawer-base {
   position: fixed;
   top: 0;
   height: 100vh;
   background: var(--white);
   box-shadow: var(--shadow-lg);
-  z-index: 1090; /* Explicit z-index higher than overlay */
+  z-index: var(--z-drawer, 2000);
   padding-top: 56px;
-  will-change: transform;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  pointer-events: auto; /* Always allow interaction with drawer elements */
+  pointer-events: all; /* Ensure drawer can be interacted with */
 }
 
-/* Left drawer specific styles */
+/* Drawer positioning */
 .drawer {
   width: 280px;
   left: 0;
   transform: translateX(-100%);
 }
 
-.drawer.open {
-  transform: translateX(0);
-}
-
-/* Right drawer specific styles */
 .drawer-right {
   width: 320px;
   right: 0;
   transform: translateX(100%);
 }
 
-.drawer-right.open {
+/* Open state */
+.drawer.open, .drawer-right.open {
   transform: translateX(0);
+  pointer-events: auto; /* Explicitly enable pointer events when drawer is open */
 }
 
-.drawer-right:focus-visible,
-.drawer:focus-visible {
+/* Focus states */
+.drawer:focus-visible, .drawer-right:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: -2px;
 }
 
-/* Swipe indicators for edge detection */
-.swipe-indicator-left,
-.swipe-indicator-right {
-  position: fixed;
-  top: 0;
-  height: 100vh;
-  width: 5px;
-  background-color: rgba(var(--primary-rgb), 0.5);
-  z-index: var(--z-drawer-indicator, 1080);
-  opacity: 0;
-  transition: opacity 0.2s ease, width 0.2s ease;
-  pointer-events: none;
-}
-
-.swipe-indicator-left {
-  left: 0;
-  border-radius: 0 2px 2px 0;
-}
-
-.swipe-indicator-right {
-  right: 0;
-  border-radius: 2px 0 0 2px;
-}
-
-.swipe-indicator-left.active,
-.swipe-indicator-right.active {
-  opacity: 1;
-  width: 10px;
-}
-
-/* Add a subtle animation for the swipe indicators when active */
-@keyframes pulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 0.8; }
-  100% { opacity: 0.5; }
-}
-
-.swipe-indicator-left.active,
-.swipe-indicator-right.active {
-  animation: pulse 1.5s infinite;
-}
-
-/* Drawer header and content */
+/* Structure */
 .drawer-header {
   flex-shrink: 0;
 }
@@ -106,17 +50,15 @@
   overflow-y: auto;
 }
 
-/* Drawer items and icons */
+/* Drawer items */
 .drawer-item {
   text-decoration: none;
-  transition: background-color var(--transition-fast, 0.2s) var(--ease-in-out, ease);
   cursor: pointer;
   border: none;
   background: none;
   font-size: 1rem;
-  position: relative; /* Ensure proper stacking context */
-  z-index: 1; /* Give items their own stacking context */
-  pointer-events: auto; /* Explicitly enable clicks */
+  transition: background-color 0.2s ease;
+  pointer-events: auto; /* Ensure items can be interacted with */
 }
 
 .drawer-item:hover {
@@ -130,37 +72,12 @@
 }
 
 .drawer-icon {
-  font-size: 1.25rem;
   width: 24px;
   height: 24px;
+  font-size: 1.25rem;
 }
 
-/* Header icons */
-.header-icon {
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--gray-600);
-  transition: color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  padding: var(--spacing-xs);
-}
-
-.header-icon:hover {
-  color: var(--gray-900);
-  background-color: var(--gray-100);
-}
-
-.header-icon:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* User profile styles */
+/* User profile */
 .username {
   font-size: 1rem;
 }
@@ -169,33 +86,45 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  display: inline-block;
-  font-size: xx-small;
+  font-size: 0.75rem;
 }
 
-/* Overlay that appears when drawers are open */
+/* Overlay */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1075; /* Ensure this is WELL BELOW the drawer z-index (1090) */
-  backdrop-filter: blur(2px);
-  -webkit-tap-highlight-color: transparent;
-  cursor: pointer; /* Indicate it's clickable */
-  touch-action: manipulation; /* Optimize for touch */
-  pointer-events: none; /* Don't capture events when not visible */
+  transition: all 0.3s ease, left 0.3s ease, right 0.3s ease;
+  z-index: var(--z-overlay, 1);
+  cursor: pointer;
+  pointer-events: none;
 }
 
 .overlay.open {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto; /* Allow clicks only when visible */
+  pointer-events: auto;
+}
+
+/* Adjust overlay position when drawers are open */
+.overlay.left-drawer-open {
+  left: 280px; /* Same as drawer width */
+}
+
+.overlay.right-drawer-open {
+  right: 320px; /* Same as right drawer width */
+}
+
+/* For mobile, overlay covers full screen */
+@media (max-width: 768px) {
+  .overlay.left-drawer-open,
+  .overlay.right-drawer-open {
+    left: 0;
+    right: 0;
+  }
 }
 
 /* Content shift when drawer is open */
@@ -207,9 +136,8 @@
   margin-left: 280px;
 }
 
-/* Ensure content is accessible when drawer is open */
-body.drawer-open,
-body.drawer-right-open {
+/* Body states */
+body.drawer-open, body.drawer-right-open {
   overflow: hidden;
   padding-right: var(--scrollbar-width, 0px);
 }
@@ -220,28 +148,20 @@ body.drawer-right-open {
     margin-left: 0;
   }
   
-  .drawer-right,
-  .drawer {
+  .drawer, .drawer-right {
     width: 100%;
   }
 }
 
-/* Reduce motion if user prefers */
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .drawer-right,
-  .drawer {
-    transition: none;
-  }
-  
-  #content {
+  .drawer, .drawer-right, #content {
     transition: none;
   }
 }
 
-/* High contrast mode support */
 @media (forced-colors: active) {
-  .drawer-right,
-  .drawer {
+  .drawer, .drawer-right {
     border: 1px solid CanvasText;
   }
   

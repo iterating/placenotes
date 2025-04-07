@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../api/apiClient';
-import { setMessages, addMessage, markAsRead } from './messageSlice';
+import { setMessages, addMessage, markAsRead, deleteMessageById } from './messageSlice';
 
 // Utility to validate and format the location coordinates
 const validateLocation = (location) => {
@@ -47,7 +47,8 @@ export const sendMessage = createAsyncThunk(
         recipientId: messageData.recipientId,
         content: messageData.content.trim(),
         location: validateLocation(messageData.location),
-        radius: Number(messageData.radius) || 1000
+        radius: Number(messageData.radius) || 1000,
+        parentMessageId: messageData.parentMessageId || null // Add parentMessageId for replies
       };
 
       const response = await apiClient.post('/messages/create', formattedData);
@@ -94,6 +95,21 @@ export const fetchMessagesByLocation = createAsyncThunk(
     } catch (error) {
       console.error('Error fetching messages by location:', error);
       return rejectWithValue(error.response?.data?.message || 'Error fetching messages by location');
+    }
+  }
+);
+
+// Delete a message
+export const deleteMessage = createAsyncThunk(
+  'messages/deleteMessage',
+  async (messageId, { dispatch, rejectWithValue }) => {
+    try {
+      await apiClient.delete(`/messages/${messageId}`);
+      dispatch(deleteMessageById(messageId));
+      return { success: true, messageId };
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      return rejectWithValue(error.response?.data?.message || 'Error deleting message');
     }
   }
 );

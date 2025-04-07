@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { apiClient } from '../api/apiClient';
-// Using shared CSS classes instead of component-specific CSS
+import { apiClient } from '../../api/apiClient';
 
 const FriendRequests = () => {
   const [email, setEmail] = useState('');

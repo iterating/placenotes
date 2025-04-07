@@ -114,7 +114,7 @@ export const createMessage = async (req, res) => {
     console.log('Message creation request body:', req.body);
     console.log('Current user:', req.user);
     
-    const { content, location, radius, recipientId } = req.body;
+    const { content, location, radius, recipientId, parentMessageId } = req.body;
     const senderId = req.user._id; // Using _id instead of id
     
     console.log('Type checking values to identify issues:');
@@ -122,7 +122,8 @@ export const createMessage = async (req, res) => {
     console.log('recipientId type:', typeof recipientId);
     console.log('content type:', typeof content);
     console.log('location type:', typeof location);
-    console.log('radius type:', typeof radius)
+    console.log('radius type:', typeof radius);
+    console.log('parentMessageId:', parentMessageId || 'Not provided')
     
     // Try to get existing messages to verify database connection works
     try {
@@ -186,7 +187,8 @@ export const createMessage = async (req, res) => {
         type: 'Point',
         coordinates: coordinates
       },
-      radius: Number(radius) || 1000 // Default radius to 1000m if not provided
+      radius: Number(radius) || 1000, // Default radius to 1000m if not provided
+      parentMessageId: parentMessageId || null // Include parent message ID for replies
     });
     
     console.log('Message model created with data:', {
@@ -281,14 +283,20 @@ export const getMessagesList = async (req, res) => {
       return res.json(messageCache.get(cacheKey));
     }
 
-    // Get messages received by the user, sorted by createdAt desc (newest first)
-    // Important: Try both string and ObjectId formats for recipientId to handle different storage formats
+    // Get messages where user is either sender or recipient, sorted by createdAt desc (newest first)
+    // Important: Try both string and ObjectId formats for IDs to handle different storage formats
+    const userIdObj = new mongoose.Types.ObjectId(userId);
+    
     const pipeline = [
       {
         $match: {
           $or: [
-            { recipientId: userId }, // Try string ID (as stored in req.user._id)
-            { recipientId: new mongoose.Types.ObjectId(userId) } // Try ObjectId
+            // Where user is recipient
+            { recipientId: userId },
+            { recipientId: userIdObj },
+            // Where user is sender
+            { senderId: userId },
+            { senderId: userIdObj }
           ]
         }
       },
@@ -333,6 +341,13 @@ export const getMessagesList = async (req, res) => {
                     '$sender.name', 
                     { $ifNull: ['$sender.username', '$sender.email'] }
                   ] 
+                },
+                // Flag to indicate if the message was sent by the current user
+                'isSentByCurrentUser': {
+                  $or: [
+                    { $eq: [{ $toString: '$senderId' }, { $toString: userIdObj }] },
+                    { $eq: ['$senderId', userIdObj] }
+                  ]
                 }
               }
             }
@@ -344,7 +359,9 @@ export const getMessagesList = async (req, res) => {
     console.log('Message pipeline match condition:', {
       $or: [
         { recipientId: userId },
-        { recipientId: new mongoose.Types.ObjectId(userId) }
+        { recipientId: userIdObj },
+        { senderId: userId },
+        { senderId: userIdObj }
       ]
     });
 
@@ -446,6 +463,45 @@ export const markMessageAsRead = async (req, res) => {
   } catch (error) {
     console.error('Error marking message as read:', error);
     res.status(500).json({ message: 'Error marking message as read' });
+  }
+};
+
+/**
+ * Delete a message
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object 
+ */
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+    
+    const message = await Message.findById(messageId);
+    
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    
+    // Ensure the user is either the sender or recipient
+    if (message.senderId.toString() !== userId.toString() && 
+        message.recipientId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this message' });
+    }
+    
+    // Delete the message
+    await Message.findByIdAndDelete(messageId);
+    
+    // Clear any list cache entries for this user
+    for (const key of messageCache.keys()) {
+      if (key.startsWith(`list-${userId}`)) {
+        messageCache.delete(key);
+      }
+    }
+    
+    res.json({ success: true, message: 'Message deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    res.status(500).json({ message: 'Error deleting message' });
   }
 };
 

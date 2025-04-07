@@ -189,7 +189,7 @@ const Heading = () => {
       />
 
       <div 
-        className={`overlay ${isDrawerOpen || isMessageDrawerOpen ? 'open' : ''}`}
+        className={`overlay ${isDrawerOpen || isMessageDrawerOpen ? 'open' : ''} ${isDrawerOpen ? 'left-drawer-open' : ''} ${isMessageDrawerOpen ? 'right-drawer-open' : ''}`}
         onClick={() => {
           if (isDrawerOpen) setIsDrawerOpen(false);
           if (isMessageDrawerOpen) setIsMessageDrawerOpen(false);
