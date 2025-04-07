@@ -8,6 +8,9 @@ const PAGE_SIZE = 20;
 const getCacheKey = (longitude, latitude, radius, page) => 
   `${longitude},${latitude},${radius},${page}`;
 
+const getListCacheKey = (userId, page) => 
+  `list-${userId}-${page}`;
+
 const clearCacheEntry = (key) => {
   setTimeout(() => messageCache.delete(key), CACHE_DURATION);
 };
@@ -125,12 +128,19 @@ export const createMessage = async (req, res) => {
 
     // Clear cache entries that might contain this location
     for (const key of messageCache.keys()) {
-      const [cacheLong, cacheLat, cacheRadius] = key.split(',').map(parseFloat);
-      const distance = getDistance(
-        [cacheLong, cacheLat],
-        location.coordinates
-      );
-      if (distance <= parseFloat(cacheRadius)) {
+      // Clear location-based cache entries
+      if (key.includes(',')) {
+        const [cacheLong, cacheLat, cacheRadius] = key.split(',').map(parseFloat);
+        const distance = getDistance(
+          [cacheLong, cacheLat],
+          location.coordinates
+        );
+        if (distance <= parseFloat(cacheRadius)) {
+          messageCache.delete(key);
+        }
+      } 
+      // Clear any list cache entries for the recipient
+      else if (key.startsWith(`list-${recipientId}`)) {
         messageCache.delete(key);
       }
     }
@@ -139,6 +149,127 @@ export const createMessage = async (req, res) => {
   } catch (error) {
     console.error('Error creating message:', error);
     res.status(500).json({ message: 'Error creating message' });
+  }
+};
+
+/**
+ * Get messages by received time (inbox)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+export const getMessagesList = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { page = 1 } = req.query;
+    const parsedPage = parseInt(page);
+
+    // Check cache first
+    const cacheKey = getListCacheKey(userId, parsedPage);
+    if (messageCache.has(cacheKey)) {
+      return res.json(messageCache.get(cacheKey));
+    }
+
+    // Get messages received by the user, sorted by createdAt desc (newest first)
+    const pipeline = [
+      {
+        $match: { recipientId: userId }
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          messages: [
+            { $sort: { createdAt: -1 } },
+            { $skip: (parsedPage - 1) * PAGE_SIZE },
+            { $limit: PAGE_SIZE },
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'senderId',
+                foreignField: '_id',
+                as: 'sender'
+              }
+            },
+            {
+              $unwind: '$sender'
+            },
+            {
+              $project: {
+                _id: 1,
+                content: 1,
+                location: 1,
+                radius: 1,
+                read: 1,
+                createdAt: 1,
+                'sender._id': 1,
+                'sender.username': 1,
+                'sender.email': 1,
+                // Include sender name for UI display
+                'senderName': '$sender.username'
+              }
+            }
+          ]
+        }
+      }
+    ];
+
+    const [result] = await Message.aggregate(pipeline);
+
+    const response = {
+      messages: result.messages,
+      pagination: {
+        currentPage: parsedPage,
+        totalPages: Math.ceil((result.metadata[0]?.total || 0) / PAGE_SIZE),
+        totalMessages: result.metadata[0]?.total || 0
+      }
+    };
+
+    // Cache the result
+    messageCache.set(cacheKey, response);
+    clearCacheEntry(cacheKey);
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error fetching messages list:', error);
+    res.status(500).json({ message: 'Error fetching messages' });
+  }
+};
+
+/**
+ * Mark a message as read
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object 
+ */
+export const markMessageAsRead = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user.id;
+    
+    const message = await Message.findById(messageId);
+    
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    
+    // Ensure the user is the recipient
+    if (message.recipientId.toString() !== userId) {
+      return res.status(403).json({ message: 'Not authorized to mark this message as read' });
+    }
+    
+    // Update the message
+    message.read = true;
+    await message.save();
+    
+    // Clear any list cache entries for this user
+    for (const key of messageCache.keys()) {
+      if (key.startsWith(`list-${userId}`)) {
+        messageCache.delete(key);
+      }
+    }
+    
+    res.json({ success: true, message: 'Message marked as read' });
+  } catch (error) {
+    console.error('Error marking message as read:', error);
+    res.status(500).json({ message: 'Error marking message as read' });
   }
 };
 
