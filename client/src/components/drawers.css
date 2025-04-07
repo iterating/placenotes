@@ -164,7 +164,9 @@
 .email {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
+  display: inline-block;
+  font-size: x-small;
 }
 
 /* Overlay that appears when drawers are open */

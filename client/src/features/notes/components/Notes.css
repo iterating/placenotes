@@ -172,15 +172,12 @@
 @media (max-width: 768px) {
   .notes-content.expanded {
     height: 70vh;
-  }
-}
-
   gap: var(--spacing-xs);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin-top: var(--spacing-xs);
 }
-
+}
 /* Responsive styles */
 @media (max-width: 768px) {
   .notes-content.expanded {
