@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../../../store/authSlice';
-import { deleteMessage, markMessageAsRead } from '../store/messageSlice';
+import { hideMessage, markMessageAsRead } from '../store/messageSlice';
 import './MessageStyles.css';
 
 /**
@@ -96,30 +96,55 @@ const MessageItem = ({
   // Convert degrees to radians
   const toRad = (value) => value * Math.PI / 180;
   
-  // Handle deleting a message
-  const handleDelete = (e) => {
+  // Handle hiding a message
+  const handleHideMessage = (e) => {
     e.stopPropagation();
     
-    if (window.confirm('Are you sure you want to delete this message?')) {
+    if (window.confirm('Are you sure you want to hide this message? It will no longer appear in your message list.')) {
       if (onDelete) {
+        // If parent component passed an onDelete handler, use it for backward compatibility
         onDelete(e, message._id);
       } else {
-        dispatch(deleteMessage(message._id));
+        dispatch(hideMessage(message._id));
       }
     }
   };
   
-  // Mark message as read when user interacts with it
-  React.useEffect(() => {
-    if (message && message._id && !message.read && !isSentByCurrentUser) {
-      dispatch(markMessageAsRead(message._id));
+  const [isVisible, setIsVisible] = useState(false);
+  const [isRead, setIsRead] = useState(message.read);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  // Mark the message as read when viewed
+  useEffect(() => {
+    if (isVisible && !isRead && !isSentByCurrentUser) {
+      try {
+        dispatch(markMessageAsRead(message._id))
+          .unwrap()
+          .then((result) => {
+            if (result.success) {
+              setIsRead(true);
+              console.log('Message marked as read:', message._id);
+            }
+          })
+          .catch((error) => {
+            console.error('Error marking message as read:', error);
+            // Still update the UI state even when the API call fails
+            setIsRead(true);
+          });
+      } catch (error) {
+        console.error('Error dispatching markMessageAsRead:', error);
+        setIsRead(true);
+      }
     }
-  }, [dispatch, message, isSentByCurrentUser]);
+  }, [isVisible, isRead, isSentByCurrentUser, dispatch, message._id]);
   
   // Define class names based on message properties
   const messageClasses = [
     'card message-card mb-sm',
-    !message.read ? 'unread' : '',
+    !isRead ? 'unread' : '',
     message.parentMessageId ? 'is-reply' : '',
     isSentByCurrentUser ? 'sent-by-me' : ''
   ].filter(Boolean).join(' ');
@@ -133,8 +158,8 @@ const MessageItem = ({
           {isSentByCurrentUser && showActions && (
             <button 
               className="btn btn-icon btn-sm float-right" 
-              onClick={handleDelete}
-              aria-label="Delete message"
+              onClick={handleHideMessage}
+              aria-label="Hide message"
             >
               <span className="icon-close">×</span>
             </button>

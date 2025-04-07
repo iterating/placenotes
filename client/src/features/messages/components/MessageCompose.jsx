@@ -2,12 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendMessage } from '../store/messageStoreAction';
 import { selectUser } from '../../../store/authSlice';
+import { selectMessageById } from '../store/messageSlice';
 import RecipientSelector from './RecipientSelector';
 import './MessageStyles.css';
 
-const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
-  const [recipientId, setRecipientId] = useState(parentMessage?.senderId || '');
-  const [recipientName, setRecipientName] = useState(parentMessage?.senderName || '');
+const MessageCompose = ({ onCancel, mapCenter, parentMessageId, onSuccess }) => {
+  // Get the parent message from the store using the ID
+  const parentMessage = useSelector(parentMessageId ? state => selectMessageById(state, parentMessageId) : () => null);
+  
+  const [recipientId, setRecipientId] = useState('');
+  const [recipientName, setRecipientName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -17,6 +21,14 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
   const currentUser = useSelector(selectUser);
   const messageInputRef = useRef(null);
   
+  // Set recipient info when parent message changes
+  useEffect(() => {
+    if (parentMessage) {
+      setRecipientId(parentMessage.senderId || '');
+      setRecipientName(parentMessage.senderName || '');
+    }
+  }, [parentMessage]);
+
   // Focus on message input when recipient is selected
   useEffect(() => {
     if (recipientId && messageInputRef.current) {
@@ -54,7 +66,7 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
     const messageData = {
       content: message,
       recipientId: recipientId,
-      parentMessageId: parentMessage?._id || null,
+      parentMessageId: parentMessageId || null,
       location: mapCenter || {
         // Default location if mapCenter isn't available
         type: 'Point',
@@ -75,7 +87,11 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
         // Clear success message after a delay
         setTimeout(() => {
           setSuccess('');
-          if (onCancel) onCancel();
+          if (onSuccess) {
+            onSuccess();
+          } else if (onCancel) {
+            onCancel();
+          }
         }, 1500);
       })
       .catch((err) => {
@@ -91,7 +107,7 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
     <div className="compose-form card mb-md">
       <div className="card-header">
         <h4 className="m-0">
-          {parentMessage ? (
+          {parentMessageId ? (
             <>
               <span className="icon mr-xs">↩</span> Reply to Message
             </>
@@ -112,7 +128,7 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
       
       <form onSubmit={handleSubmit}>
         {/* If replying, show original message */}
-        {parentMessage && (
+        {parentMessage && parentMessageId && (
           <div className="reply-to-message">
             <div className="reply-indicator">
               <span className="icon">↩</span> Replying to:
@@ -124,7 +140,7 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
         )}
 
         {/* Recipient Selector - only show if not replying */}
-        {!parentMessage && <RecipientSelector onSelectRecipient={handleSelectRecipient} />}
+        {!parentMessageId && <RecipientSelector onSelectRecipient={handleSelectRecipient} />}
         
         {recipientId && (
           <div className="selected-recipient">
@@ -184,7 +200,7 @@ const MessageCompose = ({ onCancel, mapCenter, parentMessage }) => {
               <>
                 <span className="icon spin mr-xs">⟳</span> Sending...
               </>
-            ) : parentMessage ? (
+            ) : parentMessageId ? (
               <>
                 <span className="icon mr-xs">↩</span> Send Reply
               </>
