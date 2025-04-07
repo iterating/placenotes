@@ -23,7 +23,7 @@ export const fetchMessages = async (page = 1, limit = 20) => {
  */
 export const markMessageAsRead = async (messageId) => {
   try {
-    const response = await apiClient.patch(`/messages/${messageId}/read`);
+    const response = await apiClient.put(`/messages/${messageId}/read`);
     return response.data;
   } catch (error) {
     console.error('Error marking message as read:', error);

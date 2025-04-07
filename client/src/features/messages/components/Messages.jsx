@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessages } from '../../../store/messageStoreAction';
-import { selectMessages } from '../../../store/messageSlice';
+import { fetchMessages } from '../store/messageSlice';
+import { selectMessages } from '../store/messageSlice';
 import MessageList from './MessageList';
 // Using shared CSS classes instead of component-specific CSS
 

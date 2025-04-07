@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../../../store/authSlice';
-import { deleteMessage, markMessageAsRead } from '../messagesSlice';
+import { deleteMessage, markMessageAsRead } from '../store/messageSlice';
 import './MessageStyles.css';
 
 /**
@@ -111,7 +111,7 @@ const MessageItem = ({
   
   // Mark message as read when user interacts with it
   React.useEffect(() => {
-    if (message && !message.read && !isSentByCurrentUser) {
+    if (message && message._id && !message.read && !isSentByCurrentUser) {
       dispatch(markMessageAsRead(message._id));
     }
   }, [dispatch, message, isSentByCurrentUser]);

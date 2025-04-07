@@ -9,8 +9,9 @@ import {
   selectMessagesLoading,
   selectMessagesRefreshing,
   selectMessagesError,
-  selectSelectedMessageId
-} from '../messagesSlice';
+  selectSelectedMessageId,
+  selectPagination
+} from '../store/messageSlice';
 import { selectUser } from '../../../store/authSlice';
 import MessageItem from './MessageItem';
 import MessageCompose from './MessageCompose';
@@ -27,7 +28,7 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   const error = useSelector(selectMessagesError);
   const selectedMessageId = useSelector(selectSelectedMessageId);
   const currentUser = useSelector(selectUser);
-  // Note: pagination is handled in the Redux slice now
+  const pagination = useSelector(selectPagination);
   const dispatch = useDispatch();
   // Local state for UI management
   const [isComposing, setIsComposing] = useState(false);
@@ -305,27 +306,28 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       {renderHeader()}
       
       <div className="drawer-content">
-        {/* Use MessageCompose directly instead of renderComposeForm */}
-        {isComposing && (
-          <MessageCompose 
-            onCancel={handleComposeCancel} 
-            mapCenter={mapCenter}
-          />
-        )}
-        {/* Show message compose form if composing */}
-        {isComposing && renderComposeForm()}
-        
-        {/* Show message thread if viewing a thread */}
-        {!isComposing && showingThread && selectedMessageId && (
-          <MessageThread 
-            threadId={selectedMessageId} 
-            onClose={handleThreadClose} 
-          />
-        )}
-        
-        {/* Show message list if not composing or viewing thread */}
-        {!isComposing && !showingThread && (
-          <div className="messages-container">
+        {/* Render only one component based on state */}
+        {isComposing ? (
+          /* Show message compose form if composing */
+          <div key="compose-form">
+            <MessageCompose 
+              onCancel={handleComposeCancel} 
+              onSuccess={() => setIsComposing(false)}
+              parentMessage={selectedMessageId ? messages.find(m => m._id === selectedMessageId) : null}
+              mapCenter={mapCenter}
+            />
+          </div>
+        ) : showingThread && selectedMessageId ? (
+          /* Show message thread if viewing a thread */
+          <div key="message-thread">
+            <MessageThread 
+              threadId={selectedMessageId} 
+              onClose={handleThreadClose} 
+            />
+          </div>
+        ) : (
+          /* Show message list by default */
+          <div key="messages-container" className="messages-container">
             {renderMessages()}
           </div>
         )}

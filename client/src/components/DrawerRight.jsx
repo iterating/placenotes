@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import MessageList from '../features/messages/components/MessageList';
 import { useDispatch } from 'react-redux';
-import { fetchMessages } from '../store/messageStoreAction';
+import { fetchMessages } from '../features/messages/store/messageStoreAction';
 import './drawers.css';
 
 const DrawerRight = ({ isOpen, onClose }) => {

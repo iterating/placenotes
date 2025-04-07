@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient } from '../api/apiClient';
+import { apiClient } from '../../../api/apiClient';
 import { setMessages, addMessage, markAsRead, deleteMessageById } from './messageSlice';
 
 // Utility to validate and format the location coordinates
@@ -65,6 +65,12 @@ export const sendMessage = createAsyncThunk(
 export const markMessageAsRead = createAsyncThunk(
   'messages/markAsRead',
   async (messageId, { dispatch, rejectWithValue }) => {
+    // Add validation for messageId
+    if (!messageId) {
+      console.warn('Attempted to mark a message as read without a valid messageId');
+      return rejectWithValue('Invalid message ID');
+    }
+    
     try {
       await apiClient.put(`/messages/${messageId}/read`);
       dispatch(markAsRead(messageId));

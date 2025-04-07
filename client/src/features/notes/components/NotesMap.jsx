@@ -9,9 +9,9 @@ import iconShadow from "leaflet/dist/images/marker-shadow.png"
 import "./NotesMap.css"
 import "./ToggleBar.css"
 import { toggleNotesPanel } from "../../../store/noteSlice.js"
-import { fetchMessagesByLocation } from "../../../store/messageStoreAction"
+import { fetchMessagesByLocation } from "../../messages/store/messageStoreAction.js"
 import MessageList from "../../messages/components/MessageList"
-import { selectAllMessages } from "../../messages/messagesSlice"
+import { selectAllMessages } from "../../messages/store/messageSlice"
 
 // Set up default icon
 let DefaultIcon = L.icon({

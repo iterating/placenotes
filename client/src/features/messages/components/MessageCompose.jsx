@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { sendMessage } from '../../../store/messageStoreAction';
+import { sendMessage } from '../store/messageStoreAction';
 import { selectUser } from '../../../store/authSlice';
 import RecipientSelector from './RecipientSelector';
 import './MessageStyles.css';
