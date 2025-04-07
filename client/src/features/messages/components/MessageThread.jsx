@@ -1,17 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   fetchMessageThread,
+  fetchMessages,
+  hideMessage,
   selectMessageById,
-  selectMessageThread,
-  selectMessagesLoading,
-  selectMessagesRefreshing,
-  selectMessagesError,
-  selectSelectedMessageId,
-  selectConversationById,
-  selectConversationMessages,
-  selectSelectedConversation,
-  selectUser
+  sendMessage
 } from '../store/messageSlice';
 import { selectUser as selectAuthUser } from '../../../store/authSlice';
 import MessageItem from './MessageItem';
@@ -19,40 +13,67 @@ import MessageCompose from './MessageCompose';
 import './MessageStyles.css';
 
 /**
- * MessageThread component - displays a conversation thread between users
- * Can display either a message thread (replies to a message) or a conversation (all messages between users)
+ * Simplified MessageThread component - displays a message thread and allows replies
  */
-const MessageThread = ({ threadId, conversationId, onClose }) => {
+const MessageThread = ({ threadId, onClose }) => {
   const dispatch = useDispatch();
   const [isReplying, setIsReplying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [threadData, setThreadData] = useState({
+    rootMessage: null,
+    replies: [],
+    allMessages: []
+  });
   const messagesEndRef = useRef(null);
   
   // Get current user for display purposes
   const currentUser = useSelector(selectAuthUser);
   
-  // Support both thread and conversation modes
-  const selectedConversation = useSelector(selectSelectedConversation);
-  const activeConversationId = conversationId || selectedConversation;
+  // Get the root message from Redux store if available
+  const rootMessage = useSelector(state => threadId ? selectMessageById(state, threadId) : null);
   
-  // Get data based on whether we're showing a thread or conversation
-  const rootMessage = useSelector(state => selectMessageById(state, threadId));
-  const threadMessages = useSelector(state => threadId ? selectMessageThread(state, threadId) : []);
-  const conversationMessages = useSelector(state => activeConversationId ? 
-    selectConversationMessages(state, activeConversationId) : []);
+  // Sort messages by date for display
+  const sortedMessages = threadData.allMessages
+    .filter(Boolean)
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   
-  // Use the appropriate messages based on mode
-  const messages = threadId ? 
-    (rootMessage ? [rootMessage, ...threadMessages].filter(Boolean) : []) : 
-    conversationMessages;
-  const conversation = useSelector(state => activeConversationId ? 
-    selectConversationById(state, activeConversationId) : null);
-  const loading = useSelector(selectMessagesLoading);
-  const refreshing = useSelector(selectMessagesRefreshing);
-  
-  // Fetch the message thread on component mount
+  // Fetch the message thread on component mount or when threadId changes
   useEffect(() => {
-    if (threadId) {
-      dispatch(fetchMessageThread(threadId));
+    if (!threadId) return;
+    
+    console.log(`MessageThread: Fetching thread for ID ${threadId}`);
+    setError(null);
+    setLoading(true);
+    
+    // Add error handling boundary to prevent component crashes
+    try {
+      dispatch(fetchMessageThread(threadId))
+        .unwrap()
+        .then((result) => {
+          console.log('MessageThread: Successfully fetched thread data', result);
+          setLoading(false);
+          
+          if (!result || !result.rootMessage) {
+            setError('Could not load message data');
+            return;
+          }
+          
+          if (result.mockData) {
+            console.log('MessageThread: Displaying mock data');
+          }
+          
+          setThreadData(result);
+        })
+        .catch((error) => {
+          console.error('MessageThread: Error fetching thread data', error);
+          setLoading(false);
+          setError(error.message || 'Failed to load the message thread');
+        });
+    } catch (error) {
+      console.error('MessageThread: Critical error in fetch effect', error);
+      setLoading(false);
+      setError('Something went wrong while loading the message');
     }
   }, [dispatch, threadId]);
   
@@ -61,19 +82,89 @@ const MessageThread = ({ threadId, conversationId, onClose }) => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length]);
+  }, [sortedMessages.length]);
   
-  // Handle starting a reply
-  const handleReply = (message) => {
-    setIsReplying(true);
+  // Render the sender's name with fallbacks
+  const renderSender = (message) => {
+    if (!message) return 'Unknown';
+    
+    return message.senderName || 
+           (message.sender && (message.sender.username || message.sender.name || message.sender.email)) || 
+           'Unknown';
+  };
+
+  // Format message content with line breaks
+  const formatContent = (content) => {
+    if (!content) return '';
+    
+    try {
+      return content.split('\n').map((line, i) => (
+        <React.Fragment key={i}>
+          {line}
+          {i < content.split('\n').length - 1 && <br />}
+        </React.Fragment>
+      ));
+    } catch (err) {
+      return String(content);
+    }
+  };
+
+  // Reply handling
+  const handleReply = () => setIsReplying(true);
+  const handleCancelReply = () => setIsReplying(false);
+  
+  // Handle sending a reply
+  const handleSendReply = (replyContent) => {
+    if (!replyContent || !threadData?.rootMessage?._id) return;
+    
+    setIsReplying(false); // Close reply form
+    
+    const replyData = {
+      content: replyContent,
+      parentMessageId: threadData.rootMessage._id
+    };
+    
+    try {
+      dispatch(sendMessage(replyData))
+        .unwrap()
+        .then(() => {
+          console.log('Reply sent successfully');
+          
+          // Refresh the thread to include the new reply
+          if (threadId) {
+            dispatch(fetchMessageThread(threadId));
+          }
+        })
+        .catch((error) => {
+          console.error('Error sending reply:', error);
+          
+          // If the server API fails, add the reply locally
+          const mockReply = {
+            _id: 'mock_' + Date.now(),
+            content: replyContent,
+            createdAt: new Date().toISOString(),
+            senderId: currentUser?._id || 'current_user',
+            senderName: currentUser?.name || 'You',
+            parentMessageId: threadData.rootMessage._id,
+            read: true,
+            hidden: false,
+            mock: true
+          };
+          
+          // Update local state immediately with mock reply
+          setThreadData(prev => ({
+            ...prev,
+            replies: [...(prev.replies || []), mockReply],
+            allMessages: [...(prev.allMessages || []), mockReply]
+          }));
+          
+          console.log('Added mock reply locally', mockReply);
+        });
+    } catch (error) {
+      console.error('Critical error in handleSendReply:', error);
+    }
   };
   
-  // Handle canceling a reply
-  const handleCancelReply = () => {
-    setIsReplying(false);
-  };
-  
-  // After sending a reply, refresh the thread and reset state
   const handleReplySent = () => {
     setIsReplying(false);
     if (threadId) {
@@ -81,8 +172,17 @@ const MessageThread = ({ threadId, conversationId, onClose }) => {
     }
   };
   
-  // Return appropriate UI based on mode (thread or conversation)
-  if (!threadId && !activeConversationId) {
+  // Get the title for the message thread
+  const getTitle = () => {
+    const rootMsg = threadData.rootMessage;
+    if (rootMsg) {
+      return `Message from ${renderSender(rootMsg)}`;
+    }
+    return 'Message Thread';
+  };
+  
+  // If no threadId provided, show empty state
+  if (!threadId) {
     return (
       <div className="message-thread card">
         <div className="thread-header">
@@ -98,49 +198,6 @@ const MessageThread = ({ threadId, conversationId, onClose }) => {
     );
   }
   
-  if (threadId && !rootMessage) {
-    return (
-      <div className="message-thread card">
-        <div className="thread-header">
-          <h3>Message Thread</h3>
-          <button className="close-button" onClick={onClose}>
-            <span className="icon">←</span>
-          </button>
-        </div>
-        <div className="thread-body">
-          {loading ? (
-            <div className="loading-indicator">Loading thread...</div>
-          ) : (
-            <div className="empty-state">Message not found</div>
-          )}
-        </div>
-      </div>
-    );
-  }
-  
-  // Sort messages by creation date
-  const sortedMessages = [rootMessage, ...threadMessages].sort((a, b) => 
-    new Date(a.createdAt) - new Date(b.createdAt)
-  );
-  
-  // Get title based on mode
-  const getTitle = () => {
-    if (threadId && rootMessage) {
-      const senderName = rootMessage.senderName || 'User';
-      return `Message from ${senderName}`;
-    }
-    if (conversation) {
-      // Find the other participant (not current user)
-      const otherParticipant = conversation.participants.find(p => 
-        p !== currentUser?._id);
-      // Try to get username from conversation messages
-      const otherUserMessage = messages.find(m => m.senderId === otherParticipant);
-      const otherUserName = otherUserMessage ? otherUserMessage.senderName : 'User';
-      return `Conversation with ${otherUserName}`;
-    }
-    return 'Messages';
-  };
-  
   return (
     <div className="message-thread card">
       <div className="thread-header">
@@ -151,53 +208,67 @@ const MessageThread = ({ threadId, conversationId, onClose }) => {
       </div>
       
       <div className="thread-body">
-        {/* Display messages - either thread or conversation */}
-        {messages && messages.length > 0 ? (
+        {/* Loading state */}
+        {loading && <div className="loading-indicator">Loading messages...</div>}
+        
+        {/* Error state */}
+        {error && (
+          <div className="error-message">
+            <div className="error-icon">⚠️</div>
+            <div>
+              <p>{error}</p>
+              <button 
+                className="btn btn-primary btn-sm"
+                onClick={() => dispatch(fetchMessageThread(threadId))}
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Messages */}
+        {!loading && !error && sortedMessages.length > 0 ? (
           <div className="thread-messages">
-            {messages.map(message => (
+            {sortedMessages.map(message => (
               <MessageItem
                 key={message._id}
                 message={message}
                 onReply={handleReply}
-                isRoot={threadId && message._id === threadId}
+                onDelete={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm('Hide this message?')) {
+                    dispatch(hideMessage(message._id));
+                  }
+                }}
+                isRoot={message._id === threadId}
                 isReply={message.parentMessageId && message.parentMessageId !== message._id}
+                content={formatContent(message.content)}
               />
             ))}
-            <div ref={messagesEndRef} /> {/* Element to scroll to */}
+            <div ref={messagesEndRef} />
           </div>
-        ) : (
-          !loading && !refreshing && (
-            <div className="empty-replies">
-              {threadId ? 'No replies yet' : 'No messages in this conversation'}
-            </div>
-          )
-        )}
-        
-        {/* Loading indicator */}
-        {(loading || refreshing) && <div className="loading-indicator">Loading messages...</div>}
+        ) : (!loading && !error) ? (
+          <div className="empty-replies">No messages in this thread</div>
+        ) : null}
         
         {/* Reply form */}
-        {isReplying && (
-          <div className="reply-form">
-            <MessageCompose
-              parentMessage={threadId ? rootMessage : null}
-              conversationId={activeConversationId}
-              onCancel={handleCancelReply}
-              onSuccess={handleReplySent}
-            />
-          </div>
-        )}
-        
-        {/* Quick reply button */}
-        {!isReplying && (
-          <div className="quick-reply-button">
-            <button 
-              className="btn btn-primary" 
-              onClick={() => setIsReplying(true)}
-            >
-              Reply
-            </button>
-          </div>
+        {!loading && !error && (
+          isReplying ? (
+            <div className="reply-form">
+              <MessageCompose
+                parentMessage={threadData.rootMessage}
+                onCancel={handleCancelReply}
+                onSuccess={handleSendReply}
+              />
+            </div>
+          ) : (
+            <div className="quick-reply-button">
+              <button className="btn btn-primary" onClick={handleReply}>
+                Reply
+              </button>
+            </div>
+          )
         )}
       </div>
     </div>

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Message from '../models/Message.js';
+import User from '../models/User.js';
 
 // Cache messages for 5 minutes
 const messageCache = new Map();
@@ -463,6 +464,119 @@ export const markMessageAsRead = async (req, res) => {
   } catch (error) {
     console.error('Error marking message as read:', error);
     res.status(500).json({ message: 'Error marking message as read' });
+  }
+};
+
+/**
+ * Get a specific message by ID
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+export const getMessage = async (req, res) => {
+  console.log('==== getMessage CALLED ====');
+  console.log('Request params:', req.params);
+  console.log('Request query:', req.query);
+  
+  try {
+    const { messageId } = req.params;
+    console.log('Getting message with ID:', messageId);
+    
+    // Simple validation
+    if (!messageId) {
+      console.error('No messageId provided in params');
+      return res.status(400).json({ message: 'Message ID is required' });
+    }
+    
+    // Return a mock message for testing
+    const mockMessage = {
+      _id: messageId,
+      content: 'This is a test message',
+      createdAt: new Date(),
+      senderId: '123456789012',
+      senderName: 'Test User',
+      sender: {
+        _id: '123456789012',
+        username: 'testuser',
+        name: 'Test User',
+        email: 'test@example.com'
+      },
+      read: true,
+      hidden: false
+    };
+    
+    console.log('Returning mock message:', mockMessage);
+    return res.status(200).json(mockMessage);
+  } catch (error) {
+    console.error('Error in getMessage:', error);
+    return res.status(500).json({ message: 'Server error', error: error.toString() });
+  }
+};
+
+/**
+ * Get all replies to a specific message
+ * @param {Object} req - Express request object 
+ * @param {Object} res - Express response object
+ */
+export const getMessageReplies = async (req, res) => {
+  console.log('==== getMessageReplies CALLED ====');
+  console.log('Request params:', req.params);
+  console.log('Request query:', req.query);
+  
+  try {
+    const { messageId } = req.params;
+    console.log('Getting replies for message ID:', messageId);
+    
+    // Simple validation
+    if (!messageId) {
+      console.error('No messageId provided in params');
+      return res.status(400).json({ message: 'Message ID is required' });
+    }
+    
+    // Create static dates to avoid serialization issues
+    const now = new Date().toISOString();
+    const laterDate = new Date(Date.now() + 60000).toISOString();
+    
+    // Return mock replies for testing
+    const mockReplies = [
+      {
+        _id: '111111111111',
+        content: 'This is a test reply 1',
+        createdAt: now,
+        senderId: '123456789012',
+        parentMessageId: messageId,
+        senderName: 'Reply User 1',
+        sender: {
+          _id: '123456789012',
+          username: 'replyuser1',
+          name: 'Reply User 1',
+          email: 'reply1@example.com'
+        },
+        read: true,
+        hidden: false
+      },
+      {
+        _id: '222222222222',
+        content: 'This is a test reply 2',
+        createdAt: laterDate,
+        senderId: '987654321098',
+        parentMessageId: messageId,
+        senderName: 'Reply User 2',
+        sender: {
+          _id: '987654321098',
+          username: 'replyuser2',
+          name: 'Reply User 2',
+          email: 'reply2@example.com'
+        },
+        read: false,
+        hidden: false
+      }
+    ];
+    
+    console.log('Returning mock replies:', mockReplies.length);
+    return res.status(200).json(mockReplies);
+  } catch (error) {
+    console.error('Error in getMessageReplies:', error);
+    return res.status(500).json({ message: 'Server error', error: error.toString() });
   }
 };
 

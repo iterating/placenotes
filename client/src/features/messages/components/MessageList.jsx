@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { 
   fetchMessages, 
-  deleteMessage, 
+  hideMessage, 
   markMessageAsRead, 
   setSelectedMessage,
   clearSelectedMessage,
-  selectAllMessages,
+  selectVisibleMessages,
   selectMessagesLoading,
   selectMessagesRefreshing,
   selectMessagesError,
@@ -21,8 +21,8 @@ import './MessageStyles.css';
 import { useSelector, useDispatch } from 'react-redux';
 
 const MessageList = ({ isOpen, onClose, mapCenter }) => {
-  // Get messages from Redux store
-  const messages = useSelector(selectAllMessages);
+  // Get messages from Redux store using memoized selectors (only visible messages)
+  const messages = useSelector(selectVisibleMessages);
   const loading = useSelector(selectMessagesLoading);
   const refreshing = useSelector(selectMessagesRefreshing);
   const error = useSelector(selectMessagesError);
@@ -106,12 +106,12 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     setShowingThread(true);
   }, [dispatch, currentUser]);
 
-  // Handle message deletion
-  const handleDeleteMessage = (e, messageId) => {
+  // Handle message hiding (replacing deletion)
+  const handleHideMessage = (e, messageId) => {
     e.stopPropagation(); // Prevent triggering the message click event
-    if (window.confirm('Are you sure you want to delete this message?')) {
-      dispatch(deleteMessage(messageId));
-      // If the deleted message was selected, clear the selection
+    if (window.confirm('Are you sure you want to hide this message? It will no longer appear in your message list.')) {
+      dispatch(hideMessage(messageId));
+      // If the hidden message was selected, clear the selection
       if (selectedMessageId === messageId) {
         dispatch(clearSelectedMessage());
       }
@@ -189,9 +189,10 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
             className="message-item-wrapper"
           >
             <MessageItem 
+              key={message._id} 
               message={message} 
               onReply={handleReplyClick} 
-              onDelete={handleDeleteMessage}
+              onDelete={(e) => handleHideMessage(e, message._id)}
             />
           </div>
         ))}
@@ -313,7 +314,7 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
             <MessageCompose 
               onCancel={handleComposeCancel} 
               onSuccess={() => setIsComposing(false)}
-              parentMessage={selectedMessageId ? messages.find(m => m._id === selectedMessageId) : null}
+              parentMessageId={selectedMessageId}
               mapCenter={mapCenter}
             />
           </div>
