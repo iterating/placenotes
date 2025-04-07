@@ -1,15 +1,21 @@
-/* Message thread styles */
+/* Message styles */
 
-/* Message thread visual indicators */
+/* Message card */
 .card.is-reply {
   border-left: 3px solid var(--primary-color);
-  margin-left: var(--spacing-sm);
+  margin-left: 10px;
 }
 
-/* Reply reference info */
+/* Messages sent by current user */
+.card.sent-by-me {
+  border-right: 3px solid var(--success-color, #28a745);
+  background-color: var(--gray-50);
+}
+
+/* Reply info */
 .reply-to-info {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  padding: 5px 8px;
+  margin-bottom: 5px;
   background-color: var(--gray-100);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
@@ -17,46 +23,254 @@
 
 .quoted-text {
   font-style: italic;
-  color: var(--text-secondary);
+  color: var(--gray-600);
 }
 
-/* Reply form specific styles */
+/* Compose new message form */
+.compose-form {
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+}
+
+.compose-form .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  font-size: 0.9rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Reply form */
 .reply-form {
-  margin-top: var(--spacing-sm);
+  margin-top: 10px;
   border-top: 1px solid var(--gray-200);
-  padding-top: var(--spacing-sm);
+  padding-top: 10px;
 }
 
-/* Use existing form control styles with minor adjustments */
 .reply-form textarea {
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  font-size: 0.9rem;
   resize: vertical;
-  min-height: 60px;
+}
+
+.reply-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
 }
 
 .reply-actions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--spacing-sm);
+  gap: 8px;
+  margin-top: 8px;
 }
 
-/* Message actions section */
+/* Message actions */
 .message-actions {
-  padding-top: var(--spacing-sm);
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid var(--gray-200);
 }
 
-/* Message status indicators */
-.message-badge {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.1rem 0.5rem;
-  border-radius: var(--radius-full);
-  background-color: var(--gray-100);
-  color: var(--text-secondary);
-  margin-right: var(--spacing-xs);
+/* Recipient selector */
+.recipient-selector {
+  margin-bottom: 12px;
 }
 
-.message-badge.sent {
-  background-color: var(--primary-light);
+.recipient-selector .form-group {
+  margin-bottom: 8px;
+}
+
+.results-header {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--gray-700);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--gray-200);
+  background-color: var(--gray-50);
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.friends-list {
+  margin-top: 12px;
+}
+
+.empty-state {
+  padding: 16px 12px;
+  text-align: center;
+  background-color: var(--gray-50);
+  border-radius: var(--radius-md);
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  margin-top: 12px;
+  border: 1px dashed var(--gray-300);
+}
+
+.search-loading,
+.search-error {
+  padding: 8px;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.search-error {
+  color: var(--danger-color, #dc3545);
+}
+
+.recipient-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+}
+
+.recipient-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.recipient-item:last-child {
+  border-bottom: none;
+}
+
+.recipient-item:hover {
+  background-color: var(--gray-100);
+}
+
+.recipient-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.recipient-info {
+  flex: 1;
+}
+
+.recipient-name {
+  font-weight: 500;
+}
+
+.recipient-email {
+  font-size: 0.8rem;
+  color: var(--gray-600);
+}
+
+.selected-recipient {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--gray-100);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.recipient-label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.recipient-value {
   color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* Utility Classes */
+.text-sm {
+  font-size: 0.85rem;
+}
+
+.mr-xs {
+  margin-right: 4px;
+}
+
+/* Error and Success Messages */
+.error-message {
+  color: var(--danger-color, #dc3545);
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  color: var(--success-color, #28a745);
+  background-color: rgba(40, 167, 69, 0.1);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+
+/* Helper classes */
+.mt-xs {
+  margin-top: 4px;
+}
+
+.ml-xs {
+  margin-left: 4px;
+}
+
+.mr-sm {
+  margin-right: 8px;
+}
+
+.mt-sm {
+  margin-top: 8px;
+}
+
+.mb-md {
+  margin-bottom: 16px;
 }

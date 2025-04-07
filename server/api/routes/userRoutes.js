@@ -54,19 +54,37 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/search", async (req, res) => {
+// Search users by query string - supports partial matching for recipient selection
+router.get("/search", setUser, async (req, res) => {
   try {
-    const { id, name, group, email } = req.query;
-    const query = {};
-    if (id) query._id = id;
-    if (name) query.name = name;
-    if (group) query.group = group;
-    if (email) query.email = email;
-    const user = await usersService.findOneUser(query);
-    res.send(user);
+    const { q } = req.query;
+    if (!q || q.length < 2) {
+      return res.json([]);
+    }
+    
+    // Create a query that matches partial username or email
+    const query = {
+      $or: [
+        { username: { $regex: q, $options: 'i' } },
+        { email: { $regex: q, $options: 'i' } }
+      ],
+      // Don't include the current user in search results
+      _id: { $ne: req.user?._id }
+    };
+    
+    const users = await usersService.findUsers(query);
+    
+    // Return limited user info for security
+    const sanitizedUsers = users.map(user => ({
+      _id: user._id,
+      username: user.username,
+      email: user.email
+    }));
+    
+    res.json(sanitizedUsers);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error finding user" });
+    console.error('Error searching users:', err);
+    res.status(500).json({ error: "Error searching users" });
   }
 });
 

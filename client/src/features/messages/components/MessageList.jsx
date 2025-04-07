@@ -6,7 +6,9 @@ import {
   selectError,
   selectPagination
 } from '../../../store/messageSlice';
-import { fetchMessages, markMessageAsRead, fetchMessagesByLocation, deleteMessage, sendMessage } from '../../../store/messageStoreAction';
+import { fetchMessages, markMessageAsRead, fetchMessagesByLocation, deleteMessage } from '../../../store/messageStoreAction';
+import { selectUser } from '../../../store/authSlice';
+import MessageCompose from './MessageCompose';
 // Import message-specific styles
 import './MessageStyles.css';
 
@@ -16,10 +18,12 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
   const pagination = useSelector(selectPagination);
+  const currentUser = useSelector(selectUser);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const replyInputRef = useRef(null);
+  const [isComposing, setIsComposing] = useState(false);
 
   // Fetch messages when component mounts or when map center changes
   useEffect(() => {
@@ -42,6 +46,34 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       }
     }
   }, [dispatch, isOpen, mapCenter]);
+  
+  // Set up automatic refresh interval (every 20 seconds)
+  useEffect(() => {
+    // Only set up the interval if the drawer is open
+    if (!isOpen) return;
+    
+    console.log('Setting up message refresh interval');
+    const refreshInterval = setInterval(() => {
+      console.log('Auto-refreshing messages');
+      if (mapCenter && mapCenter.coordinates) {
+        dispatch(fetchMessagesByLocation({
+          location: {
+            type: 'Point',
+            coordinates: mapCenter.coordinates
+          },
+          radius: 5000
+        }));
+      } else {
+        dispatch(fetchMessages());
+      }
+    }, 20000); // 20 seconds
+    
+    // Clean up interval when component unmounts or drawer closes
+    return () => {
+      console.log('Clearing message refresh interval');
+      clearInterval(refreshInterval);
+    };
+  }, [isOpen, dispatch, mapCenter]);
   
   // Debug log current messages state
   useEffect(() => {
@@ -100,11 +132,25 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     e.stopPropagation(); // Prevent triggering the message click event
     setSelectedMessage(message);
     setIsReplying(true);
+    setIsComposing(false);
     setTimeout(() => {
       if (replyInputRef.current) {
         replyInputRef.current.focus();
       }
     }, 100);
+  };
+  
+  // Start composing a new message
+  const handleComposeClick = () => {
+    setIsComposing(true);
+    setIsReplying(false);
+    setSelectedMessage(null);
+    // The focus is now handled by the MessageCompose component
+  };
+  
+  // Cancel composing a new message
+  const handleComposeCancel = () => {
+    setIsComposing(false);
   };
   
   // Submit a reply to a message
@@ -160,20 +206,43 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   };
 
   // Render message list header
-  const renderHeader = () => (
-    <div className="drawer-header flex-between items-center">
-      <h2 className="m-0">Messages</h2>
-      {onClose && (
-        <button 
-          className="btn btn-sm"
-          onClick={onClose}
-          aria-label="Close messages"
-        >
-          &times;
-        </button>
-      )}
-    </div>
-  );
+  const renderHeader = () => {
+    return (
+      <div className="drawer-header border-b p-md flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="m-0 font-semibold text-primary">Messages</h3>
+          <div className="flex items-center">
+            <button 
+              className="btn btn-sm btn-primary mr-sm" 
+              onClick={handleComposeClick}
+              aria-label="Compose new message"
+            >
+              New Message
+            </button>
+            <button 
+              className="close-button p-sm rounded-full hover:bg-gray-100" 
+              onClick={onClose}
+              aria-label="Close messages panel"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Render the compose new message form using the MessageCompose component
+  const renderComposeForm = () => {
+    // If replying, pass the selected message as parentMessage
+    return (
+      <MessageCompose
+        onCancel={handleComposeCancel}
+        mapCenter={mapCenter}
+        parentMessage={isReplying ? selectedMessage : null}
+      />
+    );
+  };
 
   // Render a single message item
   const renderMessageItem = (message) => {
@@ -181,11 +250,16 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     const distance = calculateDistance(message.location);
     const isReply = message.parentMessageId !== null && message.parentMessageId !== undefined;
     const parentMessage = isReply ? messages.find(m => m._id === message.parentMessageId) : null;
+    
+    // Use the isSentByCurrentUser flag from the backend if available, otherwise calculate it
+    const isSentByCurrentUser = message.hasOwnProperty('isSentByCurrentUser') 
+      ? message.isSentByCurrentUser 
+      : (currentUser && message.senderId === currentUser._id);
 
     return (
       <div 
         key={message._id}
-        className={`card hover-bg-gray mb-sm ${!message.read ? 'unread' : ''} ${isSelected ? 'selected' : ''} ${isReply ? 'is-reply' : ''}`}
+        className={`card hover-bg-gray mb-sm ${!message.read ? 'unread' : ''} ${isSelected ? 'selected' : ''} ${isReply ? 'is-reply' : ''} ${isSentByCurrentUser ? 'sent-by-me' : ''}`}
         onClick={() => handleMessageClick(message)}
       >
         <div className="message-avatar">
@@ -332,17 +406,22 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       {renderHeader()}
       
       <div className="drawer-content">
+        {/* Use MessageCompose directly instead of renderComposeForm */}
+        {isComposing && (
+          <MessageCompose 
+            onCancel={handleComposeCancel} 
+            mapCenter={mapCenter}
+          />
+        )}
         {loading ? renderLoading() : 
          error ? renderError() :
-         messages.length === 0 ? renderEmptyState() :
+         !isComposing && messages.length === 0 ? renderEmptyState() :
          (
            <>
-             {messages && messages.length > 0 ? (
+             {!isComposing && messages && messages.length > 0 && (
                messages.map(renderMessageItem)
-             ) : (
-               <div className="empty-state">No messages to display</div>
              )}
-             {renderPagination()}
+             {!isComposing && renderPagination()}
            </>
          )
         }

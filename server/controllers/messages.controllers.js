@@ -283,14 +283,20 @@ export const getMessagesList = async (req, res) => {
       return res.json(messageCache.get(cacheKey));
     }
 
-    // Get messages received by the user, sorted by createdAt desc (newest first)
-    // Important: Try both string and ObjectId formats for recipientId to handle different storage formats
+    // Get messages where user is either sender or recipient, sorted by createdAt desc (newest first)
+    // Important: Try both string and ObjectId formats for IDs to handle different storage formats
+    const userIdObj = new mongoose.Types.ObjectId(userId);
+    
     const pipeline = [
       {
         $match: {
           $or: [
-            { recipientId: userId }, // Try string ID (as stored in req.user._id)
-            { recipientId: new mongoose.Types.ObjectId(userId) } // Try ObjectId
+            // Where user is recipient
+            { recipientId: userId },
+            { recipientId: userIdObj },
+            // Where user is sender
+            { senderId: userId },
+            { senderId: userIdObj }
           ]
         }
       },
@@ -335,6 +341,13 @@ export const getMessagesList = async (req, res) => {
                     '$sender.name', 
                     { $ifNull: ['$sender.username', '$sender.email'] }
                   ] 
+                },
+                // Flag to indicate if the message was sent by the current user
+                'isSentByCurrentUser': {
+                  $or: [
+                    { $eq: [{ $toString: '$senderId' }, { $toString: userIdObj }] },
+                    { $eq: ['$senderId', userIdObj] }
+                  ]
                 }
               }
             }
@@ -346,7 +359,9 @@ export const getMessagesList = async (req, res) => {
     console.log('Message pipeline match condition:', {
       $or: [
         { recipientId: userId },
-        { recipientId: new mongoose.Types.ObjectId(userId) }
+        { recipientId: userIdObj },
+        { senderId: userId },
+        { senderId: userIdObj }
       ]
     });
 
