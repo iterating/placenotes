@@ -1,11 +1,11 @@
 .friends-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
 .friends-container h1 {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
   color: var(--primary-color);
   text-align: center;
 }
@@ -14,21 +14,21 @@
 .friends-tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
   border-bottom: 1px solid var(--gray-200);
 }
 
 .tab-button {
-  padding: 0.75rem 1.5rem;
+  padding: var(--spacing-sm) var(--spacing-lg);
   background: none;
   border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--gray-600);
   position: relative;
-  transition: all 0.2s ease;
+  transition: var(--transition-base);
 }
 
 .tab-button:hover {
@@ -42,17 +42,17 @@
 
 .badge {
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
-  background-color: var(--error-color);
-  color: white;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  background-color: var(--danger-color);
+  color: var(--white);
   border-radius: 50%;
   width: 1.25rem;
   height: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
 }
 
 /* Lists styling */
@@ -70,12 +70,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  border-radius: 8px;
-  background-color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  background-color: var(--white);
   box-shadow: var(--shadow-sm);
-  margin-bottom: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: var(--spacing-md);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .friend-item:hover,
@@ -94,8 +94,8 @@
 .friend-info h3,
 .request-info h3,
 .user-info h3 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.1rem;
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-lg);
   color: var(--text-primary);
 }
 
@@ -104,14 +104,14 @@
 .user-info p {
   margin: 0;
   color: var(--gray-500);
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
 }
 
 .friend-actions,
 .request-actions,
 .user-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 /* Buttons */
@@ -120,12 +120,12 @@
 .reject-button,
 .add-friend-button,
 .search-button {
-  padding: 0.5rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-base);
 }
 
 .message-button {
@@ -165,7 +165,7 @@
 }
 
 .pending-label {
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
   color: var(--gray-500);
   font-style: italic;
 }
@@ -173,16 +173,16 @@
 /* Search form */
 .search-form {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
 }
 
 .search-input {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--gray-300);
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
 }
 
 .search-input:focus {
@@ -231,10 +231,10 @@
 .empty-state {
   text-align: center;
   color: var(--gray-500);
-  padding: 2rem;
+  padding: var(--spacing-xl);
   background-color: var(--gray-50);
-  border-radius: 8px;
-  margin: 1rem 0;
+  border-radius: var(--radius-lg);
+  margin: var(--spacing-md) 0;
 }
 
 /* Responsive styles */

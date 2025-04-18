@@ -1,30 +1,6 @@
 /* Message styles */
 
-/* Message card */
-.card.is-reply {
-  border-left: 3px solid var(--primary-color);
-  margin-left: 16px;
-  position: relative;
-}
-
-.card.is-reply::before {
-  content: '';
-  position: absolute;
-  left: -16px;
-  top: 20px;
-  width: 13px;
-  height: 2px;
-  background-color: var(--primary-color);
-}
-
-/* Messages sent by current user */
-.card.sent-by-me {
-  border-right: 3px solid var(--success-color, #28a745);
-  background-color: var(--gray-50);
-  margin-left: auto;
-  margin-right: 0;
-  max-width: 90%;
-}
+/* Message card styles moved to shared.css */
 
 .message-card {
   max-width: 90%;
@@ -33,11 +9,11 @@
 
 /* Reply info */
 .reply-to-info {
-  padding: 5px 8px;
-  margin-bottom: 5px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
   background-color: var(--gray-100);
   border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
 }
 
 .quoted-text {
@@ -47,29 +23,29 @@
 
 /* Reply to message in compose form */
 .reply-to-message {
-  margin-bottom: 16px;
-  padding: 12px;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
   border-left: 3px solid var(--primary-color);
   background-color: var(--gray-50);
   border-radius: var(--radius-md);
 }
 
 .reply-indicator {
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
   color: var(--gray-600);
-  margin-bottom: 4px;
+  margin-bottom: var(--spacing-xs);
   display: flex;
   align-items: center;
 }
 
 .reply-indicator .icon {
-  margin-right: 4px;
+  margin-right: var(--spacing-xs);
   font-weight: bold;
 }
 
 .original-message {
-  padding: 8px;
-  background-color: white;
+  padding: var(--spacing-sm);
+  background-color: var(--white);
   border-radius: var(--radius-sm);
   border: 1px solid var(--gray-200);
 }
@@ -78,14 +54,14 @@
   margin: 0;
   font-style: italic;
   color: var(--gray-800);
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   word-break: break-word;
 }
 
 /* Compose new message form */
 .compose-form {
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-md);
   background-color: var(--white);
@@ -95,39 +71,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
 }
 
-.form-group {
-  margin-bottom: 12px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-.form-control {
-  width: 100%;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius-md);
-  padding: 8px;
-  font-size: 0.9rem;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
-}
+/* Form styles moved to shared.css */
 
 /* Reply form */
 .reply-form {
@@ -189,16 +136,7 @@
   margin-top: 12px;
 }
 
-.empty-state {
-  padding: 16px 12px;
-  text-align: center;
-  background-color: var(--gray-50);
-  border-radius: var(--radius-md);
-  color: var(--gray-600);
-  font-size: 0.9rem;
-  margin-top: 12px;
-  border: 1px dashed var(--gray-300);
-}
+/* Empty state styles moved to shared.css */
 
 .search-loading,
 .search-error {
@@ -310,31 +248,12 @@
   font-size: 0.9rem;
 }
 
-/* Helper classes */
-.mt-xs {
-  margin-top: 4px;
-}
-
-.ml-xs {
-  margin-left: 4px;
-}
-
-.mr-sm {
-  margin-right: 8px;
-}
-
-.mt-sm {
-  margin-top: 8px;
-}
-
-.mb-md {
-  margin-bottom: 16px;
-}
+/* These helper classes are now in shared.css */
 
 .message-timestamp {
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: var(--gray-500);
-  margin-top: 4px;
+  margin-top: var(--spacing-xs);
   text-align: right;
 }
 
@@ -412,11 +331,4 @@
 }
 
 /* Improve hover states */
-.btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.btn {
-  transition: all 0.2s ease;
-}
+/* Button hover effects - moved to shared.css */

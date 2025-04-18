@@ -536,44 +536,7 @@ export const getMessageReplies = async (req, res) => {
     const now = new Date().toISOString();
     const laterDate = new Date(Date.now() + 60000).toISOString();
     
-    // Return mock replies for testing
-    const mockReplies = [
-      {
-        _id: '111111111111',
-        content: 'This is a test reply 1',
-        createdAt: now,
-        senderId: '123456789012',
-        parentMessageId: messageId,
-        senderName: 'Reply User 1',
-        sender: {
-          _id: '123456789012',
-          username: 'replyuser1',
-          name: 'Reply User 1',
-          email: 'reply1@example.com'
-        },
-        read: true,
-        hidden: false
-      },
-      {
-        _id: '222222222222',
-        content: 'This is a test reply 2',
-        createdAt: laterDate,
-        senderId: '987654321098',
-        parentMessageId: messageId,
-        senderName: 'Reply User 2',
-        sender: {
-          _id: '987654321098',
-          username: 'replyuser2',
-          name: 'Reply User 2',
-          email: 'reply2@example.com'
-        },
-        read: false,
-        hidden: false
-      }
-    ];
-    
-    console.log('Returning mock replies:', mockReplies.length);
-    return res.status(200).json(mockReplies);
+
   } catch (error) {
     console.error('Error in getMessageReplies:', error);
     return res.status(500).json({ message: 'Server error', error: error.toString() });
