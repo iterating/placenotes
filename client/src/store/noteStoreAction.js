@@ -1,26 +1,33 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { SERVER } from '../app/config';
 import {apiClient} from '../api/apiClient';
+import { toGeoJSONPoint, storeCurrentLocation } from '../lib/GeoUtils';
 import { setLocation } from './noteSlice';
 
 // Select token from state
 const selectToken = (state) => state.auth.token;
 const selectUserId = (state) => state.auth.user?._id;
 
-// Utility to validate and format the location coordinates
+// Utility function to validate location data
 const validateLocation = (location) => {
-  if (!location || !location.coordinates || location.coordinates.length !== 2) {
-    throw new Error('Invalid location coordinates. Must contain latitude and longitude.');
+  // Convert to GeoJSON Point format if needed
+  const geoJSONLocation = toGeoJSONPoint(location);
+  
+  // Check if location is valid
+  if (!geoJSONLocation || !geoJSONLocation.type || geoJSONLocation.type !== 'Point' || 
+      !geoJSONLocation.coordinates || !Array.isArray(geoJSONLocation.coordinates) || 
+      geoJSONLocation.coordinates.length !== 2) {
+    throw new Error('Invalid location coordinates. Must be convertible to GeoJSON Point format.');
   }
   
-  const [longitude, latitude] = location.coordinates;
+  // Extract coordinates
+  const [longitude, latitude] = geoJSONLocation.coordinates;
   
   // Ensure latitude and longitude are valid numbers
   if (isNaN(latitude) || isNaN(longitude)) {
     throw new Error('Invalid latitude or longitude values.');
   }
-
-  // Return a properly formatted location (GeoJSON Point)
+  
+  // Return a properly formatted GeoJSON Point object
   return {
     type: 'Point',
     coordinates: [longitude, latitude],
@@ -28,9 +35,23 @@ const validateLocation = (location) => {
 };
 
 // Action creator for setting current location
-export const setCurrentLocation = (location) => (dispatch) => {
-  dispatch(setLocation(location));
-};
+export const setCurrentLocation = createAsyncThunk(
+  'notes/setCurrentLocation',
+  async (location, { rejectWithValue }) => {
+    try {
+      // Validate and ensure GeoJSON Point format
+      const validatedLocation = validateLocation(location);
+      
+      // Store in session storage
+      sessionStorage.setItem('currentLocation', JSON.stringify(validatedLocation));
+      
+      return validatedLocation;
+    } catch (error) {
+      console.error('Error setting location:', error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 // Fetch all notes for the current user
 export const fetchUsersNotes = createAsyncThunk(
@@ -51,65 +72,59 @@ export const fetchNotesByLocation = createAsyncThunk(
   'notes/fetchNotesByLocation',
   async ({ latitude, longitude, radius }, { rejectWithValue, getState }) => {
     try {
-      // Debug logging for troubleshooting
-      console.log('Sending location data:', { latitude, longitude, radius });
+      // Create GeoJSON Point from coordinates
+      const geoJSONLocation = {
+        type: 'Point',
+        coordinates: [longitude, latitude]
+      };
       
-      // Validate the coordinates
+      // Log the location data being sent
+      console.log('Sending location data:', { geoJSONLocation, radius });
+      
+      // Validate coordinates
       if (latitude === undefined || longitude === undefined) {
         console.error('Invalid coordinates:', { latitude, longitude });
         return rejectWithValue('Invalid coordinates. Both latitude and longitude must be provided.');
       }
       
-      // Make the request with direct path parameters instead of query params
-      try {
-        console.log('Sending request to: /notes/nearby with query params:', {
-          latitude, longitude, radius
-        });
-        
-        // Make sure API client has the token set properly for authentication
-        const token = getState().auth.token;
-        if (!token) {
-          return rejectWithValue('Authentication token is missing. Please log in again.');
+      // Get auth token
+      const token = getState().auth.token;
+      
+      // Make API request with path parameters
+      const response = await apiClient.get(`/notes/nearby/${latitude}/${longitude}/${radius}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-        
-        // Make the request to /nearby endpoint with query parameters
-        const response = await apiClient.get('/notes/nearby', {
-          params: {
-            latitude,
-            longitude,
-            radius: radius || 50000 // Use larger radius for better results
-          }
-        });
-        
-        console.log('Received response:', response.data);
-        return response.data;
-      } catch (error) {
-        console.error('Error fetching notes by location:', {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data
-        });
-        
-        // If we get a 404 error, it just means no notes were found at this location
-        // Return an empty array instead of treating it as an error
-        if (error.response?.status === 404) {
-          console.log('No notes found near this location - returning empty array');
-          return [];
-        }
-        
-        // If error is 401 (Unauthorized), it might be an authentication issue
-        if (error.response?.status === 401) {
-          return rejectWithValue('Authentication error. Please try logging in again.');
-        }
-        
-        return rejectWithValue(
-          error.response?.data || error.message || 'Error fetching notes by location'
-        );
-      }
+      });
+      
+      // Return notes with location data in GeoJSON format
+      return response.data.map(note => ({
+        ...note,
+        location: note.location || geoJSONLocation
+      }));
     } catch (error) {
-      console.error('Error fetching notes by location:', error);
-      return rejectWithValue(error.response?.data || 'Error fetching notes by location');
+      console.error('Error fetching notes by location:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
+      
+      // If we get a 404 error, it just means no notes were found at this location
+      // Return an empty array instead of treating it as an error
+      if (error.response?.status === 404) {
+        console.log('No notes found near this location - returning empty array');
+        return [];
+      }
+      
+      // If error is 401 (Unauthorized), it might be an authentication issue
+      if (error.response?.status === 401) {
+        return rejectWithValue('Authentication error. Please try logging in again.');
+      }
+      
+      return rejectWithValue(
+        error.response?.data || error.message || 'Error fetching notes by location'
+      );
     }
   }
 );
@@ -149,6 +164,7 @@ export const createNote = createAsyncThunk(
     }
   }
 );
+
 // Update an existing note
 export const updateNote = createAsyncThunk(
   'notes/updateNote',

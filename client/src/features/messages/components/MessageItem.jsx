@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../../../store/authSlice';
 import { hideMessage, markMessageAsRead } from '../store/messageSlice';
+import { calculateDistance, fromGeoJSONPoint, toGeoJSONPoint } from '../../../lib/GeoUtils';
 import './MessageStyles.css';
 
 /**
@@ -55,51 +56,49 @@ const MessageItem = ({
   
   // Format the location information for display
   const formatLocation = () => {
-    if (!message.location || !message.location.coordinates) {
-      return null;
+    try {
+      // Check if message or location is valid
+      if (!message || !message.location) {
+        return null;
+      }
+      
+      // Validate location format
+      if (!message.location.coordinates || 
+          !Array.isArray(message.location.coordinates) || 
+          message.location.coordinates.length !== 2) {
+        return 'Location unavailable';
+      }
+      
+      if (!currentUser || !currentUser.currentLocation) {
+        return 'Location available';
+      }
+      
+      // Calculate distance using GeoUtils with error handling
+      try {
+        const distance = calculateDistance(message.location, currentUser.currentLocation);
+        
+        if (distance === null || isNaN(distance)) {
+          return 'Distance unknown';
+        }
+        
+        // Format distance nicely
+        if (distance < 0.1) {
+          return 'Very close';
+        } else if (distance < 1) {
+          return 'Less than a mile away';
+        } else {
+          return `${Math.round(distance)} miles away`;
+        }
+      } catch (distanceError) {
+        console.warn('Error calculating distance:', distanceError);
+        return 'Distance calculation error';
+      }
+    } catch (error) {
+      console.error('Error formatting location:', error);
+      return 'Location error';
     }
-    
-    // Just show "X miles away" instead of exact coordinates for privacy
-    const lat = message.location.coordinates[1];
-    const lng = message.location.coordinates[0];
-    
-    if (!currentUser || !currentUser.currentLocation) {
-      return 'Location available';
-    }
-    
-    // Calculate approximate distance
-    const userLat = currentUser.currentLocation.coordinates[1];
-    const userLng = currentUser.currentLocation.coordinates[0];
-    const distance = calculateDistance(userLat, userLng, lat, lng);
-    
-    return `${distance} away`;
   };
-  
-  // Calculate approximate distance between two points
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 3958.8; // Earth's radius in miles
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
     
-    // Format distance nicely
-    if (distance < 0.1) {
-      return 'Very close';
-    } else if (distance < 1) {
-      return 'Less than a mile away';
-    } else {
-      return `${Math.round(distance)} miles away`;
-    }
-  };
-  
-  // Convert degrees to radians
-  const toRad = (value) => value * Math.PI / 180;
-  
   // Handle hiding a message
   const handleHideMessage = (e) => {
     e.stopPropagation();
@@ -123,14 +122,24 @@ const MessageItem = ({
 
   // Mark the message as read when viewed
   useEffect(() => {
+    // Validate message and required properties before proceeding
+    if (!message || !message._id) {
+      console.warn('Cannot mark invalid message as read');
+      return;
+    }
+    
     if (isVisible && !isRead && !isSentByCurrentUser) {
       try {
         dispatch(markMessageAsRead(message._id))
           .unwrap()
           .then((result) => {
-            if (result.success) {
+            if (result && result.success) {
               setIsRead(true);
               console.log('Message marked as read:', message._id);
+            } else {
+              console.warn('Unexpected result from markMessageAsRead:', result);
+              // Still update UI state for better user experience
+              setIsRead(true);
             }
           })
           .catch((error) => {
@@ -143,7 +152,7 @@ const MessageItem = ({
         setIsRead(true);
       }
     }
-  }, [isVisible, isRead, isSentByCurrentUser, dispatch, message._id]);
+  }, [isVisible, isRead, isSentByCurrentUser, dispatch, message, message._id]);
   
   // Define class names based on message properties
   const messageClasses = [
@@ -178,18 +187,50 @@ const MessageItem = ({
           <div className="reply-to-info">
             <span className="icon">↩</span>
             <span className="quoted-text">
-              "{parentMessage.content.length > 50 
-                ? `${parentMessage.content.substring(0, 50)}...` 
-                : parentMessage.content}"
+              "{parentMessage.content && typeof parentMessage.content === 'string' 
+                ? (parentMessage.content.length > 50 
+                    ? `${parentMessage.content.substring(0, 50)}...` 
+                    : parentMessage.content)
+                : 'No content'}"
             </span>
           </div>
         )}
         
         {/* Message content */}
         <div className="message-content">
-          {message.content}
-          {isPending && <span className="message-status">Sending...</span>}
-          {hasFailed && <span className="message-status error">Failed to send</span>}
+          {message && message.content ? message.content : 'No content'}
+          {(isPending || (message && message.pending)) && (
+            <div className="message-status-container">
+              <span className="message-status pending">
+                <span className="icon spin">⟳</span> Sending...
+              </span>
+            </div>
+          )}
+          {(hasFailed || (message && message.sendFailed)) && (
+            <div className="message-status-container">
+              <span className="message-status error">
+                <span className="icon">⚠️</span> Failed to send
+              </span>
+              {message && message.errorMessage && (
+                <span className="message-error-details">{message.errorMessage}</span>
+              )}
+              <button 
+                className="btn btn-sm btn-retry" 
+                onClick={(e) => {
+                  try {
+                    e.stopPropagation();
+                    if (onReply && typeof onReply === 'function') {
+                      onReply(message);
+                    }
+                  } catch (error) {
+                    console.error('Error in retry button handler:', error);
+                  }
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
         
         {/* Location and timestamp */}
@@ -198,7 +239,9 @@ const MessageItem = ({
             <span className="icon">📍</span>
             <span>{formatLocation()}</span>
           </div>
-          <div className="message-timestamp">{formatDate(message.createdAt)}</div>
+          <div className="message-timestamp">
+            {message && message.createdAt ? formatDate(message.createdAt) : 'Unknown time'}
+          </div>
         </div>
         
         {/* Action buttons */}

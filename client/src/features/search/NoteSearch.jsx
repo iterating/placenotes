@@ -17,10 +17,11 @@ const NoteSearch = () => {
     if (useLocation) {
       try {
         const position = await getCurrentPosition();
-        searchParams.location = {
+        const locationData = {
           type: 'Point',
           coordinates: [position.coords.longitude, position.coords.latitude]
         };
+        searchParams.location = locationData;
         searchParams.radius = 1000; // 1km radius
       } catch (error) {
         console.error('Failed to get location:', error);

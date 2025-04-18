@@ -8,6 +8,7 @@ import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import { fromGeoJSONPoint, toGeoJSONPoint } from '../../../lib/GeoUtils';
 
 // Set up default icon
 let DefaultIcon = L.icon({
@@ -28,13 +29,27 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
   const circleRef = useRef(null);
   const mapInstance = useRef(null);
 
-  // Get coordinates from location prop
-  const coordinates = location?.coordinates 
-    ? [location.coordinates[1], location.coordinates[0]] 
+  // Get coordinates from location prop, ensuring GeoJSON format
+  const geoJSONLocation = location?.type === 'Point' && location?.coordinates
+    ? location
+    : location?.coordinates
+      ? { type: 'Point', coordinates: location.coordinates }
+      : { type: 'Point', coordinates: [-118.243683, 34.052235] };
+      
+  // Convert to Leaflet format [lat, lng] for internal use
+  const leafletCoords = geoJSONLocation.coordinates
+    ? [geoJSONLocation.coordinates[1], geoJSONLocation.coordinates[0]]
     : [34.052235, -118.243683];
 
   const updateLocation = (lat, lng) => {
-    onLocationChange(lng, lat);
+    // Create proper GeoJSON Point object
+    const geoJSONPoint = {
+      type: 'Point',
+      coordinates: [lng, lat] // GeoJSON uses [longitude, latitude] order
+    };
+    
+    onLocationChange(geoJSONPoint);
+    
     if (markerRef.current && circleRef.current) {
       markerRef.current.setLatLng([lat, lng]);
       circleRef.current.setLatLng([lat, lng]);
@@ -42,10 +57,14 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
   };
 
   useEffect(() => {
+    if (!mapRef.current) return;
+    
     if (!mapInstance.current) {
-      const [latitude, longitude] = coordinates;
-      mapInstance.current = L.map(mapRef.current).setView([latitude, longitude], 15);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapInstance.current);
+      mapInstance.current = L.map(mapRef.current).setView(leafletCoords, 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(mapInstance.current);
 
       const geocoder = L.Control.Geocoder.nominatim();
       const geocoderControl = L.Control.geocoder({ 
@@ -60,8 +79,8 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
         })
         .addTo(mapInstance.current);
 
-      // Add marker and circle
-      markerRef.current = L.marker(coordinates, {
+      // Add marker and circle using Leaflet format
+      markerRef.current = L.marker(leafletCoords, {
         draggable: true // Make marker draggable
       }).addTo(mapInstance.current);
 
@@ -72,7 +91,7 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
         updateLocation(position.lat, position.lng);
       });
 
-      circleRef.current = L.circle(coordinates, {
+      circleRef.current = L.circle(leafletCoords, {
         radius: radius,
         color: 'blue',
         fillColor: '#3388ff',
@@ -101,15 +120,15 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
     }
   }, [radius]);
 
-  // Update marker and circle position when coordinates change
+  // Update marker and circle position when location changes
   useEffect(() => {
-    if (markerRef.current && circleRef.current) {
-      const [lat, lng] = coordinates;
-      markerRef.current.setLatLng([lat, lng]);
-      circleRef.current.setLatLng([lat, lng]);
-      mapInstance.current?.setView([lat, lng]);
+    if (markerRef.current && circleRef.current && mapInstance.current) {
+      // Always use leafletCoords which is already in [lat, lng] format for Leaflet
+      markerRef.current.setLatLng(leafletCoords);
+      circleRef.current.setLatLng(leafletCoords);
+      mapInstance.current.setView(leafletCoords);
     }
-  }, [coordinates]);
+  }, [geoJSONLocation]);
 
   return (
     <div className="mapmark-wrapper">

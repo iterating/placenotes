@@ -1,13 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-  token: null,
-  user: null,
-  isAuthenticated: false,
-  notes: [],
-  loading: false,
-  error: null
+// Get initial state from localStorage if available
+const getInitialState = () => {
+  try {
+    const persistedToken = localStorage.getItem('token');
+    const persistedUser = localStorage.getItem('user');
+    
+    return {
+      token: persistedToken || null,
+      user: persistedUser ? JSON.parse(persistedUser) : null,
+      isAuthenticated: Boolean(persistedToken),
+      notes: [],
+      loading: false,
+      error: null
+    };
+  } catch (error) {
+    console.error('Error loading persisted state:', error);
+    return {
+      token: null,
+      user: null,
+      isAuthenticated: false,
+      notes: [],
+      loading: false,
+      error: null
+    };
+  }
 };
+
+const initialState = getInitialState();
 
 const authSlice = createSlice({
   name: 'auth',
@@ -19,6 +39,12 @@ const authSlice = createSlice({
       state.user = user;
       state.isAuthenticated = Boolean(token);
       state.error = null;
+      
+      // Persist to localStorage
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      }
     },
     setToken(state, action) {
       state.token = action.payload;
@@ -42,6 +68,12 @@ const authSlice = createSlice({
       state.user = user;
       state.token = token;
       state.error = null;
+      
+      // Persist to localStorage
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      }
     },
     loginFailure(state, action) {
       state.loading = false;
@@ -58,6 +90,10 @@ const authSlice = createSlice({
       state.notes = [];
       state.loading = false;
       state.error = null;
+      
+      // Clear localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }
 });

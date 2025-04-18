@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { SERVER } from '../app/config';
 import store from '../store/store';
-import { logout } from '../store/authSlice';
-import { validateToken, setToken } from '../lib/tokenManager';
+import { logout, setToken } from '../store/authSlice';
+import { validateToken } from '../lib/tokenManager';
 import { showToast } from '../components/ToastManager';
 
 const apiClient = axios.create({
@@ -28,11 +28,30 @@ const processQueue = (error, token = null) => {
 // Add a request interceptor to add the token to all requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = store.getState().auth.token;
+    // First try to get token from Redux store
+    let token = store.getState().auth.token;
     
-    // Validate token before using it
-    if (token && validateToken(token)) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // If no token in store, try localStorage as fallback
+    if (!token) {
+      token = localStorage.getItem('token');
+      
+      // If found in localStorage but not in store, update the store
+      if (token) {
+        store.dispatch(setToken(token));
+      }
+    }
+    
+    // Add token to request headers if available
+    if (token) {
+      // Validate token before using it
+      if (validateToken(token)) {
+        config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        // Token is invalid or expired, clear it
+        localStorage.removeItem('token');
+        store.dispatch(setToken(null));
+        console.warn('Invalid token detected and removed');
+      }
     }
 
     // Add request to pending list

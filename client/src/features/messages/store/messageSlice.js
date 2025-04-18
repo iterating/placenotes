@@ -330,53 +330,114 @@ const messageSlice = createSlice({
         state.error = action.payload || 'Failed to fetch messages';
       })
       
-      // Send message
-      .addCase(sendMessage.pending, (state) => {
-        state.refreshing = true;
+      // Send Message
+      .addCase(sendMessage.pending, (state, action) => {
+        state.loading = true;
         state.error = null;
-      })
-      .addCase(sendMessage.fulfilled, (state, action) => {
-        const newMessage = action.payload;
-        state.messages[newMessage._id] = newMessage;
-        state.refreshing = false;
-      })
-      .addCase(sendMessage.rejected, (state, action) => {
-        state.refreshing = false;
-        state.error = action.payload || 'Failed to send message';
-      })
-      
-      // Hide message instead of deleting
-      .addCase(hideMessage.pending, (state) => {
-        state.refreshing = true;
-        state.error = null;
-      })
-      .addCase(hideMessage.fulfilled, (state, action) => {
-        const messageId = action.payload;
-        if (state.messages[messageId]) {
-          // Mark the message as hidden instead of removing it
-          state.messages[messageId] = {
-            ...state.messages[messageId],
-            hidden: true,
-            read: true // Auto-mark as read when hidden
+        
+        // Create a temporary message for optimistic UI update
+        if (action.meta?.arg) {
+          const tempMessage = {
+            _id: `temp_${Date.now()}`,
+            content: action.meta.arg.content,
+            senderId: action.meta.arg.senderId || 'current_user',
+            recipientId: action.meta.arg.recipientId,
+            parentMessageId: action.meta.arg.parentMessageId || null,
+            conversationId: action.meta.arg.conversationId || null,
+            location: action.meta.arg.location || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            read: true, // Messages sent by the user are always read
+            pending: true, // Mark as pending
+            tempId: `temp_${Date.now()}` // Store temp ID for later reference
           };
           
-          // Update unread count if necessary
-          if (!state.messages[messageId].read) {
-            state.unreadCount = Math.max(0, state.unreadCount - 1);
+          // Add to messages store
+          state.messages[tempMessage._id] = tempMessage;
+          
+          // If this is a reply, add it to the thread
+          if (tempMessage.parentMessageId && state.threadMessages[tempMessage.parentMessageId]) {
+            state.threadMessages[tempMessage.parentMessageId][tempMessage._id] = tempMessage;
           }
           
-          // If hidden message was selected, clear selection
-          if (state.selectedMessageId === messageId) {
-            state.selectedMessageId = null;
+          // Store the temp ID in the meta for reference in fulfilled/rejected
+          action.meta.tempId = tempMessage._id;
+        }
+      })
+      .addCase(sendMessage.fulfilled, (state, action) => {
+        state.loading = false;
+        
+        // Get the real message from the server
+        const message = action.payload;
+        
+        // Find and remove the temporary message if it exists
+        const tempId = action.meta.tempId;
+        if (tempId && state.messages[tempId]) {
+          // Remove the temp message
+          delete state.messages[tempId];
+          
+          // Remove from thread if it was added there
+          if (message.parentMessageId && 
+              state.threadMessages[message.parentMessageId] && 
+              state.threadMessages[message.parentMessageId][tempId]) {
+            delete state.threadMessages[message.parentMessageId][tempId];
           }
         }
-        state.refreshing = false;
+        
+        // Add the confirmed message to our normalized store
+        state.messages[message._id] = {
+          ...message,
+          pending: false,
+          sendFailed: false
+        };
+        
+        // If this is a reply, add it to the thread
+        if (message.parentMessageId && state.threadMessages[message.parentMessageId]) {
+          state.threadMessages[message.parentMessageId][message._id] = {
+            ...message,
+            pending: false,
+            sendFailed: false
+          };
+        }
+        
+        // Add to conversation if it exists
+        if (message.conversationId && state.conversations[message.conversationId]) {
+          // Make sure we don't add duplicates
+          if (!state.conversations[message.conversationId].messageIds.includes(message._id)) {
+            state.conversations[message.conversationId].messageIds.push(message._id);
+          }
+          state.conversations[message.conversationId].lastMessage = message;
+          state.conversations[message.conversationId].updatedAt = message.createdAt;
+        }
       })
-      .addCase(hideMessage.rejected, (state, action) => {
-        state.refreshing = false;
-        state.error = action.payload || 'Failed to hide message';
+      .addCase(sendMessage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to send message';
+        
+        // Find the temporary message and mark it as failed
+        const tempId = action.meta.tempId;
+        if (tempId && state.messages[tempId]) {
+          state.messages[tempId] = {
+            ...state.messages[tempId],
+            pending: false,
+            sendFailed: true,
+            errorMessage: action.payload || 'Failed to send message'
+          };
+          
+          // Update in thread if it exists there
+          if (state.messages[tempId].parentMessageId && 
+              state.threadMessages[state.messages[tempId].parentMessageId] && 
+              state.threadMessages[state.messages[tempId].parentMessageId][tempId]) {
+            
+            state.threadMessages[state.messages[tempId].parentMessageId][tempId] = {
+              ...state.threadMessages[state.messages[tempId].parentMessageId][tempId],
+              pending: false,
+              sendFailed: true,
+              errorMessage: action.payload || 'Failed to send message'
+            };
+          }
+        }
       })
-      
       // Mark message as read
       .addCase(markMessageAsRead.pending, (state) => {
         state.refreshing = true;
