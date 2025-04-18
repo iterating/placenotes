@@ -444,14 +444,25 @@ export const markMessageAsRead = async (req, res) => {
       return res.status(404).json({ message: 'Message not found' });
     }
     
-    // Ensure the user is the recipient
-    if (message.recipientId.toString() !== userId) {
+    // Allow both the sender and recipient to mark messages as read
+    const isRecipient = message.recipientId.toString() === userId;
+    const isSender = message.senderId.toString() === userId;
+    
+    if (!isRecipient && !isSender) {
       return res.status(403).json({ message: 'Not authorized to mark this message as read' });
     }
     
-    // Update the message
-    message.read = true;
-    await message.save();
+    // Only update read status if user is the recipient
+    // (sender's messages are automatically considered read)
+    
+    // Update the message if the user is the recipient
+    if (isRecipient && !message.read) {
+      message.read = true;
+      await message.save();
+      console.log(`Message ${messageId} marked as read by recipient ${userId}`);
+    } else {
+      console.log(`Message ${messageId} already read or marked by sender ${userId}`);
+    }
     
     // Clear any list cache entries for this user
     for (const key of messageCache.keys()) {
