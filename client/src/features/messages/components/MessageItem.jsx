@@ -12,7 +12,11 @@ const MessageItem = ({
   onReply, 
   onDelete,
   parentMessage = null,
-  showActions = true 
+  showActions = true,
+  isRoot = false,
+  isReply = false,
+  isPending = false,
+  hasFailed = false
 }) => {
   const dispatch = useDispatch();
   const currentUser = useSelector(selectUser);
@@ -143,9 +147,12 @@ const MessageItem = ({
   
   // Define class names based on message properties
   const messageClasses = [
-    'card message-card mb-sm',
+    'card message-card mb-sm message-item',
     !isRead ? 'unread' : '',
-    message.parentMessageId ? 'is-reply' : '',
+    isReply || message.parentMessageId ? 'is-reply' : '',
+    isRoot ? 'root' : '',
+    isPending || message.pending ? 'pending' : '',
+    hasFailed || message.sendFailed ? 'failed' : '',
     isSentByCurrentUser ? 'sent-by-me' : ''
   ].filter(Boolean).join(' ');
   
@@ -181,6 +188,8 @@ const MessageItem = ({
         {/* Message content */}
         <div className="message-content">
           {message.content}
+          {isPending && <span className="message-status">Sending...</span>}
+          {hasFailed && <span className="message-status error">Failed to send</span>}
         </div>
         
         {/* Location and timestamp */}
@@ -193,7 +202,7 @@ const MessageItem = ({
         </div>
         
         {/* Action buttons */}
-        {showActions && !isSentByCurrentUser && (
+        {showActions && !isSentByCurrentUser && !isPending && !hasFailed && (
           <div className="message-actions">
             <button 
               className="btn btn-sm btn-primary"

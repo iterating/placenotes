@@ -37,22 +37,26 @@ export const markMessageAsRead = async (messageId) => {
   try {
     // Skip server calls for mock messages
     if (isMockMessageId(messageId)) {
-      console.log('Skipping server call for mock message:', messageId);
       return { success: true, messageId, mockData: true };
     }
     
     try {
       // Try server first for real messages
-      await apiClient.put(`/messages/${messageId}/read`);
-      console.log('Message marked as read on server:', messageId);
+      const response = await apiClient.put(`/messages/${messageId}/read`);
       return { success: true, messageId };
     } catch (serverError) {
-      // If server fails, use client-side fallback
-      console.warn('Server call failed, using client-side fallback for marking message as read:', serverError.message);
-      
-      // Just return success - the Redux store will handle updating the UI
-      console.log('Message marked as read locally:', messageId);
-      return { success: true, messageId, mockData: true };
+      // Handle different error types appropriately
+      if (serverError.response && serverError.response.status === 403) {
+        // This is expected when the user is the sender - silently handle it
+        return { success: true, messageId, clientSide: true };
+      } else if (serverError.response && serverError.response.status === 404) {
+        // Message not found - silently handle it
+        return { success: true, messageId, clientSide: true };
+      } else {
+        // For other errors, log them but still return success for UI
+        console.warn('Error marking message as read:', serverError.message);
+        return { success: true, messageId, clientSide: true };
+      }
     }
   } catch (error) {
     console.error('Error marking message as read:', error);

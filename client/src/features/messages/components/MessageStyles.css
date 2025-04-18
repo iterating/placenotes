@@ -2,6 +2,57 @@
 
 /* Message card styles moved to shared.css */
 
+/* Thread specific styles */
+.thread-messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.root-message-container {
+  margin-bottom: var(--spacing-md);
+}
+
+.replies-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.replies-divider {
+  position: relative;
+  text-align: center;
+  margin: var(--spacing-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.replies-divider::before {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  background-color: var(--gray-200);
+  margin-right: var(--spacing-md);
+}
+
+.replies-divider::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  background-color: var(--gray-200);
+  margin-left: var(--spacing-md);
+}
+
+.replies-divider span {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--gray-100);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
 .message-card {
   max-width: 90%;
   position: relative;
@@ -332,3 +383,32 @@
 
 /* Improve hover states */
 /* Button hover effects - moved to shared.css */
+
+/* Pending and failed message states */
+.message-item.pending {
+  opacity: 0.7;
+}
+
+.message-item.pending .message-content::after {
+  content: ' (Sending...)';
+  font-style: italic;
+  color: var(--gray-500);
+  font-size: var(--font-size-xs);
+}
+
+.message-item.failed {
+  border-left: 3px solid var(--danger-color, #dc3545);
+}
+
+.message-item.failed .message-content::after {
+  content: ' (Failed to send)';
+  color: var(--danger-color, #dc3545);
+  font-style: italic;
+  font-size: var(--font-size-xs);
+}
+
+/* Root message styling */
+.message-item.root {
+  border-left: 3px solid var(--primary-color);
+  background-color: var(--gray-50);
+}

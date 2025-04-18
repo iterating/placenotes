@@ -5,7 +5,8 @@ import {
   fetchMessages,
   hideMessage,
   selectMessageById,
-  sendMessage
+  sendMessage,
+  markMessageAsRead
 } from '../store/messageSlice';
 import { selectUser as selectAuthUser } from '../../../store/authSlice';
 import MessageItem from './MessageItem';
@@ -33,10 +34,16 @@ const MessageThread = ({ threadId, onClose }) => {
   // Get the root message from Redux store if available
   const rootMessage = useSelector(state => threadId ? selectMessageById(state, threadId) : null);
   
-  // Sort messages by date for display
-  const sortedMessages = threadData.allMessages
+  // Organize messages into root and replies
+  const threadRootMessage = threadData.rootMessage;
+  
+  // Sort replies by date for display
+  const sortedReplies = threadData.replies
     .filter(Boolean)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    
+  // Combine root message and replies for display
+  const sortedMessages = threadRootMessage ? [threadRootMessage, ...sortedReplies] : sortedReplies;
   
   // Fetch the message thread on component mount or when threadId changes
   useEffect(() => {
@@ -48,6 +55,9 @@ const MessageThread = ({ threadId, onClose }) => {
     
     // Add error handling boundary to prevent component crashes
     try {
+      // Mark the message as read when opening the thread
+      dispatch(markMessageAsRead(threadId));
+      
       dispatch(fetchMessageThread(threadId))
         .unwrap()
         .then((result) => {
@@ -119,18 +129,57 @@ const MessageThread = ({ threadId, onClose }) => {
     
     setIsReplying(false); // Close reply form
     
+    // Add location data to the reply if available
+    const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation")) || null;
+    let locationData = null;
+    
+    if (currentLocation) {
+      if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+        locationData = currentLocation;
+      } else if (currentLocation.latitude && currentLocation.longitude) {
+        // Convert legacy format to GeoJSON Point
+        locationData = {
+          type: 'Point',
+          coordinates: [currentLocation.longitude, currentLocation.latitude]
+        };
+      }
+    }
+    
     const replyData = {
       content: replyContent,
-      parentMessageId: threadData.rootMessage._id
+      parentMessageId: threadData.rootMessage._id,
+      location: locationData,
+      radius: 1000 // Default radius in meters
     };
     
     try {
+      // Show optimistic UI update first
+      const optimisticReply = {
+        _id: 'temp_' + Date.now(),
+        content: replyContent,
+        createdAt: new Date().toISOString(),
+        senderId: currentUser?._id || 'current_user',
+        senderName: currentUser?.name || 'You',
+        parentMessageId: threadData.rootMessage._id,
+        read: true,
+        hidden: false,
+        pending: true
+      };
+      
+      // Update local state immediately with optimistic reply
+      setThreadData(prev => ({
+        ...prev,
+        replies: [...(prev.replies || []), optimisticReply],
+        allMessages: [...(prev.allMessages || []), optimisticReply]
+      }));
+      
+      // Then send to server
       dispatch(sendMessage(replyData))
         .unwrap()
-        .then(() => {
-          console.log('Reply sent successfully');
+        .then((response) => {
+          console.log('Reply sent successfully', response);
           
-          // Refresh the thread to include the new reply
+          // Refresh the thread to include the new reply from server
           if (threadId) {
             dispatch(fetchMessageThread(threadId));
           }
@@ -138,27 +187,28 @@ const MessageThread = ({ threadId, onClose }) => {
         .catch((error) => {
           console.error('Error sending reply:', error);
           
-          // If the server API fails, add the reply locally
-          const mockReply = {
+          // If the server API fails, keep the optimistic update but mark as failed
+          const failedReply = {
+            ...optimisticReply,
             _id: 'mock_' + Date.now(),
-            content: replyContent,
-            createdAt: new Date().toISOString(),
-            senderId: currentUser?._id || 'current_user',
-            senderName: currentUser?.name || 'You',
-            parentMessageId: threadData.rootMessage._id,
-            read: true,
-            hidden: false,
+            sendFailed: true,
             mock: true
           };
           
-          // Update local state immediately with mock reply
-          setThreadData(prev => ({
-            ...prev,
-            replies: [...(prev.replies || []), mockReply],
-            allMessages: [...(prev.allMessages || []), mockReply]
-          }));
+          // Update local state with failed reply
+          setThreadData(prev => {
+            // Remove the optimistic reply
+            const filteredReplies = prev.replies.filter(r => r._id !== optimisticReply._id);
+            const filteredAllMessages = prev.allMessages.filter(m => m._id !== optimisticReply._id);
+            
+            return {
+              ...prev,
+              replies: [...filteredReplies, failedReply],
+              allMessages: [...filteredAllMessages, failedReply]
+            };
+          });
           
-          console.log('Added mock reply locally', mockReply);
+          console.log('Added failed reply locally', failedReply);
         });
     } catch (error) {
       console.error('Critical error in handleSendReply:', error);
@@ -230,22 +280,54 @@ const MessageThread = ({ threadId, onClose }) => {
         {/* Messages */}
         {!loading && !error && sortedMessages.length > 0 ? (
           <div className="thread-messages">
-            {sortedMessages.map(message => (
-              <MessageItem
-                key={message._id}
-                message={message}
-                onReply={handleReply}
-                onDelete={(e) => {
-                  e.stopPropagation();
-                  if (window.confirm('Hide this message?')) {
-                    dispatch(hideMessage(message._id));
-                  }
-                }}
-                isRoot={message._id === threadId}
-                isReply={message.parentMessageId && message.parentMessageId !== message._id}
-                content={formatContent(message.content)}
-              />
-            ))}
+            {/* Root message */}
+            {threadRootMessage && (
+              <div className="root-message-container">
+                <MessageItem
+                  key={threadRootMessage._id}
+                  message={threadRootMessage}
+                  onReply={handleReply}
+                  onDelete={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm('Hide this message?')) {
+                      dispatch(hideMessage(rootMessage._id));
+                      onClose && onClose();
+                    }
+                  }}
+                  isRoot={true}
+                  isReply={false}
+                  content={formatContent(rootMessage.content)}
+                />
+              </div>
+            )}
+            
+            {/* Replies section */}
+            {sortedReplies.length > 0 && (
+              <div className="replies-section">
+                <div className="replies-divider">
+                  <span>{sortedReplies.length} {sortedReplies.length === 1 ? 'Reply' : 'Replies'}</span>
+                </div>
+                
+                {sortedReplies.map(message => (
+                  <MessageItem
+                    key={message._id}
+                    message={message}
+                    onReply={handleReply}
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('Hide this message?')) {
+                        dispatch(hideMessage(message._id));
+                      }
+                    }}
+                    isRoot={false}
+                    isReply={true}
+                    isPending={message.pending}
+                    hasFailed={message.sendFailed}
+                    content={formatContent(message.content)}
+                  />
+                ))}
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         ) : (!loading && !error) ? (
