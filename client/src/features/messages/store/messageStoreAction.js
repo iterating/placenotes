@@ -1,19 +1,29 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../../api/apiClient';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { toGeoJSONPoint } from '../../../lib/GeoUtils';
 import { setMessages, addMessage, markAsRead } from './messageSlice';
 
-// Utility to validate and format the location coordinates
+// Utility function to validate location data
 const validateLocation = (location) => {
-  if (!location || !location.coordinates || location.coordinates.length !== 2) {
-    throw new Error('Invalid location coordinates. Must contain latitude and longitude.');
+  // Convert to GeoJSON Point format if needed
+  const geoJSONLocation = toGeoJSONPoint(location);
+  
+  // Check if location is valid
+  if (!geoJSONLocation || !geoJSONLocation.type || geoJSONLocation.type !== 'Point' || 
+      !geoJSONLocation.coordinates || !Array.isArray(geoJSONLocation.coordinates) || 
+      geoJSONLocation.coordinates.length !== 2) {
+    throw new Error('Invalid location coordinates. Must be convertible to GeoJSON Point format.');
   }
   
-  const [longitude, latitude] = location.coordinates;
+  // Extract coordinates
+  const [longitude, latitude] = geoJSONLocation.coordinates;
   
+  // Ensure latitude and longitude are valid numbers
   if (isNaN(latitude) || isNaN(longitude)) {
     throw new Error('Invalid latitude or longitude values.');
   }
-
+  
+  // Return a properly formatted GeoJSON Point object
   return {
     type: 'Point',
     coordinates: [longitude, latitude],
@@ -43,20 +53,36 @@ export const sendMessage = createAsyncThunk(
   'messages/sendMessage',
   async (messageData, { dispatch, rejectWithValue }) => {
     try {
-      const formattedData = {
+      // Validate location if provided, ensuring GeoJSON Point format
+      let validatedLocation = null;
+      if (messageData.location) {
+        validatedLocation = validateLocation(messageData.location);
+      }
+      
+      // Prepare message data
+      const data = {
         recipientId: messageData.recipientId,
         content: messageData.content.trim(),
-        location: validateLocation(messageData.location),
+        location: validatedLocation,
         radius: Number(messageData.radius) || 1000,
         parentMessageId: messageData.parentMessageId || null // Add parentMessageId for replies
       };
-
-      const response = await apiClient.post('/messages/create', formattedData);
-      dispatch(addMessage(response.data));
-      return response.data;
+      
+      // Make API request
+      const response = await apiClient.post('/messages/create', data);
+      
+      // Ensure returned message has location in GeoJSON format
+      dispatch(addMessage({
+        ...response.data,
+        location: response.data.location || validatedLocation
+      }));
+      return {
+        ...response.data,
+        location: response.data.location || validatedLocation
+      };
     } catch (error) {
       console.error('Error sending message:', error);
-      return rejectWithValue(error.response?.data?.message || 'Error sending message');
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -85,24 +111,34 @@ export const markMessageAsRead = createAsyncThunk(
 // Fetch messages by location (nearby)
 export const fetchMessagesByLocation = createAsyncThunk(
   'messages/fetchByLocation',
-  async ({ location, radius, page = 1 }, { dispatch, rejectWithValue }) => {
+  async ({ location, radius = 1000, page = 1 }, { dispatch, rejectWithValue }) => {
     try {
+      // Ensure location is in GeoJSON Point format
       const validatedLocation = validateLocation(location);
-      const response = await apiClient.get('/messages/nearby', {
-        params: {
-          longitude: validatedLocation.coordinates[0],
-          latitude: validatedLocation.coordinates[1],
-          radius: radius || 1000,
-          page
-        }
-      });
-      dispatch(setMessages(response.data));
-      return response.data;
+      
+      // Prepare request parameters
+      const params = {
+        longitude: validatedLocation.coordinates[0],
+        latitude: validatedLocation.coordinates[1],
+        radius,
+        page
+      };
+      
+      // Make API request
+      const response = await apiClient.get('/messages/nearby', { params });
+      
+      // Ensure all returned messages have location in GeoJSON format
+      dispatch(setMessages(response.data.map(message => ({
+        ...message,
+        location: message.location || validatedLocation
+      }))));
+      return response.data.map(message => ({
+        ...message,
+        location: message.location || validatedLocation
+      }));
     } catch (error) {
       console.error('Error fetching messages by location:', error);
-      return rejectWithValue(error.response?.data?.message || 'Error fetching messages by location');
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
-
-

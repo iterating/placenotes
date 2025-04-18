@@ -17,28 +17,12 @@ export const fetchMessages = async (page = 1, limit = 20) => {
 };
 
 /**
- * Checks if a messageId is from mock data
- * @param {string} messageId ID to check
- * @returns {boolean} True if it's a mock ID
- */
-const isMockMessageId = (messageId) => {
-  // Check for our mock ID format or the mock flag in Redux store
-  return messageId === '111111111111111111111111' || 
-         messageId === '222222222222222222222222' || 
-         messageId.startsWith('mock_');
-};
-
-/**
  * Marks a message as read
  * @param {string} messageId ID of the message to mark as read
  * @returns {Promise} Promise resolving with success status
  */
 export const markMessageAsRead = async (messageId) => {
   try {
-    // Skip server calls for mock messages
-    if (isMockMessageId(messageId)) {
-      return { success: true, messageId, mockData: true };
-    }
     
     try {
       // Try server first for real messages
@@ -71,8 +55,52 @@ export const markMessageAsRead = async (messageId) => {
  */
 export const sendMessage = async (messageData) => {
   try {
-    const response = await apiClient.post('/messages', messageData);
-    return response.data;
+    // Validate message data before sending
+    if (!messageData.content || messageData.content.trim() === '') {
+      throw new Error('Message content cannot be empty');
+    }
+    
+    if (!messageData.recipientId) {
+      throw new Error('Recipient is required');
+    }
+    
+    // Try to send the message
+    try {
+      const response = await apiClient.post('/messages', messageData);
+      return {
+        ...response.data,
+        success: true
+      };
+    } catch (serverError) {
+      // Handle different server error types
+      if (!navigator.onLine) {
+        throw new Error('You appear to be offline. Please check your internet connection and try again.');
+      }
+      
+      if (serverError.response) {
+        // Server responded with an error status
+        const status = serverError.response.status;
+        const errorMessage = serverError.response.data?.message || 'Unknown server error';
+        
+        if (status === 401) {
+          throw new Error('You must be logged in to send messages');
+        } else if (status === 403) {
+          throw new Error('You do not have permission to send this message');
+        } else if (status === 404) {
+          throw new Error('The recipient could not be found');
+        } else if (status === 422) {
+          throw new Error(`Invalid message data: ${errorMessage}`);
+        } else {
+          throw new Error(`Server error: ${errorMessage}`);
+        }
+      } else if (serverError.request) {
+        // Request was made but no response received
+        throw new Error('No response from server. Please try again later.');
+      } else {
+        // Something else happened while setting up the request
+        throw new Error(`Error sending message: ${serverError.message}`);
+      }
+    }
   } catch (error) {
     console.error('Error sending message:', error);
     throw error;
@@ -119,47 +147,7 @@ const createMockMessage = (messageId) => ({
   hidden: false
 });
 
-/**
- * Creates mock replies for testing
- * @param {string} parentId Parent message ID
- * @returns {Array} Array of mock reply objects
- */
-const createMockReplies = (parentId) => [
-  {
-    _id: '111111111111111111111111', // Use valid MongoDB ObjectId format (24 hex chars)
-    content: 'This is a test reply 1',
-    createdAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-    senderId: '123456789012',
-    parentMessageId: parentId,
-    senderName: 'Reply User 1',
-    sender: {
-      _id: '123456789012',
-      username: 'replyuser1',
-      name: 'Reply User 1',
-      email: 'reply1@example.com'
-    },
-    read: true,
-    hidden: false,
-    mock: true // Flag to indicate this is mock data
-  },
-  {
-    _id: '222222222222222222222222', // Use valid MongoDB ObjectId format (24 hex chars)
-    content: 'This is a test reply 2 with a longer message that spans multiple lines\n\nIt includes formatting and newlines as well.',
-    createdAt: new Date().toISOString(),
-    senderId: '987654321098',
-    parentMessageId: parentId,
-    senderName: 'Reply User 2',
-    sender: {
-      _id: '987654321098',
-      username: 'replyuser2',
-      name: 'Reply User 2',
-      email: 'reply2@example.com'
-    },
-    read: false,
-    hidden: false,
-    mock: true // Flag to indicate this is mock data
-  }
-];
+
 
 /**
  * Fetches a message thread by ID (original message + all replies)
@@ -168,22 +156,89 @@ const createMockReplies = (parentId) => [
  */
 export const fetchMessageThread = async (messageId) => {
   try {
-    if (!messageId) {
+    // Validate message ID
+    if (!messageId || typeof messageId !== 'string' || messageId.trim() === '') {
       console.error('fetchMessageThread called with invalid messageId:', messageId);
       throw new Error('Invalid message ID');
     }
     
     console.log(`Fetching message thread for ID: ${messageId}`);
     
-    // Try to fetch from server first
+    // Check for network connectivity
+    if (!navigator.onLine) {
+      throw new Error('You appear to be offline. Please check your internet connection.');
+    }
+    
+    // Try to fetch from server
     try {
       // First get the original message
-      const messageResponse = await apiClient.get(`/messages/${messageId}`);
-      const originalMessage = messageResponse.data;
+      let originalMessage = null;
+      try {
+        const messageResponse = await apiClient.get(`/messages/${messageId}`);
+        originalMessage = messageResponse.data;
+        
+        if (!originalMessage) {
+          throw new Error('Message not found');
+        }
+        
+        // Ensure the message has all required fields
+        if (!originalMessage._id) {
+          originalMessage._id = messageId;
+        }
+      } catch (rootMessageError) {
+        console.error('Error fetching root message:', rootMessageError);
+        throw new Error('Could not load the original message. It may have been deleted.');
+      }
       
       // Then get replies to this message
-      const repliesResponse = await apiClient.get(`/messages/replies/${messageId}`);
-      const replies = Array.isArray(repliesResponse.data) ? repliesResponse.data : [];
+      let replies = [];
+      try {
+        const repliesResponse = await apiClient.get(`/messages/replies/${messageId}`);
+        
+        if (repliesResponse && repliesResponse.data) {
+          // Ensure replies is an array
+          if (Array.isArray(repliesResponse.data)) {
+            replies = repliesResponse.data;
+          } else if (typeof repliesResponse.data === 'object') {
+            // Handle case where API returns an object with replies property
+            replies = Array.isArray(repliesResponse.data.replies) ? 
+              repliesResponse.data.replies : [];
+          } else {
+            console.warn('Unexpected replies format:', repliesResponse.data);
+            replies = [];
+          }
+          
+          // Validate each reply and ensure it has required fields
+          replies = replies
+            .filter(reply => reply && typeof reply === 'object') // Filter out invalid replies
+            .map(reply => ({
+              ...reply,
+              _id: reply._id || `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              parentMessageId: reply.parentMessageId || messageId,
+              content: reply.content || '',
+              createdAt: reply.createdAt || new Date().toISOString()
+            }));
+        }
+      } catch (repliesError) {
+        // Don't fail the entire thread load if replies can't be fetched
+        console.warn('Error fetching replies:', repliesError);
+        // Continue with empty replies array
+      }
+      
+      // Sort replies by creation date with error handling
+      try {
+        replies.sort((a, b) => {
+          try {
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          } catch (dateError) {
+            console.warn('Error comparing dates:', dateError, a, b);
+            return 0; // Keep original order if date comparison fails
+          }
+        });
+      } catch (sortError) {
+        console.warn('Error sorting replies:', sortError);
+        // Continue with unsorted replies
+      }
       
       // Combine them into a thread object
       return {
@@ -191,22 +246,29 @@ export const fetchMessageThread = async (messageId) => {
         replies: replies,
         allMessages: [originalMessage, ...replies]
       };
-    } catch (error) {
-      // If server request fails, use mock data instead
-      console.warn('Server request failed, using mock data:', error.message);
-      
-      // Generate mock data
-      const mockMessage = createMockMessage(messageId);
-      const mockReplies = createMockReplies(messageId);
-      
-      console.log('Created mock message thread data');
-      
-      // Return mock thread data
-      return {
-        rootMessage: mockMessage,
-        replies: mockReplies,
-        allMessages: [mockMessage, ...mockReplies]
-      };
+    } catch (serverError) {
+      // Handle different server error types
+      if (serverError.response) {
+        // Server responded with an error status
+        const status = serverError.response.status;
+        const errorMessage = serverError.response.data?.message || 'Unknown server error';
+        
+        if (status === 401) {
+          throw new Error('You must be logged in to view this message');
+        } else if (status === 403) {
+          throw new Error('You do not have permission to view this message');
+        } else if (status === 404) {
+          throw new Error('Message not found. It may have been deleted.');
+        } else {
+          throw new Error(`Server error: ${errorMessage}`);
+        }
+      } else if (serverError.request) {
+        // Request was made but no response received
+        throw new Error('No response from server. Please try again later.');
+      } else {
+        // Something else happened while setting up the request
+        throw new Error(`Error fetching message thread: ${serverError.message}`);
+      }
     }
   } catch (error) {
     console.error('Error in fetchMessageThread:', error);

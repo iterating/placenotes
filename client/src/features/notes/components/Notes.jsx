@@ -13,6 +13,7 @@ import {
   selectLocation,
   setNoteVisibility 
 } from "../../../store/noteSlice";
+import { toGeoJSONPoint, fromGeoJSONPoint, calculateDistance } from "../../../lib/GeoUtils";
 
 const Notes = () => {
   const navigate = useNavigate();
@@ -42,11 +43,12 @@ const Notes = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const newLocation = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+          // Create GeoJSON Point format directly
+          const locationData = {
+            type: 'Point',
+            coordinates: [position.coords.longitude, position.coords.latitude]
           };
-          dispatch(setCurrentLocation(newLocation));
+          dispatch(setCurrentLocation(locationData));
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -109,20 +111,20 @@ const Notes = () => {
       setIsLocationFiltered(false);
     } else {
       // Check if we have a valid current location
-      if (!currentLocation || !currentLocation.latitude || !currentLocation.longitude) {
+      if (!currentLocation || !currentLocation.type || !currentLocation.coordinates) {
         console.error("No valid location available for filtering");
         alert("Unable to filter by location. Please make sure location services are enabled.");
         return;
       }
       
       console.log("Filtering by location:", {
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude
+        type: 'Point',
+        coordinates: currentLocation.coordinates
       });
       
       // Try using a more direct approach with path parameters instead of query parameters
-      const lat = currentLocation.latitude;
-      const lon = currentLocation.longitude;
+      const lat = currentLocation.coordinates[1];
+      const lon = currentLocation.coordinates[0];
       
       // Use the path parameter endpoint that works consistently
       dispatch(fetchNotesByLocation({
@@ -161,16 +163,15 @@ const Notes = () => {
       case 'location':
         if (!currentLocation) return notesCopy;
         return notesCopy.sort((a, b) => {
-          // Extract coordinates from GeoJSON format if available
-          const locationA = a?.location?.coordinates 
-            ? { latitude: a.location.coordinates[1], longitude: a.location.coordinates[0] }
-            : a?.location || null;
-          const locationB = b?.location?.coordinates 
-            ? { latitude: b.location.coordinates[1], longitude: b.location.coordinates[0] }
-            : b?.location || null;
-          
-          const distanceA = calculateDistance(currentLocation, locationA);
-          const distanceB = calculateDistance(currentLocation, locationB);
+          // Calculate distance using GeoUtils (which handles GeoJSON format)
+          const distanceA = calculateDistance(currentLocation, a.location);
+          const distanceB = calculateDistance(currentLocation, b.location);
+
+          // If distance calculation failed for any reason
+          if (distanceA === null && distanceB === null) return 0;
+          if (distanceA === null) return 1;
+          if (distanceB === null) return -1;
+
           return distanceA - distanceB;
         });
       default:
@@ -178,37 +179,7 @@ const Notes = () => {
     }
   };
 
-  const calculateDistance = (location1, location2) => {
-    // Handle missing location data
-    if (!location1 || !location2 || 
-        typeof location1.latitude !== 'number' || typeof location1.longitude !== 'number' ||
-        typeof location2.latitude !== 'number' || typeof location2.longitude !== 'number' ||
-        isNaN(location1.latitude) || isNaN(location1.longitude) ||
-        isNaN(location2.latitude) || isNaN(location2.longitude)) {
-      return Infinity; // Place items with missing location at the end
-    }
-    
-    const lat1 = location1.latitude;
-    const lon1 = location1.longitude;
-    const lat2 = location2.latitude;
-    const lon2 = location2.longitude;
-    const R = 6371; // km
-    
-    try {
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const lat1Rad = lat1 * Math.PI / 180;
-      const lat2Rad = lat2 * Math.PI / 180;
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad); 
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-      const distance = R * c;
-      return isNaN(distance) ? Infinity : distance;
-    } catch (error) {
-      console.error('Error calculating distance:', error);
-      return Infinity;
-    }
-  };
+  // This function is now imported from GeoUtils
 
   const sortedNotes = sortNotes(notes);
 

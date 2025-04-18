@@ -12,6 +12,7 @@ import { toggleNotesPanel } from "../../../store/noteSlice.js"
 import { fetchMessagesByLocation } from "../../messages/store/messageStoreAction.js"
 import MessageList from "../../messages/components/MessageList"
 import { selectAllMessages } from "../../messages/store/messageSlice"
+import { getCurrentLocationFromStorage, fromGeoJSONPoint } from "../../../lib/GeoUtils"
 
 // Set up default icon
 let DefaultIcon = L.icon({
@@ -40,8 +41,7 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const mapRef = useRef(null)
   const mapInstance = useRef(null)
   const dispatch = useDispatch()
-  const currentLocation =
-    JSON.parse(sessionStorage.getItem("currentLocation")) || null
+  const currentLocation = getCurrentLocationFromStorage()
   const isExpanded = useSelector((state) => state.notes.isMapExpanded)
 
   // Messages
@@ -52,20 +52,31 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
 
   // Function to center map on current location
   const centerOnCurrentLocation = () => {
-    if (mapInstance.current && currentLocation) {
-      // Handle GeoJSON Point format with [longitude, latitude] coordinates
-      if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+    if (!mapInstance.current) return;
+    
+    try {
+      if (currentLocation) {
+        // Convert GeoJSON Point to Leaflet format [lat, lng]
+        let leafletCoords;
+        
+        if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+          leafletCoords = [currentLocation.coordinates[1], currentLocation.coordinates[0]];
+        } else if (currentLocation.latitude !== undefined && currentLocation.longitude !== undefined) {
+          leafletCoords = [currentLocation.latitude, currentLocation.longitude];
+        } else {
+          console.warn('Invalid location format:', currentLocation);
+          return; // Exit if location format is invalid
+        }
+        
         mapInstance.current.setView(
-          [currentLocation.coordinates[1], currentLocation.coordinates[0]],
+          leafletCoords,
           mapInstance.current.getZoom()
         );
-      } else if (currentLocation.latitude && currentLocation.longitude) {
-        // Fallback for legacy format
-        mapInstance.current.setView(
-          [currentLocation.latitude, currentLocation.longitude],
-          mapInstance.current.getZoom()
-        );
+      } else {
+        console.warn('No current location available');
       }
+    } catch (error) {
+      console.error('Error centering on current location:', error);
     }
   };
 
@@ -74,16 +85,22 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
     
     // Initialize map if it hasn't been initialized yet
     if (!mapInstance.current) {
-      let initialCenter = [51.505, -0.09] // Default center
+      // Default center if no location available
+      let initialCenter = [51.505, -0.09] 
       
-      if (currentLocation) {
-        // Handle GeoJSON Point format with [longitude, latitude] coordinates
-        if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
-          initialCenter = [currentLocation.coordinates[1], currentLocation.coordinates[0]]
-        } else if (currentLocation.latitude && currentLocation.longitude) {
-          // Fallback for legacy format
-          initialCenter = [currentLocation.latitude, currentLocation.longitude]
+      try {
+        if (currentLocation) {
+          // Convert GeoJSON Point to Leaflet format [lat, lng]
+          if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+            initialCenter = [currentLocation.coordinates[1], currentLocation.coordinates[0]];
+          } else if (currentLocation.latitude !== undefined && currentLocation.longitude !== undefined) {
+            initialCenter = [currentLocation.latitude, currentLocation.longitude];
+          } else {
+            console.warn('Invalid location format, using default center:', currentLocation);
+          }
         }
+      } catch (error) {
+        console.error('Error processing location, using default center:', error);
       }
       
       mapInstance.current = L.map(mapRef.current, {
@@ -110,20 +127,19 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
           
           L.DomEvent.on(button, 'click', L.DomEvent.stop)
             .on(button, 'click', function() {
-              if (currentLocation) {
-                // Handle GeoJSON Point format with [longitude, latitude] coordinates
-                if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
-                  mapInstance.current.setView(
-                    [currentLocation.coordinates[1], currentLocation.coordinates[0]],
-                    mapInstance.current.getZoom()
-                  );
-                } else if (currentLocation.latitude && currentLocation.longitude) {
-                  // Fallback for legacy format
-                  mapInstance.current.setView(
-                    [currentLocation.latitude, currentLocation.longitude],
-                    mapInstance.current.getZoom()
-                  );
+              try {
+                // Call the centerOnCurrentLocation function which now has error handling
+                centerOnCurrentLocation();
+                
+                // Also fetch nearby messages when centering on location
+                if (currentLocation) {
+                  dispatch(fetchMessagesByLocation({
+                    location: currentLocation,
+                    radius: 5000 // 5km radius
+                  }));
                 }
+              } catch (error) {
+                console.error('Error centering on location:', error);
               }
             });
             
@@ -153,52 +169,116 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
     }
 
     const map = mapInstance.current
+    if (!map) return
+    
+    try {
+      // Clear previous markers
+      if (markers.current && Array.isArray(markers.current)) {
+        markers.current.forEach((marker) => {
+          try {
+            if (marker) map.removeLayer(marker)
+          } catch (err) {
+            console.warn('Error removing note marker:', err)
+          }
+        })
+      }
+      markers.current = [] // Clear the markers array
 
-    // Clear previous markers
-    markers.current?.forEach((marker) => map.removeLayer(marker))
-    markers.current = [] // Clear the markers array
+      // Add new markers based on the current notes
+      if (notes && Array.isArray(notes)) {
+        notes.forEach((note) => {
+          try {
+            // Validate note location
+            if (!note || !note.location) return
+            
+            // Ensure coordinates exist and are valid numbers
+            if (!note.location.coordinates || 
+                !Array.isArray(note.location.coordinates) || 
+                note.location.coordinates.length !== 2 ||
+                isNaN(note.location.coordinates[0]) || 
+                isNaN(note.location.coordinates[1])) {
+              console.warn('Invalid note location coordinates:', note.location)
+              return
+            }
 
-    // Add new markers based on the current notes
-    notes?.forEach((note) => {
-      if (!note.location || !note.location.coordinates) return
+            const lat = Number(note.location.coordinates[1])
+            const lng = Number(note.location.coordinates[0])
+            
+            // Additional validation to ensure coordinates are within valid range
+            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+              console.warn('Note coordinates out of range:', lat, lng)
+              return
+            }
 
-      const marker = L.marker([
-        note.location.coordinates[1],
-        note.location.coordinates[0],
-      ])
-        .addTo(map)
-        .bindPopup(
-          `<div class="popup-content" data-note-id="${note._id}">
-            <div class="popup-body">${note.body?.split("\n")[0]}</div>
-            <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
-          </div>`
-        )
+            const marker = L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(
+                `<div class="popup-content" data-note-id="${note._id}">
+                  <div class="popup-body">${note.body ? note.body.split("\n")[0] : 'No content'}</div>
+                  <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
+                </div>`
+              )
 
-      marker.on("mouseover", () => {
-        handleMouseOver(note._id)
-        marker.openPopup()
-      })
+            marker.on("mouseover", () => {
+              try {
+                handleMouseOver(note._id)
+                marker.openPopup()
+              } catch (error) {
+                console.warn('Error in mouseover handler:', error)
+              }
+            })
 
-      marker.on("mouseout", () => {
-        handleMouseOut(note._id)
-      })
+            marker.on("mouseout", () => {
+              try {
+                handleMouseOut(note._id)
+              } catch (error) {
+                console.warn('Error in mouseout handler:', error)
+              }
+            })
 
-      marker.on("click", () => {
-        const noteCardElement = document.querySelector(
-          `.note-preview[data-note-id="${note._id}"]`
-        )
-        if (noteCardElement) {
-          noteCardElement.click()
-        }
-      })
+            marker.on("click", () => {
+              try {
+                const noteCardElement = document.querySelector(
+                  `.note-preview[data-note-id="${note._id}"]`
+                )
+                if (noteCardElement) {
+                  noteCardElement.click()
+                }
+              } catch (error) {
+                console.warn('Error in click handler:', error)
+              }
+            })
 
-      markers.current.push(marker)
-    })
+            markers.current.push(marker)
+          } catch (noteError) {
+            console.error('Error adding note marker:', noteError, note)
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error handling note markers:', error)
+    }
 
-    map.invalidateSize()
+    try {
+      map.invalidateSize()
+    } catch (error) {
+      console.warn('Error invalidating map size:', error)
+    }
 
     return () => {
-      markers.current.forEach((marker) => map.removeLayer(marker))
+      try {
+        if (markers.current && Array.isArray(markers.current)) {
+          markers.current.forEach((marker) => {
+            try {
+              if (marker && map) map.removeLayer(marker)
+            } catch (err) {
+              // Silently ignore errors when cleaning up
+            }
+          })
+        }
+      } catch (error) {
+        console.error('Error cleaning up note markers:', error)
+      }
     }
   }, [notes, handleMouseOver, handleMouseOut, markers, currentLocation])
 
@@ -206,48 +286,92 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
     const map = mapInstance.current
     if (!map) return
 
-    // Clear old message markers
-    messageMarkersRef.current.forEach((marker) => map.removeLayer(marker))
-    messageMarkersRef.current = []
-
-    // Add message markers
-    messages?.forEach((message) => {
-      if (!message.location || !message.location.coordinates) return
-
-      const marker = L.marker([
-        message.location.coordinates[1],
-        message.location.coordinates[0],
-      ], { icon: GreenMessageIcon })
-        .addTo(map)
-        .bindPopup(
-          `<div class="popup-content" data-message-id="${message._id}">
-        <div class="popup-body">${message.content}</div>
-      </div>`
-        )
-
-      // Create circle but don't display it (radius is hidden)
-      const circle = L.circle(
-        [message.location.coordinates[1], message.location.coordinates[0]],
-        {
-          radius: message.radius,
-          color: "green",
-          fillColor: "green",
-          fillOpacity: 0, // Set to 0 to hide the fill
-          opacity: 0, // Set to 0 to hide the border
-          interactive: false // Make it non-interactive
+    try {
+      // Clear old message markers
+      messageMarkersRef.current.forEach((marker) => {
+        try {
+          map.removeLayer(marker)
+        } catch (err) {
+          console.warn('Error removing marker:', err)
         }
-      )
-
-      marker.on("click", () => {
-        setIsMessageDrawerOpen(true)
       })
+      messageMarkersRef.current = []
 
-      messageMarkersRef.current.push(marker)
-      messageMarkersRef.current.push(circle)
-    })
+      // Add message markers
+      messages?.forEach((message) => {
+        try {
+          // Validate message location
+          if (!message || !message.location) return
+          
+          // Ensure coordinates exist and are valid numbers
+          if (!message.location.coordinates || 
+              !Array.isArray(message.location.coordinates) || 
+              message.location.coordinates.length !== 2 ||
+              isNaN(message.location.coordinates[0]) || 
+              isNaN(message.location.coordinates[1])) {
+            console.warn('Invalid message location coordinates:', message.location)
+            return
+          }
+
+          const lat = Number(message.location.coordinates[1])
+          const lng = Number(message.location.coordinates[0])
+          
+          // Additional validation to ensure coordinates are within valid range
+          if (Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+            console.warn('Message coordinates out of range:', lat, lng)
+            return
+          }
+
+          const marker = L.marker([lat, lng], { icon: GreenMessageIcon })
+            .addTo(map)
+            .bindPopup(
+              `<div class="popup-content" data-message-id="${message._id}">
+                <div class="popup-body">${message.content || 'No content'}</div>
+              </div>`
+            )
+
+          // Create circle but don't display it (radius is hidden)
+          const radius = typeof message.radius === 'number' && !isNaN(message.radius) ? 
+            message.radius : 1000 // Default to 1km if no valid radius
+            
+          const circle = L.circle([lat, lng], {
+            radius: radius,
+            color: "green",
+            fillColor: "green",
+            fillOpacity: 0, // Set to 0 to hide the fill
+            opacity: 0, // Set to 0 to hide the border
+            interactive: false // Make it non-interactive
+          })
+          
+          // Add circle to map
+          circle.addTo(map)
+
+          marker.on("click", () => {
+            setIsMessageDrawerOpen(true)
+          })
+
+          messageMarkersRef.current.push(marker)
+          messageMarkersRef.current.push(circle)
+        } catch (messageError) {
+          console.error('Error adding message marker:', messageError, message)
+        }
+      })
+    } catch (error) {
+      console.error('Error handling message markers:', error)
+    }
 
     return () => {
-      messageMarkersRef.current.forEach((marker) => map.removeLayer(marker))
+      try {
+        messageMarkersRef.current.forEach((marker) => {
+          try {
+            map.removeLayer(marker)
+          } catch (err) {
+            // Silently ignore errors when cleaning up
+          }
+        })
+      } catch (error) {
+        console.error('Error cleaning up message markers:', error)
+      }
     }
   }, [messages])
 

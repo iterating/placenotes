@@ -9,6 +9,7 @@ import {
   markMessageAsRead
 } from '../store/messageSlice';
 import { selectUser as selectAuthUser } from '../../../store/authSlice';
+import { getCurrentLocationFromStorage, toGeoJSONPoint } from '../../../lib/GeoUtils';
 import MessageItem from './MessageItem';
 import MessageCompose from './MessageCompose';
 import './MessageStyles.css';
@@ -37,10 +38,19 @@ const MessageThread = ({ threadId, onClose }) => {
   // Organize messages into root and replies
   const threadRootMessage = threadData.rootMessage;
   
-  // Sort replies by date for display
+  // Sort replies by date for display with error handling
   const sortedReplies = threadData.replies
-    .filter(Boolean)
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    ? threadData.replies
+        .filter(Boolean)
+        .sort((a, b) => {
+          try {
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          } catch (error) {
+            console.warn('Error sorting messages by date:', error);
+            return 0; // Keep original order if date comparison fails
+          }
+        })
+    : [];
     
   // Combine root message and replies for display
   const sortedMessages = threadRootMessage ? [threadRootMessage, ...sortedReplies] : sortedReplies;
@@ -53,27 +63,54 @@ const MessageThread = ({ threadId, onClose }) => {
     setError(null);
     setLoading(true);
     
+    // Reset thread data when loading a new thread
+    setThreadData({
+      rootMessage: null,
+      replies: [],
+      allMessages: []
+    });
+    
     // Add error handling boundary to prevent component crashes
     try {
       // Mark the message as read when opening the thread
-      dispatch(markMessageAsRead(threadId));
+      try {
+        dispatch(markMessageAsRead(threadId));
+      } catch (readError) {
+        // Don't fail the entire thread load if marking as read fails
+        console.warn('Error marking message as read:', readError);
+      }
       
+      // Fetch the thread data
       dispatch(fetchMessageThread(threadId))
         .unwrap()
         .then((result) => {
           console.log('MessageThread: Successfully fetched thread data', result);
           setLoading(false);
           
-          if (!result || !result.rootMessage) {
+          if (!result) {
             setError('Could not load message data');
             return;
           }
+          
+          // Validate rootMessage
+          if (!result.rootMessage) {
+            console.warn('MessageThread: Missing root message in response');
+            setError('Could not load message data - root message missing');
+            return;
+          }
+          
+          // Ensure replies is always an array
+          const validatedResult = {
+            ...result,
+            replies: Array.isArray(result.replies) ? result.replies : [],
+            allMessages: Array.isArray(result.allMessages) ? result.allMessages : []
+          };
           
           if (result.mockData) {
             console.log('MessageThread: Displaying mock data');
           }
           
-          setThreadData(result);
+          setThreadData(validatedResult);
         })
         .catch((error) => {
           console.error('MessageThread: Error fetching thread data', error);
@@ -125,94 +162,75 @@ const MessageThread = ({ threadId, onClose }) => {
   
   // Handle sending a reply
   const handleSendReply = (replyContent) => {
-    if (!replyContent || !threadData?.rootMessage?._id) return;
-    
-    setIsReplying(false); // Close reply form
-    
-    // Add location data to the reply if available
-    const currentLocation = JSON.parse(sessionStorage.getItem("currentLocation")) || null;
-    let locationData = null;
-    
-    if (currentLocation) {
-      if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
-        locationData = currentLocation;
-      } else if (currentLocation.latitude && currentLocation.longitude) {
-        // Convert legacy format to GeoJSON Point
-        locationData = {
-          type: 'Point',
-          coordinates: [currentLocation.longitude, currentLocation.latitude]
-        };
-      }
+    if (!replyContent || !threadRootMessage) {
+      return;
     }
     
-    const replyData = {
+    setLoading(true);
+    setError(null);
+    
+    // Get current location
+    let currentLocation;
+    try {
+      currentLocation = getCurrentLocationFromStorage();
+      if (!currentLocation) {
+        throw new Error('Location not available');
+      }
+    } catch (locationError) {
+      console.warn('Could not get current location:', locationError);
+      // Fallback to default location
+      currentLocation = toGeoJSONPoint({
+        latitude: 34.052235,
+        longitude: -118.243683
+      });
+    }
+    
+    // Create message data
+    const messageData = {
       content: replyContent,
-      parentMessageId: threadData.rootMessage._id,
-      location: locationData,
-      radius: 1000 // Default radius in meters
+      recipientId: threadRootMessage.senderId,
+      parentMessageId: threadRootMessage._id,
+      location: currentLocation,
+      // Include sender information for optimistic updates
+      senderId: currentUser?._id,
+      senderName: currentUser?.username || currentUser?.name || 'You'
     };
     
-    try {
-      // Show optimistic UI update first
-      const optimisticReply = {
-        _id: 'temp_' + Date.now(),
-        content: replyContent,
-        createdAt: new Date().toISOString(),
-        senderId: currentUser?._id || 'current_user',
-        senderName: currentUser?.name || 'You',
-        parentMessageId: threadData.rootMessage._id,
-        read: true,
-        hidden: false,
-        pending: true
-      };
-      
-      // Update local state immediately with optimistic reply
-      setThreadData(prev => ({
-        ...prev,
-        replies: [...(prev.replies || []), optimisticReply],
-        allMessages: [...(prev.allMessages || []), optimisticReply]
-      }));
-      
-      // Then send to server
-      dispatch(sendMessage(replyData))
-        .unwrap()
-        .then((response) => {
-          console.log('Reply sent successfully', response);
-          
-          // Refresh the thread to include the new reply from server
+    // Send the message
+    dispatch(sendMessage(messageData))
+      .unwrap()
+      .then((result) => {
+        console.log('Reply sent successfully:', result);
+        setLoading(false);
+        setIsReplying(false);
+        
+        // No need to refresh the thread immediately - the optimistic update
+        // in the messageSlice will show the message right away
+        
+        // Schedule a background refresh after a short delay to ensure
+        // we have the latest data from the server
+        setTimeout(() => {
           if (threadId) {
             dispatch(fetchMessageThread(threadId));
           }
-        })
-        .catch((error) => {
-          console.error('Error sending reply:', error);
-          
-          // If the server API fails, keep the optimistic update but mark as failed
-          const failedReply = {
-            ...optimisticReply,
-            _id: 'mock_' + Date.now(),
-            sendFailed: true,
-            mock: true
-          };
-          
-          // Update local state with failed reply
-          setThreadData(prev => {
-            // Remove the optimistic reply
-            const filteredReplies = prev.replies.filter(r => r._id !== optimisticReply._id);
-            const filteredAllMessages = prev.allMessages.filter(m => m._id !== optimisticReply._id);
-            
-            return {
-              ...prev,
-              replies: [...filteredReplies, failedReply],
-              allMessages: [...filteredAllMessages, failedReply]
-            };
-          });
-          
-          console.log('Added failed reply locally', failedReply);
-        });
-    } catch (error) {
-      console.error('Critical error in handleSendReply:', error);
-    }
+        }, 2000);
+        
+        // Call the success handler if provided
+        if (typeof handleReplySent === 'function') {
+          handleReplySent();
+        }
+      })
+      .catch((error) => {
+        console.error('Error sending reply:', error);
+        setLoading(false);
+        
+        // Show a user-friendly error message
+        const errorMessage = error.message || 'Failed to send reply';
+        setError(errorMessage);
+        
+        // The message will be shown in the UI as failed
+        // thanks to the optimistic update in the messageSlice
+      });
   };
   
   const handleReplySent = () => {
@@ -288,15 +306,19 @@ const MessageThread = ({ threadId, onClose }) => {
                   message={threadRootMessage}
                   onReply={handleReply}
                   onDelete={(e) => {
-                    e.stopPropagation();
-                    if (window.confirm('Hide this message?')) {
-                      dispatch(hideMessage(rootMessage._id));
-                      onClose && onClose();
+                    try {
+                      e.stopPropagation();
+                      if (window.confirm('Hide this message?')) {
+                        dispatch(hideMessage(threadRootMessage._id));
+                        onClose && onClose();
+                      }
+                    } catch (error) {
+                      console.error('Error hiding message:', error);
                     }
                   }}
                   isRoot={true}
                   isReply={false}
-                  content={formatContent(rootMessage.content)}
+                  content={formatContent(threadRootMessage.content)}
                 />
               </div>
             )}
@@ -308,24 +330,33 @@ const MessageThread = ({ threadId, onClose }) => {
                   <span>{sortedReplies.length} {sortedReplies.length === 1 ? 'Reply' : 'Replies'}</span>
                 </div>
                 
-                {sortedReplies.map(message => (
-                  <MessageItem
-                    key={message._id}
-                    message={message}
-                    onReply={handleReply}
-                    onDelete={(e) => {
-                      e.stopPropagation();
-                      if (window.confirm('Hide this message?')) {
-                        dispatch(hideMessage(message._id));
-                      }
-                    }}
-                    isRoot={false}
-                    isReply={true}
-                    isPending={message.pending}
-                    hasFailed={message.sendFailed}
-                    content={formatContent(message.content)}
-                  />
-                ))}
+                {sortedReplies.map(message => {
+                  // Skip rendering if message is invalid
+                  if (!message || !message._id) return null;
+                  
+                  return (
+                    <MessageItem
+                      key={message._id}
+                      message={message}
+                      onReply={handleReply}
+                      onDelete={(e) => {
+                        try {
+                          e.stopPropagation();
+                          if (window.confirm('Hide this message?')) {
+                            dispatch(hideMessage(message._id));
+                          }
+                        } catch (error) {
+                          console.error('Error hiding message:', error);
+                        }
+                      }}
+                      isRoot={false}
+                      isReply={true}
+                      isPending={message.pending}
+                      hasFailed={message.sendFailed}
+                      content={formatContent(message.content)}
+                    />
+                  );
+                })}
               </div>
             )}
             <div ref={messagesEndRef} />

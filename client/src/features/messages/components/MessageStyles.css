@@ -386,25 +386,56 @@
 
 /* Pending and failed message states */
 .message-item.pending {
-  opacity: 0.7;
+  opacity: 0.8;
+  background-color: rgba(var(--gray-200-rgb, 230, 230, 230), 0.3);
 }
 
-.message-item.pending .message-content::after {
-  content: ' (Sending...)';
-  font-style: italic;
-  color: var(--gray-500);
-  font-size: var(--font-size-xs);
+.message-status-container {
+  margin-top: var(--spacing-xs, 4px);
+  padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.message-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.message-status.pending {
+  color: var(--gray-600, #6c757d);
+}
+
+.message-status.error {
+  color: var(--danger-color, #dc3545);
+}
+
+.message-error-details {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--danger-color, #dc3545);
+}
+
+.btn-retry {
+  margin-top: 8px;
+  font-size: var(--font-size-xs, 0.75rem);
+  padding: 2px 8px;
+  background-color: var(--danger-color, #dc3545);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+}
+
+.btn-retry:hover {
+  background-color: var(--danger-color-dark, #bd2130);
 }
 
 .message-item.failed {
   border-left: 3px solid var(--danger-color, #dc3545);
-}
-
-.message-item.failed .message-content::after {
-  content: ' (Failed to send)';
-  color: var(--danger-color, #dc3545);
-  font-style: italic;
-  font-size: var(--font-size-xs);
+  background-color: rgba(var(--danger-color-rgb, 220, 53, 69), 0.05);
 }
 
 /* Root message styling */
