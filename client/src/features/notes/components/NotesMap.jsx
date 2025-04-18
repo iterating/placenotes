@@ -23,6 +23,17 @@ let DefaultIcon = L.icon({
   shadowSize: [41, 41],
 })
 
+// Set up green icon for messages
+let GreenMessageIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+  className: 'green-icon' // We'll define this class in CSS
+})
+
 L.Marker.prototype.options.icon = DefaultIcon
 
 const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
@@ -39,14 +50,41 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
   const messages = useSelector(selectAllMessages)
   const [mapCenter, setMapCenter] = useState(null)
 
+  // Function to center map on current location
+  const centerOnCurrentLocation = () => {
+    if (mapInstance.current && currentLocation) {
+      // Handle GeoJSON Point format with [longitude, latitude] coordinates
+      if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+        mapInstance.current.setView(
+          [currentLocation.coordinates[1], currentLocation.coordinates[0]],
+          mapInstance.current.getZoom()
+        );
+      } else if (currentLocation.latitude && currentLocation.longitude) {
+        // Fallback for legacy format
+        mapInstance.current.setView(
+          [currentLocation.latitude, currentLocation.longitude],
+          mapInstance.current.getZoom()
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     if (!mapRef.current) return
     
     // Initialize map if it hasn't been initialized yet
     if (!mapInstance.current) {
-      const initialCenter = currentLocation
-        ? [currentLocation.latitude, currentLocation.longitude]
-        : [51.505, -0.09] // Default center
+      let initialCenter = [51.505, -0.09] // Default center
+      
+      if (currentLocation) {
+        // Handle GeoJSON Point format with [longitude, latitude] coordinates
+        if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+          initialCenter = [currentLocation.coordinates[1], currentLocation.coordinates[0]]
+        } else if (currentLocation.latitude && currentLocation.longitude) {
+          // Fallback for legacy format
+          initialCenter = [currentLocation.latitude, currentLocation.longitude]
+        }
+      }
       
       mapInstance.current = L.map(mapRef.current, {
         center: initialCenter,
@@ -56,6 +94,44 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
       
       // Move zoom control to the right
       L.control.zoom({ position: "topright" }).addTo(mapInstance.current)
+      
+      // Add custom control for centering on current location
+      const locationControl = L.Control.extend({
+        options: {
+          position: 'topright'
+        },
+        
+        onAdd: function() {
+          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control location-center-control');
+          const button = L.DomUtil.create('a', 'location-center-button', container);
+          button.innerHTML = '<i class="fas fa-location-arrow"></i>';
+          button.title = 'Center on my location';
+          button.href = '#';
+          
+          L.DomEvent.on(button, 'click', L.DomEvent.stop)
+            .on(button, 'click', function() {
+              if (currentLocation) {
+                // Handle GeoJSON Point format with [longitude, latitude] coordinates
+                if (currentLocation.type === 'Point' && Array.isArray(currentLocation.coordinates)) {
+                  mapInstance.current.setView(
+                    [currentLocation.coordinates[1], currentLocation.coordinates[0]],
+                    mapInstance.current.getZoom()
+                  );
+                } else if (currentLocation.latitude && currentLocation.longitude) {
+                  // Fallback for legacy format
+                  mapInstance.current.setView(
+                    [currentLocation.latitude, currentLocation.longitude],
+                    mapInstance.current.getZoom()
+                  );
+                }
+              }
+            });
+            
+          return container;
+        }
+      });
+      
+      new locationControl().addTo(mapInstance.current)
       
       // Add tile layer
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -141,24 +217,26 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
       const marker = L.marker([
         message.location.coordinates[1],
         message.location.coordinates[0],
-      ])
+      ], { icon: GreenMessageIcon })
         .addTo(map)
         .bindPopup(
           `<div class="popup-content" data-message-id="${message._id}">
         <div class="popup-body">${message.content}</div>
-        <div class="popup-radius">Radius: ${message.radius}m</div>
       </div>`
         )
 
+      // Create circle but don't display it (radius is hidden)
       const circle = L.circle(
         [message.location.coordinates[1], message.location.coordinates[0]],
         {
           radius: message.radius,
           color: "green",
           fillColor: "green",
-          fillOpacity: 0.1,
+          fillOpacity: 0, // Set to 0 to hide the fill
+          opacity: 0, // Set to 0 to hide the border
+          interactive: false // Make it non-interactive
         }
-      ).addTo(map)
+      )
 
       marker.on("click", () => {
         setIsMessageDrawerOpen(true)
