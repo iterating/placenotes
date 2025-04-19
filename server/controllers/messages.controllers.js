@@ -490,6 +490,7 @@ export const getMessage = async (req, res) => {
   
   try {
     const { messageId } = req.params;
+    const userId = req.user._id;
     console.log('Getting message with ID:', messageId);
     
     // Simple validation
@@ -498,25 +499,51 @@ export const getMessage = async (req, res) => {
       return res.status(400).json({ message: 'Message ID is required' });
     }
     
-    // Return a mock message for testing
-    const mockMessage = {
-      _id: messageId,
-      content: 'This is a test message',
-      createdAt: new Date(),
-      senderId: '123456789012',
-      senderName: 'Test User',
-      sender: {
-        _id: '123456789012',
-        username: 'testuser',
-        name: 'Test User',
-        email: 'test@example.com'
-      },
-      read: true,
-      hidden: false
-    };
-    
-    console.log('Returning mock message:', mockMessage);
-    return res.status(200).json(mockMessage);
+    try {
+      // Find the message in the database
+      const message = await Message.findById(messageId)
+        .populate('senderId', 'username name email')
+        .exec();
+      
+      if (!message) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+      
+      // Check if user has permission to view this message
+      // User should be either the sender or recipient
+      if (message.senderId._id.toString() !== userId.toString() && 
+          message.recipientId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: 'Not authorized to view this message' });
+      }
+      
+      // Format the message for response
+      const formattedMessage = {
+        _id: message._id,
+        content: message.content,
+        senderId: message.senderId._id,
+        sender: message.senderId,
+        recipientId: message.recipientId,
+        parentMessageId: message.parentMessageId,
+        conversationId: message.conversationId,
+        location: message.location,
+        read: message.read,
+        hidden: message.hidden,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt
+      };
+      
+      // If the user is the recipient and the message isn't read yet, mark it as read
+      if (message.recipientId.toString() === userId.toString() && !message.read) {
+        message.read = true;
+        await message.save();
+        console.log('Message marked as read:', messageId);
+      }
+      
+      return res.status(200).json(formattedMessage);
+    } catch (dbError) {
+      console.error('Database error fetching message:', dbError);
+      return res.status(500).json({ message: 'Failed to fetch message', error: dbError.toString() });
+    }
   } catch (error) {
     console.error('Error in getMessage:', error);
     return res.status(500).json({ message: 'Server error', error: error.toString() });
@@ -543,11 +570,36 @@ export const getMessageReplies = async (req, res) => {
       return res.status(400).json({ message: 'Message ID is required' });
     }
     
-    // Create static dates to avoid serialization issues
-    const now = new Date().toISOString();
-    const laterDate = new Date(Date.now() + 60000).toISOString();
-    
-
+    // Find all replies to this message
+    try {
+      const replies = await Message.find({ 
+        parentMessageId: messageId,
+        hidden: { $ne: true } // Exclude hidden messages
+      })
+      .populate('senderId', 'username name email')
+      .sort({ createdAt: 1 }); // Sort by creation date ascending
+      
+      // Transform replies to include sender information in the expected format
+      const formattedReplies = replies.map(reply => ({
+        _id: reply._id,
+        content: reply.content,
+        senderId: reply.senderId._id,
+        sender: reply.senderId,
+        recipientId: reply.recipientId,
+        parentMessageId: reply.parentMessageId,
+        conversationId: reply.conversationId,
+        location: reply.location,
+        read: reply.read,
+        hidden: reply.hidden,
+        createdAt: reply.createdAt,
+        updatedAt: reply.updatedAt
+      }));
+      
+      return res.status(200).json(formattedReplies);
+    } catch (dbError) {
+      console.error('Database error fetching replies:', dbError);
+      return res.status(500).json({ message: 'Failed to fetch replies', error: dbError.toString() });
+    }
   } catch (error) {
     console.error('Error in getMessageReplies:', error);
     return res.status(500).json({ message: 'Server error', error: error.toString() });
@@ -590,6 +642,57 @@ export const deleteMessage = async (req, res) => {
   } catch (error) {
     console.error('Error deleting message:', error);
     res.status(500).json({ message: 'Error deleting message' });
+  }
+};
+
+/**
+ * Toggle the hidden state of a message
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+export const toggleMessageHidden = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+    const { hidden } = req.body; // Should be a boolean value
+    
+    // Validate hidden parameter
+    if (typeof hidden !== 'boolean') {
+      return res.status(400).json({ message: 'Hidden parameter must be a boolean value' });
+    }
+    
+    const message = await Message.findById(messageId);
+    
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    
+    // Ensure the user is either the sender or recipient
+    if (message.senderId.toString() !== userId.toString() && 
+        message.recipientId.toString() !== userId.toString()) {
+      return res.status(403).json({ message: 'Not authorized to modify this message' });
+    }
+    
+    // Update the message hidden status
+    message.hidden = hidden;
+    await message.save();
+    
+    // Clear any list cache entries for this user
+    for (const key of messageCache.keys()) {
+      if (key.startsWith(`list-${userId}`)) {
+        messageCache.delete(key);
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      messageId: message._id,
+      hidden: message.hidden,
+      message: `Message ${hidden ? 'hidden' : 'unhidden'} successfully`
+    });
+  } catch (error) {
+    console.error('Error toggling message hidden state:', error);
+    res.status(500).json({ message: 'Error updating message hidden state' });
   }
 };
 

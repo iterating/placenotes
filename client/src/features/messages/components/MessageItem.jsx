@@ -171,11 +171,12 @@ const MessageItem = ({
         {/* Message header with sender info */}
         <div className="message-sender">
           {message.senderName || 'Anonymous'}
-          {isSentByCurrentUser && showActions && (
+          {showActions && (
             <button 
               className="btn btn-icon btn-sm float-right" 
               onClick={handleHideMessage}
               aria-label="Hide message"
+              title="Hide message"
             >
               <span className="icon-close">×</span>
             </button>

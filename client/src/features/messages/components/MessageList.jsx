@@ -10,12 +10,14 @@ import {
   selectMessagesRefreshing,
   selectMessagesError,
   selectSelectedMessageId,
-  selectPagination
+  selectPagination,
+  selectHiddenMessages
 } from '../store/messageSlice';
 import { selectUser } from '../../../store/authSlice';
 import MessageItem from './MessageItem';
 import MessageCompose from './MessageCompose';
 import MessageThread from './MessageThread';
+import HiddenMessages from './HiddenMessages';
 import './MessageStyles.css';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -23,6 +25,7 @@ import { useSelector, useDispatch } from 'react-redux';
 const MessageList = ({ isOpen, onClose, mapCenter }) => {
   // Get messages from Redux store using memoized selectors (only visible messages)
   const messages = useSelector(selectVisibleMessages);
+  const hiddenMessages = useSelector(selectHiddenMessages);
   const loading = useSelector(selectMessagesLoading);
   const refreshing = useSelector(selectMessagesRefreshing);
   const error = useSelector(selectMessagesError);
@@ -33,6 +36,7 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   // Local state for UI management
   const [isComposing, setIsComposing] = useState(false);
   const [showingThread, setShowingThread] = useState(false);
+  const [showingHiddenMessages, setShowingHiddenMessages] = useState(false);
   const [refreshTimerId, setRefreshTimerId] = useState(null);
 
   // Function to fetch messages based on current location
@@ -109,11 +113,14 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   // Handle message hiding (replacing deletion)
   const handleHideMessage = (e, messageId) => {
     e.stopPropagation(); // Prevent triggering the message click event
+    
     if (window.confirm('Are you sure you want to hide this message? It will no longer appear in your message list.')) {
       dispatch(hideMessage(messageId));
+      
       // If the hidden message was selected, clear the selection
       if (selectedMessageId === messageId) {
         dispatch(clearSelectedMessage());
+        setShowingThread(false);
       }
     }
   };
@@ -170,18 +177,47 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       return (
         <div className="empty-state">
           <p>No messages found in this area.</p>
-          <button 
-            className="btn btn-primary mt-sm"
-            onClick={handleComposeClick}
-          >
-            Compose Message
-          </button>
+          <div className="flex-col gap-sm">
+            <button 
+              className="btn btn-primary"
+              onClick={handleComposeClick}
+            >
+              Compose Message
+            </button>
+            
+            {hiddenMessages.length > 0 && (
+              <button
+                className="btn btn-outline-secondary"
+                onClick={handleViewHiddenMessages}
+              >
+                View Hidden Messages ({hiddenMessages.length})
+              </button>
+            )}
+          </div>
         </div>
       );
     }
     
     return (
       <div>
+        <div className="messages-actions">
+          <button 
+            className="btn btn-primary"
+            onClick={handleComposeClick}
+          >
+            Compose Message
+          </button>
+          
+          {hiddenMessages.length > 0 && (
+            <button
+              className="btn btn-outline-secondary"
+              onClick={handleViewHiddenMessages}
+            >
+              View Hidden Messages ({hiddenMessages.length})
+            </button>
+          )}
+        </div>
+        
         {messages.map(message => (
           <div 
             key={message._id} 
@@ -209,6 +245,18 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
         )}
       </div>
     );
+  };
+
+  // Handle viewing hidden messages
+  const handleViewHiddenMessages = () => {
+    setShowingHiddenMessages(true);
+    setIsComposing(false);
+    setShowingThread(false);
+  };
+
+  // Handle closing hidden messages view
+  const handleCloseHiddenMessages = () => {
+    setShowingHiddenMessages(false);
   };
 
   // Render message list header
@@ -325,6 +373,21 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
               threadId={selectedMessageId} 
               onClose={handleThreadClose} 
             />
+          </div>
+        ) : showingHiddenMessages ? (
+          /* Show hidden messages */
+          <div key="hidden-messages">
+            <div className="messages-header">
+              <h2 className="messages-title">Hidden Messages</h2>
+              <button 
+                className="close-button"
+                onClick={handleCloseHiddenMessages}
+                aria-label="Close hidden messages"
+              >
+                <span className="icon">×</span>
+              </button>
+            </div>
+            <HiddenMessages />
           </div>
         ) : (
           /* Show message list by default */
