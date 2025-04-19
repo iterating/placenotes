@@ -443,3 +443,36 @@
   border-left: 3px solid var(--primary-color);
   background-color: var(--gray-50);
 }
+
+/* Message actions bar */
+.messages-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* Utility classes for layout */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+/* Checkbox styling */
+.checkbox-wrapper {
+  margin-right: var(--spacing-md);
+  padding-top: 2px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}

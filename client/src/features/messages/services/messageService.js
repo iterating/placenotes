@@ -66,7 +66,7 @@ export const sendMessage = async (messageData) => {
     
     // Try to send the message
     try {
-      const response = await apiClient.post('/messages', messageData);
+      const response = await apiClient.post('/create', messageData);
       return {
         ...response.data,
         success: true
@@ -108,20 +108,68 @@ export const sendMessage = async (messageData) => {
 };
 
 /**
- * Hides a message (client-side only, doesn't delete from server)
+ * Hides a message (updates server and client)
  * @param {string} messageId ID of the message to hide
  * @returns {Promise} Promise that resolves when message is hidden
  */
 export const hideMessage = async (messageId) => {
   try {
-    // This is a client-side only operation, we're not actually deleting from the server
-    // We're just marking it as hidden in our Redux store
-    // If we wanted server-side hiding, we'd need a new API endpoint
-    
-    // For now, we'll simulate a successful API call
-    return { success: true, messageId };
+    // Send request to server to update the message's hidden status
+    try {
+      // The apiClient baseURL is already set to http://localhost:5000/api
+      // The server mounts message routes at /api/messages
+      // So we need to use the correct path structure
+      const response = await apiClient.put(`/messages/${messageId}/hidden`, { hidden: true });
+      return response.data.messageId;
+    } catch (serverError) {
+      // Handle different error types appropriately
+      if (serverError.response && serverError.response.status === 403) {
+        // User doesn't have permission
+        throw new Error('You do not have permission to hide this message');
+      } else if (serverError.response && serverError.response.status === 404) {
+        // Message not found
+        throw new Error('Message not found. It may have been deleted.');
+      } else {
+        // For other errors
+        console.warn('Error hiding message on server:', serverError.message);
+        throw new Error('Failed to hide message. Please try again later.');
+      }
+    }
   } catch (error) {
     console.error('Error hiding message:', error);
+    throw error;
+  }
+};
+
+/**
+ * Unhides a message (updates server and client)
+ * @param {string} messageId ID of the message to unhide
+ * @returns {Promise} Promise that resolves when message is unhidden
+ */
+export const unhideMessage = async (messageId) => {
+  try {
+    // Send request to server to update the message's hidden status
+    try {
+      // The apiClient baseURL is already set to http://localhost:5000/api
+      // The server mounts message routes at /api/messages
+      const response = await apiClient.put(`/messages/${messageId}/hidden`, { hidden: false });
+      return response.data.messageId;
+    } catch (serverError) {
+      // Handle different error types appropriately
+      if (serverError.response && serverError.response.status === 403) {
+        // User doesn't have permission
+        throw new Error('You do not have permission to unhide this message');
+      } else if (serverError.response && serverError.response.status === 404) {
+        // Message not found
+        throw new Error('Message not found. It may have been deleted.');
+      } else {
+        // For other errors
+        console.warn('Error unhiding message on server:', serverError.message);
+        throw new Error('Failed to unhide message. Please try again later.');
+      }
+    }
+  } catch (error) {
+    console.error('Error unhiding message:', error);
     throw error;
   }
 };
@@ -281,6 +329,47 @@ export const fetchMessageThread = async (messageId) => {
  * @param {Array} messages Array of message objects
  * @returns {Object} Normalized messages object with IDs as keys
  */
+/**
+ * Replies to a message in a thread
+ * @param {string} parentMessageId ID of the message being replied to
+ * @param {Object} replyData Reply message data (content, recipient, etc.)
+ * @returns {Promise} Promise resolving to the sent reply message
+ */
+export const replyToMessage = async (parentMessageId, replyData) => {
+  try {
+    // Validate reply data
+    if (!replyData.content || replyData.content.trim() === '') {
+      throw new Error('Reply content cannot be empty');
+    }
+    
+    if (!replyData.recipientId) {
+      throw new Error('Recipient is required');
+    }
+    
+    if (!parentMessageId) {
+      throw new Error('Parent message ID is required');
+    }
+    
+    // Create the full message data with parentMessageId
+    const messageData = {
+      ...replyData,
+      parentMessageId
+    };
+    
+    // Use the existing sendMessage endpoint to send the reply
+    const response = await apiClient.post('/messages/create', messageData);
+    
+    return {
+      ...response.data,
+      success: true,
+      parentMessageId
+    };
+  } catch (error) {
+    console.error('Error sending reply:', error);
+    throw error;
+  }
+};
+
 export const normalizeMessages = (messages) => {
   return messages.reduce((acc, message) => {
     acc[message._id] = message;

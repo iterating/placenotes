@@ -1,5 +1,31 @@
-import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import * as messageService from '../services/messageService';
+
+// Import thunks and selectors from separate files
+import {
+  fetchMessages,
+  sendMessage,
+  hideMessage,
+  unhideMessage,
+  markMessageAsRead,
+  fetchMessageThread,
+  replyToMessage
+} from './messageThunks';
+
+// Import reducer handlers
+import {
+  fetchMessagesHandlers,
+  sendMessageHandlers,
+  markMessageAsReadHandlers,
+  hideMessageHandlers,
+  unhideMessageHandlers,
+  fetchMessageThreadHandlers,
+  replyToMessageHandlers
+} from './reducerHandlers';
+
+// Re-export all selectors and thunks
+export * from './messageSelectors';
+export * from './messageThunks';
 
 // Initial state
 const initialState = {
@@ -21,85 +47,67 @@ const initialState = {
   }
 };
 
-// Async thunks
-export const fetchMessages = createAsyncThunk(
-  'messages/fetchMessages',
-  async ({ page = 1, limit = 20, location = null, radius = null } = {}, { rejectWithValue }) => {
-    try {
-      let response;
-      
-      if (location) {
-        // If location is provided, fetch messages near that location
-        response = await messageService.fetchMessages(page, limit, location, radius);
-      } else {
-        // Otherwise fetch all messages for the user
-        response = await messageService.fetchMessages(page, limit);
+/**
+ * Helper functions for message operations
+ */
+
+/**
+ * Updates conversation data when a new message is added
+ */
+const updateConversationWithMessage = (conversations, message) => {
+  if (!message || !message.senderId || !message.receiverId) return conversations;
+  
+  const participants = [message.senderId, message.receiverId].sort().join('-');
+  const existingConversation = conversations[participants];
+  
+  if (!existingConversation) {
+    // Create new conversation
+    return {
+      ...conversations,
+      [participants]: {
+        id: participants,
+        participants: [message.senderId, message.receiverId],
+        lastMessage: message,
+        messageIds: [message._id],
+        unreadCount: message.read ? 0 : 1
       }
-      
-      return response;
-    } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch messages');
+    };
+  } else {
+    // Update existing conversation
+    const updatedConversation = { ...existingConversation };
+    
+    // Add message ID if not already in the list
+    if (!updatedConversation.messageIds.includes(message._id)) {
+      updatedConversation.messageIds = [...updatedConversation.messageIds, message._id];
     }
+    
+    // Update last message if newer
+    const lastMessageDate = new Date(updatedConversation.lastMessage.createdAt);
+    const newMessageDate = new Date(message.createdAt);
+    
+    if (newMessageDate > lastMessageDate) {
+      updatedConversation.lastMessage = message;
+    }
+    
+    // Update unread count
+    if (!message.read) {
+      updatedConversation.unreadCount += 1;
+    }
+    
+    return {
+      ...conversations,
+      [participants]: updatedConversation
+    };
   }
-);
+};
 
-export const sendMessage = createAsyncThunk(
-  'messages/sendMessage',
-  async (messageData, { rejectWithValue }) => {
-    try {
-      const response = await messageService.sendMessage(messageData);
-      return response;
-    } catch (error) {
-      return rejectWithValue(error.message || 'Failed to send message');
-    }
-  }
-);
-
-export const hideMessage = createAsyncThunk(
-  'messages/hideMessage',
-  async (messageId, { rejectWithValue }) => {
-    try {
-      // We're not actually deleting the message on the server,
-      // just marking it as hidden in the local state
-      await messageService.hideMessage(messageId);
-      return messageId;
-    } catch (error) {
-      return rejectWithValue(error.message || 'Failed to hide message');
-    }
-  }
-);
-
-export const markMessageAsRead = createAsyncThunk(
-  'messages/markAsRead',
-  async (messageId, { rejectWithValue }) => {
-    try {
-      const response = await messageService.markMessageAsRead(messageId);
-      // Return the response which may include mockData flag
-      return { messageId, ...response };
-    } catch (error) {
-      console.warn('Failed to mark message as read in thunk:', error.message);
-      // Still update the UI even if the server call fails
-      return { messageId, success: true, clientFallback: true };
-    }
-  }
-);
-
-export const fetchMessageThread = createAsyncThunk(
-  'messages/fetchThread',
-  async (messageId, { rejectWithValue }) => {
-    try {
-      const threadData = await messageService.fetchMessageThread(messageId);
-      return { 
-        threadId: messageId, 
-        rootMessage: threadData.rootMessage,
-        replies: threadData.replies || [],
-        allMessages: threadData.allMessages || []
-      };
-    } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch message thread');
-    }
-  }
-);
+/**
+ * Calculates total unread messages count
+ */
+const calculateUnreadCount = (messages) => {
+  return Object.values(messages)
+    .filter(msg => !msg.read && !msg.hidden).length;
+};
 
 // Create the slice
 const messageSlice = createSlice({
@@ -107,6 +115,26 @@ const messageSlice = createSlice({
   initialState,
   reducers: {
     // Actions needed by messageStoreAction.js
+    hideMessageById(state, action) {
+      const messageId = action.payload;
+      if (messageId && state.messages[messageId]) {
+        // Mark the message as hidden
+        state.messages[messageId].hidden = true;
+        
+        // If this message is currently selected, clear the selection
+        if (state.selectedMessageId === messageId) {
+          state.selectedMessageId = null;
+        }
+      }
+    },
+    
+    unhideMessageById(state, action) {
+      const messageId = action.payload;
+      if (messageId && state.messages[messageId]) {
+        // Mark the message as not hidden
+        state.messages[messageId].hidden = false;
+      }
+    },
     setMessages: (state, action) => {
       // Handle both array and paginated response formats
       const messages = Array.isArray(action.payload) 
@@ -118,48 +146,20 @@ const messageSlice = createSlice({
       state.messages = normalized;
       
       // Group messages into conversations by participants
-      // A conversation is defined by the pair of users communicating
       const conversations = {};
       
+      // Build conversations from messages
       messages.forEach(message => {
-        // Create a unique key for each conversation based on the participants
-        // Sort participant IDs to ensure the same conversation key regardless of sender/receiver
-        const participants = [message.senderId, message.receiverId].sort().join('-');
-        
-        if (!conversations[participants]) {
-          conversations[participants] = {
-            id: participants,
-            participants: [message.senderId, message.receiverId],
-            lastMessage: message,
-            messageIds: [],
-            unreadCount: 0
-          };
-        }
-        
-        // Add message ID to the conversation
-        if (!conversations[participants].messageIds.includes(message._id)) {
-          conversations[participants].messageIds.push(message._id);
-        }
-        
-        // Update last message and unread count
-        const lastMsgDate = new Date(conversations[participants].lastMessage.createdAt);
-        const currentMsgDate = new Date(message.createdAt);
-        
-        if (currentMsgDate > lastMsgDate) {
-          conversations[participants].lastMessage = message;
-        }
-        
-        // Count unread messages
-        if (!message.read) {
-          conversations[participants].unreadCount++;
-        }
+        // Use helper function to update conversations with each message
+        Object.assign(conversations, 
+          updateConversationWithMessage(conversations, message));
       });
       
       // Update conversation state
       state.conversations = conversations;
       
-      // Update total unread count
-      state.unreadCount = messages.filter(msg => !msg.read).length;
+      // Update total unread count using helper function
+      state.unreadCount = calculateUnreadCount(state.messages);
       
       // Update pagination if available
       if (action.payload.pagination) {
@@ -177,40 +177,8 @@ const messageSlice = createSlice({
         state.unreadCount += 1;
       }
       
-      // Update conversation
-      const participants = [newMessage.senderId, newMessage.receiverId].sort().join('-');
-      
-      // Create conversation if it doesn't exist
-      if (!state.conversations[participants]) {
-        state.conversations[participants] = {
-          id: participants,
-          participants: [newMessage.senderId, newMessage.receiverId],
-          lastMessage: newMessage,
-          messageIds: [newMessage._id],
-          unreadCount: newMessage.read ? 0 : 1
-        };
-      } else {
-        // Update existing conversation
-        const conversation = state.conversations[participants];
-        
-        // Add message ID if not already in the list
-        if (!conversation.messageIds.includes(newMessage._id)) {
-          conversation.messageIds.push(newMessage._id);
-        }
-        
-        // Update last message if newer
-        const lastMessageDate = new Date(conversation.lastMessage.createdAt);
-        const newMessageDate = new Date(newMessage.createdAt);
-        
-        if (newMessageDate > lastMessageDate) {
-          conversation.lastMessage = newMessage;
-        }
-        
-        // Update unread count
-        if (!newMessage.read) {
-          conversation.unreadCount += 1;
-        }
-      }
+      // Update conversation using the helper function
+      state.conversations = updateConversationWithMessage(state.conversations, newMessage);
       
       // If this is a reply, update thread messages
       if (newMessage.parentMessageId && newMessage.parentMessageId !== newMessage._id) {
@@ -277,237 +245,46 @@ const messageSlice = createSlice({
       state.selectedConversation = null;
     },
     updateUnreadCount: (state) => {
-      // Calculate unread count based on messages
-      state.unreadCount = Object.values(state.messages)
-        .filter(msg => !msg.read && !msg.hidden).length;
+      // Calculate unread count based on messages using the helper function
+      state.unreadCount = calculateUnreadCount(state.messages);
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch messages
-      .addCase(fetchMessages.pending, (state, action) => {
-        const { meta } = action;
-        const page = meta.arg.page || 1;
-        if (page === 1) {
-          state.loading = true;
-        } else {
-          state.refreshing = true;
-        }
-        state.error = null;
-      })
-      .addCase(fetchMessages.fulfilled, (state, action) => {
-        const { meta, payload } = action;
-        const page = meta.arg.page || 1;
-        
-        // Normalize the messages and add to state
-        const normalizedMessages = messageService.normalizeMessages(payload.messages || []);
-        
-        // If page 1, replace messages, otherwise merge
-        if (page === 1) {
-          state.messages = normalizedMessages;
-        } else {
-          state.messages = { ...state.messages, ...normalizedMessages };
-        }
-        
-        state.currentPage = page;
-        state.hasMoreMessages = payload.messages.length > 0;
-        state.loading = false;
-        state.refreshing = false;
-        state.error = null;
-        
-        // Update pagination if available
-        if (payload.pagination) {
-          state.pagination = payload.pagination;
-        }
-        
-        // Update unread count
-        state.unreadCount = Object.values(state.messages)
-          .filter(msg => !msg.read && !msg.hidden).length;
-      })
-      .addCase(fetchMessages.rejected, (state, action) => {
-        state.loading = false;
-        state.refreshing = false;
-        state.error = action.payload || 'Failed to fetch messages';
-      })
+      // Fetch messages handlers
+      .addCase(fetchMessages.pending, fetchMessagesHandlers.pending)
+      .addCase(fetchMessages.fulfilled, fetchMessagesHandlers.fulfilled)
+      .addCase(fetchMessages.rejected, fetchMessagesHandlers.rejected)
       
-      // Send Message
-      .addCase(sendMessage.pending, (state, action) => {
-        state.loading = true;
-        state.error = null;
-        
-        // Create a temporary message for optimistic UI update
-        if (action.meta?.arg) {
-          const tempMessage = {
-            _id: `temp_${Date.now()}`,
-            content: action.meta.arg.content,
-            senderId: action.meta.arg.senderId || 'current_user',
-            recipientId: action.meta.arg.recipientId,
-            parentMessageId: action.meta.arg.parentMessageId || null,
-            conversationId: action.meta.arg.conversationId || null,
-            location: action.meta.arg.location || null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            read: true, // Messages sent by the user are always read
-            pending: true, // Mark as pending
-            tempId: `temp_${Date.now()}` // Store temp ID for later reference
-          };
-          
-          // Add to messages store
-          state.messages[tempMessage._id] = tempMessage;
-          
-          // If this is a reply, add it to the thread
-          if (tempMessage.parentMessageId && state.threadMessages[tempMessage.parentMessageId]) {
-            state.threadMessages[tempMessage.parentMessageId][tempMessage._id] = tempMessage;
-          }
-          
-          // Store the temp ID in the meta for reference in fulfilled/rejected
-          action.meta.tempId = tempMessage._id;
-        }
-      })
-      .addCase(sendMessage.fulfilled, (state, action) => {
-        state.loading = false;
-        
-        // Get the real message from the server
-        const message = action.payload;
-        
-        // Find and remove the temporary message if it exists
-        const tempId = action.meta.tempId;
-        if (tempId && state.messages[tempId]) {
-          // Remove the temp message
-          delete state.messages[tempId];
-          
-          // Remove from thread if it was added there
-          if (message.parentMessageId && 
-              state.threadMessages[message.parentMessageId] && 
-              state.threadMessages[message.parentMessageId][tempId]) {
-            delete state.threadMessages[message.parentMessageId][tempId];
-          }
-        }
-        
-        // Add the confirmed message to our normalized store
-        state.messages[message._id] = {
-          ...message,
-          pending: false,
-          sendFailed: false
-        };
-        
-        // If this is a reply, add it to the thread
-        if (message.parentMessageId && state.threadMessages[message.parentMessageId]) {
-          state.threadMessages[message.parentMessageId][message._id] = {
-            ...message,
-            pending: false,
-            sendFailed: false
-          };
-        }
-        
-        // Add to conversation if it exists
-        if (message.conversationId && state.conversations[message.conversationId]) {
-          // Make sure we don't add duplicates
-          if (!state.conversations[message.conversationId].messageIds.includes(message._id)) {
-            state.conversations[message.conversationId].messageIds.push(message._id);
-          }
-          state.conversations[message.conversationId].lastMessage = message;
-          state.conversations[message.conversationId].updatedAt = message.createdAt;
-        }
-      })
-      .addCase(sendMessage.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || 'Failed to send message';
-        
-        // Find the temporary message and mark it as failed
-        const tempId = action.meta.tempId;
-        if (tempId && state.messages[tempId]) {
-          state.messages[tempId] = {
-            ...state.messages[tempId],
-            pending: false,
-            sendFailed: true,
-            errorMessage: action.payload || 'Failed to send message'
-          };
-          
-          // Update in thread if it exists there
-          if (state.messages[tempId].parentMessageId && 
-              state.threadMessages[state.messages[tempId].parentMessageId] && 
-              state.threadMessages[state.messages[tempId].parentMessageId][tempId]) {
-            
-            state.threadMessages[state.messages[tempId].parentMessageId][tempId] = {
-              ...state.threadMessages[state.messages[tempId].parentMessageId][tempId],
-              pending: false,
-              sendFailed: true,
-              errorMessage: action.payload || 'Failed to send message'
-            };
-          }
-        }
-      })
-      // Mark message as read
-      .addCase(markMessageAsRead.pending, (state) => {
-        state.refreshing = true;
-      })
-      .addCase(markMessageAsRead.fulfilled, (state, action) => {
-        const { messageId, success } = action.payload;
-        state.refreshing = false;
-        
-        // Skip updates if not successful
-        if (!success) return;
-        
-        // Update in messages map
-        if (state.messages[messageId]) {
-          state.messages[messageId].read = true;
-        }
-        
-        // Update unread count
-        state.unreadCount = Math.max(0, state.unreadCount - 1);
-        
-        // Update in thread messages if it exists there
-        Object.keys(state.threadMessages).forEach(threadId => {
-          if (state.threadMessages[threadId][messageId]) {
-            state.threadMessages[threadId][messageId].read = true;
-          }
-        });
-      })
-      .addCase(markMessageAsRead.rejected, (state, action) => {
-        state.refreshing = false;
-        // Don't set error state to avoid unnecessary UI errors
-        console.error('markMessageAsRead rejected:', action.payload || 'Unknown error');
-      })
-      .addCase(fetchMessageThread.pending, (state) => {
-        state.refreshing = true;
-        state.error = null;
-      })
-      .addCase(fetchMessageThread.fulfilled, (state, action) => {
-        const { threadId, rootMessage, replies, allMessages } = action.payload;
-        
-        // First, ensure the root message is in our messages store
-        if (rootMessage && rootMessage._id) {
-          state.messages[rootMessage._id] = rootMessage;
-        }
-        
-        // Add all replies to the messages store
-        if (replies && replies.length > 0) {
-          replies.forEach(reply => {
-            if (reply && reply._id) {
-              state.messages[reply._id] = reply;
-            }
-          });
-        }
-        
-        // Create the thread mapping
-        if (threadId) {
-          // Create a normalized object of reply messages
-          const normalizedReplies = replies.reduce((acc, reply) => {
-            acc[reply._id] = reply;
-            return acc;
-          }, {});
-          
-          // Store in the threadMessages
-          state.threadMessages[threadId] = normalizedReplies;
-        }
-        
-        state.refreshing = false;
-      })
-      .addCase(fetchMessageThread.rejected, (state, action) => {
-        state.refreshing = false;
-        state.error = action.payload || 'Failed to fetch message thread';
-      });
+      // Send message handlers
+      .addCase(sendMessage.pending, sendMessageHandlers.pending)
+      .addCase(sendMessage.fulfilled, sendMessageHandlers.fulfilled)
+      .addCase(sendMessage.rejected, sendMessageHandlers.rejected)
+      
+      // Mark message as read handlers
+      .addCase(markMessageAsRead.pending, markMessageAsReadHandlers.pending)
+      .addCase(markMessageAsRead.fulfilled, markMessageAsReadHandlers.fulfilled)
+      .addCase(markMessageAsRead.rejected, markMessageAsReadHandlers.rejected)
+      
+      // Hide message handlers
+      .addCase(hideMessage.pending, hideMessageHandlers.pending)
+      .addCase(hideMessage.fulfilled, hideMessageHandlers.fulfilled)
+      .addCase(hideMessage.rejected, hideMessageHandlers.rejected)
+      
+      // Unhide message handlers
+      .addCase(unhideMessage.pending, unhideMessageHandlers.pending)
+      .addCase(unhideMessage.fulfilled, unhideMessageHandlers.fulfilled)
+      .addCase(unhideMessage.rejected, unhideMessageHandlers.rejected)
+      
+      // Fetch message thread handlers
+      .addCase(fetchMessageThread.pending, fetchMessageThreadHandlers.pending)
+      .addCase(fetchMessageThread.fulfilled, fetchMessageThreadHandlers.fulfilled)
+      .addCase(fetchMessageThread.rejected, fetchMessageThreadHandlers.rejected)
+      
+      // Reply to message handlers
+      .addCase(replyToMessage.pending, replyToMessageHandlers.pending)
+      .addCase(replyToMessage.fulfilled, replyToMessageHandlers.fulfilled)
+      .addCase(replyToMessage.rejected, replyToMessageHandlers.rejected);
   },
 });
 
@@ -517,6 +294,7 @@ export const {
   addMessage,
   markAsRead,
   hideMessageById,
+  unhideMessageById,
   setSelectedMessage, 
   clearSelectedMessage,
   clearMessageError,
@@ -524,81 +302,5 @@ export const {
   updateUnreadCount
 } = messageSlice.actions;
 
-// Base selectors (these don't need memoization since they return simple values)
-export const selectMessagesState = (state) => state.messages;
-export const selectMessagesMap = (state) => state.messages.messages;
-export const selectConversationsMap = (state) => state.messages.conversations;
-export const selectThreadMessagesMap = (state) => state.messages.threadMessages;
-
-// Memoized selectors that return new objects/arrays
-export const selectAllMessages = createSelector(
-  [selectMessagesMap],
-  (messages) => Object.values(messages)
-);
-
-// Filter out hidden messages
-export const selectVisibleMessages = createSelector(
-  [selectMessagesMap],
-  (messages) => Object.values(messages).filter(message => !message.hidden)
-);
-
-export const selectMessages = selectVisibleMessages; // Updated for backward compatibility
-
-export const selectMessageById = (state, messageId) => state.messages.messages[messageId];
-
-// Conversation selectors
-export const selectSelectedConversation = (state) => state.messages.selectedConversation;
-
-export const selectAllConversations = createSelector(
-  [selectConversationsMap],
-  (conversations) => Object.values(conversations)
-);
-
-export const selectConversationById = (state, conversationId) => state.messages.conversations[conversationId];
-
-// Get messages for a specific conversation
-export const selectConversationMessages = createSelector(
-  [
-    (state) => state.messages.messages,
-    (state) => state.messages.conversations,
-    (state, conversationId) => conversationId
-  ],
-  (messages, conversations, conversationId) => {
-    const conversation = conversationId && conversations[conversationId];
-    if (!conversation) return [];
-    
-    return conversation.messageIds
-      .map(id => messages[id])
-      .filter(Boolean)
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  }
-);
-
-// Thread selectors
-export const selectMessageThread = createSelector(
-  [selectThreadMessagesMap, (_, threadId) => threadId],
-  (threadMessages, threadId) => {
-    const thread = threadMessages[threadId];
-    return thread ? Object.values(thread) : [];
-  }
-);
-
-// Status selectors
-export const selectMessagesLoading = (state) => state.messages.loading;
-export const selectMessagesRefreshing = (state) => state.messages.refreshing;
-export const selectMessagesError = (state) => state.messages.error;
-export const selectSelectedMessageId = (state) => state.messages.selectedMessageId;
-export const selectHasMoreMessages = (state) => state.messages.hasMoreMessages;
-export const selectPagination = (state) => state.messages.pagination;
-export const selectUnreadCount = (state) => state.messages.unreadCount;
-
-// Get unread messages count for a specific conversation
-export const selectConversationUnreadCount = createSelector(
-  [selectConversationsMap, (_, conversationId) => conversationId],
-  (conversations, conversationId) => {
-    const conversation = conversationId && conversations[conversationId];
-    return conversation ? conversation.unreadCount : 0;
-  }
-);
-
+// Export the slice reducer as default
 export default messageSlice.reducer;

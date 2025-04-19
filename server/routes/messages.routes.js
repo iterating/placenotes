@@ -7,7 +7,8 @@ import {
   markMessageAsRead,
   deleteMessage,
   getMessage,
-  getMessageReplies
+  getMessageReplies,
+  toggleMessageHidden
 } from '../controllers/messages.controllers.js';
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.get('/nearby', getMessagesByLocation);
 router.post('/create', createMessage);
 router.get('/replies/:messageId', getMessageReplies); // endpoint to get all replies to a message
 router.put('/:messageId/read', markMessageAsRead); // endpoint to mark message as read
+router.put('/:messageId/hidden', toggleMessageHidden); // endpoint to toggle message hidden state
 
 // These routes should be last as they use the parameter pattern that can match other routes
 router.get('/:messageId', getMessage); // endpoint to get a single message by ID

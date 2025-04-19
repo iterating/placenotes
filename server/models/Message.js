@@ -52,6 +52,15 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Message',
     default: null
+  },
+  hidden: {
+    type: Boolean,
+    default: false
+  },
+  conversationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Conversation',
+    default: null
   }
 }, {
   timestamps: true

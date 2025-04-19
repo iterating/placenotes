@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: placenotes-api
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+    healthCheckPath: /health
+    autoDeploy: true
+
+  - type: web
+    name: placenotes-client
+    env: node
+    buildCommand: npm install -g pnpm && cd client && pnpm install --no-frozen-lockfile && pnpm run build
+    startCommand: cd client && pnpm run preview
+    envVars:
+      - key: VITE_API_URL
+        value: https://placenotes-api.onrender.com
+      - key: PORT
+        value: 10000
+    autoDeploy: true
