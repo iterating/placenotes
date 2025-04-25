@@ -2,11 +2,42 @@
 
 /* Message card styles moved to shared.css */
 
+/* --- Compact Message Styling --- */
+
+.message-item.card { /* Target specifically the message items */
+  margin-bottom: var(--spacing-xs); /* Reduce bottom margin */
+  padding: var(--spacing-xs); /* Reduce internal padding */
+}
+
+.message-item .message-sender,
+.message-item .message-body,
+.message-item .message-footer {
+  padding-top: 2px; /* Minimal top padding */
+  padding-bottom: 2px; /* Minimal bottom padding */
+  margin-bottom: var(--spacing-xs); /* Reduce space between sections */
+}
+
+.message-item .message-body p {
+    margin-bottom: 0; /* Remove default paragraph margin if present */
+}
+
+.message-item .message-footer {
+   padding-bottom: 0;
+   margin-bottom: 0;
+   font-size: var(--font-size-sm); /* Ensure footer text is small */
+}
+
+.message-item .reply-button {
+  padding: 2px 4px; /* Make reply button smaller */
+}
+
+/* --- End Compact Message Styling --- */
+
 /* Thread specific styles */
 .thread-messages {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm); /* Reduce gap between root and replies */
 }
 
 .root-message-container {
@@ -16,7 +47,8 @@
 .replies-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs); /* Reduce gap between replies */
+  margin-left: var(--spacing-md); /* Keep indentation for replies */
 }
 
 .replies-divider {
@@ -61,10 +93,10 @@
 /* Reply info */
 .reply-to-info {
   padding: var(--spacing-xs) var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs); /* Keep some space before content */
   background-color: var(--gray-100);
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs); /* Make reply quote smaller */
 }
 
 .quoted-text {

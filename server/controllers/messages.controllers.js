@@ -114,146 +114,98 @@ export const createMessage = async (req, res) => {
   try {
     console.log('Message creation request body:', req.body);
     console.log('Current user:', req.user);
-    
+
     const { content, location, radius, recipientId, parentMessageId } = req.body;
     const senderId = req.user._id; // Using _id instead of id
-    
-    console.log('Type checking values to identify issues:');
-    console.log('senderId type:', typeof senderId, senderId instanceof mongoose.Types.ObjectId ? 'ObjectId' : 'Not ObjectId');
-    console.log('recipientId type:', typeof recipientId);
-    console.log('content type:', typeof content);
-    console.log('location type:', typeof location);
-    console.log('radius type:', typeof radius);
-    console.log('parentMessageId:', parentMessageId || 'Not provided')
-    
-    // Try to get existing messages to verify database connection works
-    try {
-      const count = await Message.countDocuments({});
-      console.log(`Current document count in messages collection: ${count}`);
-    } catch (countError) {
-      console.error('Error checking existing messages:', countError);
-    }
-    
-    if (!senderId) {
-      console.error('senderId is missing in the request');
-      return res.status(400).json({ message: 'Sender ID is required' });
-    }
-    
-    if (!recipientId) {
-      console.error('recipientId is missing in the request');
-      return res.status(400).json({ message: 'Recipient ID is required' });
-    }
-    
-    if (!content) {
-      console.error('content is missing in the request');
-      return res.status(400).json({ message: 'Message content is required' });
-    }
-    
-    if (!location || !location.type || !location.coordinates) {
-      console.error('Invalid location object:', location);
-      return res.status(400).json({ message: 'Valid location with type and coordinates is required' });
-    }
-    
-    // Ensure recipientId is a valid ObjectId
-    let recipientObjectId;
-    try {
-      recipientObjectId = new mongoose.Types.ObjectId(recipientId);
-      console.log('Converted recipientId to ObjectId:', recipientObjectId);
-    } catch (err) {
-      console.error('Invalid recipientId format:', err.message);
-      return res.status(400).json({ message: 'Invalid recipient ID format' });
+
+    // Basic validation (ensure required fields are present)
+    if (!content || !location || !radius || !recipientId) {
+      return res.status(400).json({ message: 'Missing required message fields: content, location, radius, recipientId' });
     }
 
-    // Validate coordinates
-    let coordinates;
-    try {
-      if (!Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
-        throw new Error('Coordinates must be an array with exactly 2 values [longitude, latitude]');
-      }
-      coordinates = location.coordinates.map(Number);
-      if (coordinates.some(isNaN)) {
-        throw new Error('Coordinates must be valid numbers');
-      }
-    } catch (err) {
-      console.error('Error validating coordinates:', err);
-      return res.status(400).json({ message: 'Invalid coordinates: ' + err.message });
+    // Validate location format (simple check)
+    if (!location.type || location.type !== 'Point' || !Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
+        return res.status(400).json({ message: 'Invalid location format. Expected { type: "Point", coordinates: [longitude, latitude] }' });
     }
 
-    // Create the message using Mongoose model
-    const message = new Message({
-      senderId, // Mongoose will convert this automatically
-      recipientId: recipientObjectId,
+    // Validate recipient exists
+    const recipient = await User.findById(recipientId);
+    if (!recipient) {
+      return res.status(404).json({ message: 'Recipient user not found' });
+    }
+
+    // Validate parent message if provided
+    let parentMessage = null;
+    if (parentMessageId) {
+      if (!mongoose.Types.ObjectId.isValid(parentMessageId)) {
+        return res.status(400).json({ message: 'Invalid parent message ID format' });
+      }
+      parentMessage = await Message.findById(parentMessageId);
+      if (!parentMessage) {
+        return res.status(404).json({ message: 'Parent message not found' });
+      }
+    }
+
+    const newMessage = new Message({
+      senderId,
+      recipientId,
       content,
-      location: {
-        type: 'Point',
-        coordinates: coordinates
-      },
-      radius: Number(radius) || 1000, // Default radius to 1000m if not provided
-      parentMessageId: parentMessageId || null // Include parent message ID for replies
-    });
-    
-    console.log('Message model created with data:', {
-      senderId: message.senderId.toString(),
-      recipientId: message.recipientId.toString(),
-      content: message.content,
-      coordinatesType: typeof message.location.coordinates,
-      coordinates: message.location.coordinates
+      location,
+      radius,
+      parentMessage: parentMessageId || null, // Store parent ID if exists
+      // Default values for read and hidden are set in the schema
     });
 
-    // Perform validation before saving
-    const validationError = message.validateSync();
-    if (validationError) {
-      console.error('Validation error before save:', validationError);
-      return res.status(400).json({ 
-        message: 'Message validation failed', 
-        errors: validationError.errors 
-      });
-    }
-    
-    console.log('Message validation passed, attempting to save to database');
-    try {
-      await message.save();
-      console.log('Message saved successfully with ID:', message._id);
-    } catch (saveError) {
-      console.error('Error during message.save():', saveError);
-      return res.status(500).json({ 
-        message: 'Error saving message to database',
-        error: saveError.message
-      });
-    }
+    await newMessage.save();
 
-    // Clear cache entries that might contain this location
+    // Populate sender information for the response
+    const populatedMessage = await Message.findById(newMessage._id)
+        .populate('senderId', 'username email _id') // Populate sender details
+        .lean(); // Use lean for a plain JS object
+
+    // Clear recipient's message list cache (assuming pagination)
+    // We don't know which page the new message will appear on, so clear all for simplicity
+    // A more sophisticated approach might only clear page 1 or specific pages if known
     for (const key of messageCache.keys()) {
-      // Clear location-based cache entries
-      if (key.includes(',')) {
-        const [cacheLong, cacheLat, cacheRadius] = key.split(',').map(parseFloat);
-        const distance = getDistance(
-          [cacheLong, cacheLat],
-          coordinates
-        );
-        if (distance <= parseFloat(cacheRadius)) {
-          messageCache.delete(key);
-        }
-      } 
-      // Clear any list cache entries for the recipient
-      else if (key.startsWith(`list-${recipientId}`)) {
+      if (key.startsWith(`list-${recipientId}-`)) {
         messageCache.delete(key);
+        console.log(`Cleared cache key: ${key}`);
       }
     }
 
-    // Return the saved message
-    res.status(201).json(message);
+    // Note: Location-based cache invalidation is harder here without knowing
+    // which specific location queries this new message might affect.
+    // A robust solution might involve a different caching strategy (e.g., Redis with tags).
+
+    // Format the response to match expectations (if necessary)
+    const responseMessage = {
+        ...populatedMessage,
+        sender: populatedMessage.senderId, // Rename senderId to sender
+    };
+    delete responseMessage.senderId; // Remove the original senderId field
+
+    res.status(201).json(responseMessage);
+
   } catch (error) {
     console.error('Error creating message:', error);
-    res.status(500).json({ message: 'Error creating message' });
+
+    // Handle potential Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation Error', errors: error.errors });
+    }
+    // Handle potential duplicate key errors (if applicable)
+    if (error.code === 11000) {
+        return res.status(409).json({ message: 'Duplicate key error.', errorInfo: error.keyValue });
+    }
+    // Handle CastError (e.g., invalid ObjectId format)
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: `Invalid ID format for field: ${error.path}`, value: error.value });
+    }
+
+    res.status(500).json({ message: 'Error creating message', error: error.message });
   }
 };
 
-/**
- * Get messages by received time (inbox)
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 export const getMessagesList = async (req, res) => {
   try {
     console.log('getMessagesList called with user:', req.user);
@@ -502,7 +454,7 @@ export const getMessage = async (req, res) => {
     try {
       // Find the message in the database
       const message = await Message.findById(messageId)
-        .populate('senderId', 'username name email')
+        .populate('senderId', 'username email _id') // Populate sender details
         .exec();
       
       if (!message) {
@@ -576,7 +528,7 @@ export const getMessageReplies = async (req, res) => {
         parentMessageId: messageId,
         hidden: { $ne: true } // Exclude hidden messages
       })
-      .populate('senderId', 'username name email')
+      .populate('senderId', 'username email _id') // Populate sender details
       .sort({ createdAt: 1 }); // Sort by creation date ascending
       
       // Transform replies to include sender information in the expected format

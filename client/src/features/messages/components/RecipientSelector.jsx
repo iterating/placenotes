@@ -1,35 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { apiClient } from '../../../api/apiClient';
+import React, { useState } from 'react';
+import { useFriendsList } from '../../friends/hooks/useFriendsList';
 import './MessageStyles.css';
 
 const RecipientSelector = ({ onSelectRecipient }) => {
-  const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { friends, isLoading, error, refetchFriends } = useFriendsList();
+  
   const [selectedFriendId, setSelectedFriendId] = useState('');
   
-  // Load friends list when component mounts
-  useEffect(() => {
-    fetchFriends();
-  }, []);
-  
-  // Fetch user's friends
-  const fetchFriends = async () => {
-    try {
-      setLoading(true);
-      
-      const response = await apiClient.get('/friends/list');
-      setFriends(response.data || []);
-    } catch (err) {
-      console.error('Error fetching friends:', err);
-      setError('Could not load friends list');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Handle dropdown selection change
   const handleSelectChange = (e) => {
     const friendId = e.target.value;
     setSelectedFriendId(friendId);
@@ -51,7 +28,7 @@ const RecipientSelector = ({ onSelectRecipient }) => {
           className="form-control"
           value={selectedFriendId}
           onChange={handleSelectChange}
-          disabled={loading}
+          disabled={isLoading}
         >
           <option value="">-- Select a friend --</option>
           {friends.map(friend => (
@@ -62,7 +39,7 @@ const RecipientSelector = ({ onSelectRecipient }) => {
         </select>
       </div>
       
-      {loading && (
+      {isLoading && (
         <div className="search-loading">Loading friends...</div>
       )}
       
@@ -70,7 +47,7 @@ const RecipientSelector = ({ onSelectRecipient }) => {
         <div className="search-error text-danger">{error}</div>
       )}
       
-      {!loading && friends.length === 0 && (
+      {!isLoading && friends.length === 0 && (
         <div className="empty-state">
           <p>You don't have any friends in your contacts list.</p>
         </div>

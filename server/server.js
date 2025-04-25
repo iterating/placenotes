@@ -1,15 +1,15 @@
+import dotenv from "dotenv"
 import express from "express"
 import path from "path"
 import { fileURLToPath } from "url"
 import { dirname } from "path"
 import middleware from "./api/middleware/middleware.js"
-import users from "./api/routes/userRoutes.js"
-import notes from "./api/routes/noteRoutes.js"
-import messages from "./routes/messages.routes.js"
-import friends from "./routes/friends.routes.js"
-import auth from "./api/routes/authRoutes.js"
+import users from "./api/routes/users.routes.js"
+import notes from "./api/routes/notes.routes.js"
+import messages from "./api/routes/messages.routes.js"
+import friends from "./api/routes/friends.routes.js"
+import auth from "./api/routes/auth.routes.js"
 import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
-import dotenv from "dotenv"
 import cors from 'cors'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -18,7 +18,6 @@ import { resolvers } from './graphql/resolvers.js'
 import session from 'express-session'
 import passport from 'passport'
 dotenv.config()
-
 const app = express()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 

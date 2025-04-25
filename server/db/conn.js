@@ -1,7 +1,5 @@
 import mongoose from "mongoose"
-import dotenv from "dotenv"
 import { createNoteIndexes } from '../models/Note.js'
-dotenv.config()
 
 const connectionString = process.env.ATLAS_URI
 const dbName = process.env.DBNAME || 'placenotes'

@@ -18,4 +18,4 @@ export const HIDE_MESSAGE_ERROR = 'Failed to hide message';
 export const UNHIDE_MESSAGE_ERROR = 'Failed to unhide message';
 export const MARK_AS_READ_ERROR = 'Failed to mark message as read';
 export const FETCH_THREAD_ERROR = 'Failed to fetch message thread';
-export const REPLY_TO_MESSAGE_ERROR = 'Failed to reply to message';
+export const REPLY_TO_MESSAGE_ERROR = 'Failed to send reply';

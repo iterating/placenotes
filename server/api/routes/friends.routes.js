@@ -1,5 +1,5 @@
 import express from "express";
-import { setUser } from "../api/middleware/auth.js";
+import { setUser } from "../../api/middleware/auth.js"; 
 import {
   sendFriendRequest,
   respondToFriendRequest,
@@ -7,7 +7,7 @@ import {
   getFriends,
   searchUsers,
   getUserById
-} from "../controllers/friends.controllers.js";
+} from "../../controllers/friends.controllers.js"; 
 
 const router = express.Router();
 

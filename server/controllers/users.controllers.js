@@ -97,3 +97,40 @@ export const sendFriendRequest = async (req, res) => {
     });
   }
 };
+
+// New controller function to get user by name
+export const getUserByName = async (req, res) => {
+  try {
+    const name = req.params.name;
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Name parameter is required' });
+    }
+    // Assuming UserService.findUsers can handle a query object like { name: name }
+    // Or perhaps a dedicated service function like UserService.findUsersByName(name) exists?
+    // Using findUsers for now based on old userRoutes.js logic.
+    const users = await UserService.findUsers({ name: name }); 
+    res.status(200).json({ success: true, users: users });
+  } catch (error) {
+    console.error('Error in getUserByName:', error);
+    res.status(500).json({ success: false, message: 'Error finding user(s) by name' });
+  }
+};
+
+// New controller function to get user by email
+export const getUserByEmail = async (req, res) => {
+  try {
+    const email = req.params.email;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email parameter is required' });
+    }
+    // Assuming UserService.findByEmail exists based on old userRoutes.js logic.
+    const user = await UserService.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({ success: true, user: user });
+  } catch (error) {
+    console.error('Error in getUserByEmail:', error);
+    res.status(500).json({ success: false, message: 'Error finding user by email' });
+  }
+};

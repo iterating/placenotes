@@ -1,90 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   selectHiddenMessages, 
   unhideMessage,
   selectMessagesLoading
 } from '../store/messageSlice';
+import { useSelectionState } from '../../../hooks/useSelectionState';
+import { formatDateRelative } from '../../../lib/FormatUtils';
 import './MessageStyles.css';
 
 /**
  * Component for displaying and managing hidden messages
  */
-const HiddenMessages = ({ onClose }) => {
+const HiddenMessages = () => {
   const dispatch = useDispatch();
   const hiddenMessages = useSelector(selectHiddenMessages);
   const loading = useSelector(selectMessagesLoading);
-  const [selectedMessages, setSelectedMessages] = useState([]);
-  
-  // Reset selection when messages change
-  useEffect(() => {
-    setSelectedMessages([]);
-  }, [hiddenMessages]);
-  
-  // Handle message selection
-  const handleSelectMessage = (messageId) => {
-    setSelectedMessages(prev => {
-      if (prev.includes(messageId)) {
-        return prev.filter(id => id !== messageId);
-      } else {
-        return [...prev, messageId];
-      }
-    });
-  };
-  
-  // Handle select all messages
-  const handleSelectAll = () => {
-    if (selectedMessages.length === hiddenMessages.length) {
-      // If all are selected, deselect all
-      setSelectedMessages([]);
-    } else {
-      // Otherwise select all
-      setSelectedMessages(hiddenMessages.map(msg => msg._id));
-    }
-  };
-  
-  // Handle unhiding selected messages
+
+  const {
+    selectedItems, 
+    handleSelectItem,
+    toggleSelectAll,
+    isAllSelected,
+    clearSelection
+  } = useSelectionState(hiddenMessages);
+
   const handleUnhideSelected = () => {
-    if (selectedMessages.length === 0) return;
+    if (selectedItems.size === 0) return;
     
-    if (window.confirm(`Unhide ${selectedMessages.length} selected message(s)? They will reappear in your message list.`)) {
-      selectedMessages.forEach(messageId => {
+    const selectedIdsArray = Array.from(selectedItems);
+
+    if (window.confirm(`Unhide ${selectedIdsArray.length} selected message(s)? They will reappear in your message list.`)) {
+      selectedIdsArray.forEach(messageId => {
         dispatch(unhideMessage(messageId)).unwrap()
           .catch(error => {
-            console.error('Failed to unhide message:', error);
-            // Optionally show error to user
+            console.error('Failed to unhide message:', messageId, error);
           });
       });
-      setSelectedMessages([]);
+      clearSelection();
     }
   };
   
-  // Handle unhiding a single message
   const handleUnhideMessage = (e, messageId) => {
     e.stopPropagation();
     
     if (window.confirm('Unhide this message? It will reappear in your message list.')) {
       dispatch(unhideMessage(messageId)).unwrap()
         .catch(error => {
-          console.error('Failed to unhide message:', error);
-          // Optionally show error to user
+          console.error('Failed to unhide message:', messageId, error);
         });
-    }
-  };
-  
-  // Format date for display
-  const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-      }).format(date);
-    } catch (error) {
-      return 'Unknown date';
     }
   };
   
@@ -95,18 +59,19 @@ const HiddenMessages = ({ onClose }) => {
           <label className="checkbox-container">
             <input 
               type="checkbox"
-              checked={selectedMessages.length === hiddenMessages.length && hiddenMessages.length > 0}
-              onChange={handleSelectAll}
+              checked={isAllSelected}
+              onChange={toggleSelectAll}
+              disabled={hiddenMessages.length === 0}
             />
             <span className="checkmark"></span>
-            Select All ({hiddenMessages.length})
+            Select All ({selectedItems.size} / {hiddenMessages.length})
           </label>
         </div>
         
         <button 
           className="btn btn-primary btn-sm"
-          disabled={selectedMessages.length === 0}
           onClick={handleUnhideSelected}
+          disabled={selectedItems.size === 0}
         >
           Unhide Selected
         </button>
@@ -128,14 +93,14 @@ const HiddenMessages = ({ onClose }) => {
           {hiddenMessages.map(message => (
             <div 
               key={message._id}
-              className={`message-card ${selectedMessages.includes(message._id) ? 'selected' : ''}`}
-              onClick={() => handleSelectMessage(message._id)}
+              className={`message-card ${selectedItems.has(message._id) ? 'selected' : ''}`}
+              onClick={() => handleSelectItem(message._id)}
             >
               <div className="checkbox-wrapper">
                 <input 
                   type="checkbox" 
-                  checked={selectedMessages.includes(message._id)}
-                  onChange={() => handleSelectMessage(message._id)}
+                  checked={selectedItems.has(message._id)}
+                  onChange={() => handleSelectItem(message._id)}
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
@@ -149,7 +114,7 @@ const HiddenMessages = ({ onClose }) => {
                 </div>
                 <div className="message-footer">
                   <span className="message-timestamp">
-                    {formatDate(message.createdAt)}
+                    {formatDateRelative(message.createdAt)}
                   </span>
                   <button 
                     className="btn btn-sm btn-outline-primary"

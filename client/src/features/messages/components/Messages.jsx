@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessages } from '../store/messageSlice';
-import { selectMessages } from '../store/messageSlice';
 import MessageList from './MessageList';
 // Using shared CSS classes instead of component-specific CSS
 
@@ -40,7 +37,7 @@ const Messages = ({ isOpen, onClose, mapCenter }) => {
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
-  }, [touchStart, touchEnd]);
+  }, []);
 
   return (
     <>

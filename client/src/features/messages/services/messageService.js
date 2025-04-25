@@ -66,7 +66,7 @@ export const sendMessage = async (messageData) => {
     
     // Try to send the message
     try {
-      const response = await apiClient.post('/create', messageData);
+      const response = await apiClient.post('/messages/create', messageData);
       return {
         ...response.data,
         success: true
@@ -363,4 +363,24 @@ export const replyToMessage = async (parentMessageId, replyData) => {
     console.error('Error sending reply:', error);
     throw error;
   }
+};
+
+/**
+ * Normalizes an array of messages into an object keyed by message ID.
+ * @param {Array} messages Array of message objects
+ * @returns {Object} Normalized messages object
+ */
+export const normalizeMessages = (messages) => {
+  if (!Array.isArray(messages)) {
+    console.warn('normalizeMessages expected an array, received:', messages);
+    return {};
+  }
+  return messages.reduce((acc, message) => {
+    if (message && message._id) {
+      acc[message._id] = message;
+    } else {
+      console.warn('normalizeMessages skipped invalid message:', message);
+    }
+    return acc;
+  }, {});
 };

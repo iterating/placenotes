@@ -1,5 +1,5 @@
 import express from 'express';
-import { setUser } from '../api/middleware/auth.js';
+import { setUser } from '../middleware/auth.js'; 
 import {
   getMessagesByLocation,
   createMessage,
@@ -9,8 +9,7 @@ import {
   getMessage,
   getMessageReplies,
   toggleMessageHidden
-} from '../controllers/messages.controllers.js';
-
+} from '../../controllers/messages.controllers.js'; 
 const router = express.Router();
 
 // Protect all routes
