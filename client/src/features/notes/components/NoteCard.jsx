@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { deleteNote } from "../../../store/noteStoreAction";
+import { deleteNote } from "../store/noteThunks";
 import { marked } from "marked";
 import "./NoteCard.css";
 import "./ToggleBar.css";

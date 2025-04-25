@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../store/authSlice.js';
-import { clearNotes } from '../store/noteSlice.js';
+import { clearNotes } from '../features/notes/store/noteSlice.js';
 import defaultAvatar from '../assets/default-avatar.svg';
 import './drawers.css';
 

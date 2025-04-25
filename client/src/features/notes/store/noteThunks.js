@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import {apiClient} from '../api/apiClient';
-import { toGeoJSONPoint, storeCurrentLocation } from '../lib/GeoUtils';
+import {apiClient} from '../../../api/apiClient';
+import { toGeoJSONPoint, storeCurrentLocation } from '../../../lib/GeoUtils';
 import { setLocation } from './noteSlice';
 
 // Select token from state

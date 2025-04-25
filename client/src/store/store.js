@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from '../lib/storage';
 import authReducer from './authSlice';
-import noteReducer from './noteSlice';
+import noteReducer from '../features/notes/store/noteSlice';
 import messageReducer from '../features/messages/store/messageSlice';
 
 const persistConfig = {

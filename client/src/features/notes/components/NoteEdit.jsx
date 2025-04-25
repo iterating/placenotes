@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import "./NoteEdit.css";
 import NoteForm from "./NoteForm";
-import { createNote, updateNote, deleteNote } from "../../../store/noteStoreAction";
+import { createNote, updateNote, deleteNote } from "../store/noteThunks";
 
 const NoteEdit = () => {
   const { id } = useParams();
