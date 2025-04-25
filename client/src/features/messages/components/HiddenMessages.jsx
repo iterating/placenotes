@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
   selectHiddenMessages, 
-  unhideMessageById,
+  unhideMessage,
   selectMessagesLoading
 } from '../store/messageSlice';
 import './MessageStyles.css';
@@ -49,7 +49,11 @@ const HiddenMessages = ({ onClose }) => {
     
     if (window.confirm(`Unhide ${selectedMessages.length} selected message(s)? They will reappear in your message list.`)) {
       selectedMessages.forEach(messageId => {
-        dispatch(unhideMessageById(messageId));
+        dispatch(unhideMessage(messageId)).unwrap()
+          .catch(error => {
+            console.error('Failed to unhide message:', error);
+            // Optionally show error to user
+          });
       });
       setSelectedMessages([]);
     }
@@ -60,7 +64,11 @@ const HiddenMessages = ({ onClose }) => {
     e.stopPropagation();
     
     if (window.confirm('Unhide this message? It will reappear in your message list.')) {
-      dispatch(unhideMessageById(messageId));
+      dispatch(unhideMessage(messageId)).unwrap()
+        .catch(error => {
+          console.error('Failed to unhide message:', error);
+          // Optionally show error to user
+        });
     }
   };
   

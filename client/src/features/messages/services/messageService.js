@@ -325,11 +325,6 @@ export const fetchMessageThread = async (messageId) => {
 };
 
 /**
- * Helper to normalize messages for the store
- * @param {Array} messages Array of message objects
- * @returns {Object} Normalized messages object with IDs as keys
- */
-/**
  * Replies to a message in a thread
  * @param {string} parentMessageId ID of the message being replied to
  * @param {Object} replyData Reply message data (content, recipient, etc.)
@@ -368,11 +363,4 @@ export const replyToMessage = async (parentMessageId, replyData) => {
     console.error('Error sending reply:', error);
     throw error;
   }
-};
-
-export const normalizeMessages = (messages) => {
-  return messages.reduce((acc, message) => {
-    acc[message._id] = message;
-    return acc;
-  }, {});
 };

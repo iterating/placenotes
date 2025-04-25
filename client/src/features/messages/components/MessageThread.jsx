@@ -309,8 +309,14 @@ const MessageThread = ({ threadId, onClose }) => {
                     try {
                       e.stopPropagation();
                       if (window.confirm('Hide this message?')) {
-                        dispatch(hideMessage(threadRootMessage._id));
-                        onClose && onClose();
+                        dispatch(hideMessage(threadRootMessage._id)).unwrap()
+                          .then(() => {
+                            onClose && onClose(); // Close thread after hiding root message
+                          })
+                          .catch(error => {
+                            console.error('Failed to hide message:', error);
+                            // Optionally show error to user
+                          });
                       }
                     } catch (error) {
                       console.error('Error hiding message:', error);
@@ -343,7 +349,11 @@ const MessageThread = ({ threadId, onClose }) => {
                         try {
                           e.stopPropagation();
                           if (window.confirm('Hide this message?')) {
-                            dispatch(hideMessage(message._id));
+                            dispatch(hideMessage(message._id)).unwrap()
+                              .catch(error => {
+                                console.error('Failed to hide message:', error);
+                                // Optionally show error to user
+                              });
                           }
                         } catch (error) {
                           console.error('Error hiding message:', error);

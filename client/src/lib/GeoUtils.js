@@ -95,6 +95,39 @@ export const fromGeoJSONPoint = (geoPoint) => {
 };
 
 /**
+ * Utility function to validate location data, ensuring it's a valid GeoJSON Point.
+ * Throws an error if validation fails.
+ * @param {Object} location - Location object in any supported format.
+ * @returns {Object} Validated location in GeoJSON Point format.
+ * @throws {Error} If location is invalid.
+ */
+export const validateLocation = (location) => {
+  // Convert to GeoJSON Point format if needed
+  const geoJSONLocation = toGeoJSONPoint(location);
+  
+  // Check if location is valid
+  if (!geoJSONLocation || !geoJSONLocation.type || geoJSONLocation.type !== 'Point' || 
+      !geoJSONLocation.coordinates || !Array.isArray(geoJSONLocation.coordinates) || 
+      geoJSONLocation.coordinates.length !== 2) {
+    throw new Error('Invalid location coordinates. Must be convertible to GeoJSON Point format.');
+  }
+  
+  // Extract coordinates
+  const [longitude, latitude] = geoJSONLocation.coordinates;
+  
+  // Ensure latitude and longitude are valid numbers
+  if (isNaN(latitude) || isNaN(longitude)) {
+    throw new Error('Invalid latitude or longitude values.');
+  }
+  
+  // Return a properly formatted GeoJSON Point object
+  return {
+    type: 'Point',
+    coordinates: [longitude, latitude],
+  };
+};
+
+/**
  * Stores the current location in session storage in GeoJSON format
  * @param {Object} location - Location in any supported format
  */

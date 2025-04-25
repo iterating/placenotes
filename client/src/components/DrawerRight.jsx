@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import MessageList from '../features/messages/components/MessageList';
 import { useDispatch } from 'react-redux';
-import { fetchMessages } from '../features/messages/store/messageStoreAction';
 import './drawers.css';
 
 const DrawerRight = ({ isOpen, onClose }) => {
@@ -19,11 +18,11 @@ const DrawerRight = ({ isOpen, onClose }) => {
   }, [isOpen, onClose]);
   
   // Refresh messages when drawer opens
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(fetchMessages());
-    }
-  }, [isOpen, dispatch]);
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     dispatch(fetchMessages());
+  //   }
+  // }, [isOpen, dispatch]);
 
   return (
     <div 

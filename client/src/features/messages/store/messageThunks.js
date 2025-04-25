@@ -97,11 +97,10 @@ export const markMessageAsRead = createAsyncThunk(
     try {
       const response = await messageService.markMessageAsRead(messageId);
       // Return the response which may include mockData flag
-      return { messageId, ...response };
+      return { messageId, ...response }; // Ensure success flag from service is passed
     } catch (error) {
-      console.warn('Failed to mark message as read in thunk:', error.message);
-      // Still update the UI even if the server call fails
-      return { messageId, success: true, clientFallback: true };
+      // Use rejectWithValue for consistent error handling
+      return rejectWithValue(error.message || MARK_AS_READ_ERROR);
     }
   }
 );

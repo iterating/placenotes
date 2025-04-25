@@ -108,7 +108,11 @@ const MessageItem = ({
         // If parent component passed an onDelete handler, use it for backward compatibility
         onDelete(e, message._id);
       } else {
-        dispatch(hideMessage(message._id));
+        dispatch(hideMessage(message._id)).unwrap()
+          .catch(error => {
+            console.error('Failed to hide message:', error);
+            // Optionally show error to user
+          });
       }
     }
   };
