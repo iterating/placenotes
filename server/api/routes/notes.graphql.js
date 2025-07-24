@@ -1,5 +1,5 @@
 import { createHandler } from 'graphql-http/lib/use/http';
-import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 
 const QueryType = new GraphQLObjectType({
     name: 'Query',

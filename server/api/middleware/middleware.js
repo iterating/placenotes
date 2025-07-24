@@ -2,8 +2,6 @@
 import passport from "./passport.js"
 import express from "express"
 import session from "express-session"
-import { createHandler } from 'graphql-http/lib/use/http';
-// import flash from "connect-flash"
 import cors from "cors"
 
 

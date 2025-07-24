@@ -8,7 +8,7 @@ const PendingRequests = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get('/api/friends/pending');
+      const response = await apiClient.get('/friends/pending');
       setRequests(response.data);
     } catch (err) {
       setError('Error fetching friend requests');
@@ -17,7 +17,7 @@ const PendingRequests = () => {
 
   const handleResponse = async (requestId, action) => {
     try {
-      await axios.post('/api/friends/respond', { requestId, action });
+      await apiClient.post('/friends/respond', { requestId, action });
       // Remove the request from the list
       setRequests(requests.filter(req => req._id !== requestId));
     } catch (err) {

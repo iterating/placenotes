@@ -96,7 +96,7 @@ const Settings = ({ user }) => {
         </div>
         <button type="submit" className="btn btn-primary">Add Friend</button>
       </form>
-      <form action="/users/account/delete" method="post" className="mt-lg">
+      <form action="/api/users/account/delete" method="post" className="mt-lg">
         <button type="submit" className="btn btn-danger">Delete Account</button>
       </form>
     </div>

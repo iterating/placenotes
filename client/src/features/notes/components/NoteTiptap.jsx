@@ -5,7 +5,7 @@ import Image from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import { Markdown } from 'tiptap-markdown'
+
 import React, { useEffect } from 'react'
 import './NoteTiptap.css'
 
@@ -191,17 +191,11 @@ const NoteTiptap = ({ content = '', onUpdate, editable = true }) => {
       TaskItem.configure({
         nested: true,
       }),
-      Markdown.configure({
-        html: false,
-        transformCopiedText: true,
-        transformPastedText: true,
-        breaks: true,
-      }),
     ],
     content: content,
     editable,
     onUpdate: ({ editor }) => {
-      const content = editor.storage.markdown.getMarkdown();
+      const content = editor.getHTML();
       onUpdate(content);
     },
     editorProps: {
@@ -212,16 +206,8 @@ const NoteTiptap = ({ content = '', onUpdate, editable = true }) => {
   })
 
   useEffect(() => {
-    if (editor && content !== editor.storage.markdown.getMarkdown()) {
-      // Try to parse content as markdown first
-      try {
-        editor.commands.setContent(content, {
-          parseOptions: { preserveWhitespace: 'full' }
-        });
-      } catch (e) {
-        // If parsing as markdown fails, set as plain text
-        editor.commands.setContent(content);
-      }
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
     }
   }, [content, editor])
 

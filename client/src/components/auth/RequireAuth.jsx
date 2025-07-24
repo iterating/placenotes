@@ -8,7 +8,7 @@ const RequireAuth = ({ children }) => {
 
   if (!isAuthenticated) {
     // Redirect to login but save the attempted URL
-    return <Navigate to="/users/login" state={{ from: location }} replace />;
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
   return children;

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import "./NoteEdit.css";
-import NoteForm from "./NoteForm";
-import { createNote, updateNote, deleteNote } from "../store/noteThunks";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import NoteForm from './NoteForm';
+import { createNote, updateNote, deleteNote } from '../store/noteThunks';
+import { selectAllNotes } from '../store/noteSelectors';
 
 const NoteEdit = () => {
   const { id } = useParams();
@@ -11,7 +11,8 @@ const NoteEdit = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const user = useSelector(state => state.auth.user);
-  const existingNote = useSelector(state => id ? state.notes.notes.find(note => note._id === id) : null);
+  const allNotes = useSelector(selectAllNotes);
+  const existingNote = id ? allNotes.find(note => note._id === id) : null;
   
   const [note, setNote] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

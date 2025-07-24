@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 
-const API_URL = '/api/users';
+const API_URL = '/users';
 
 export const searchUsers = async (email) => {
   try {

@@ -1,9 +1,7 @@
 import dotenv from "dotenv"
 import express from "express"
-import path from "path"
 import { fileURLToPath } from "url"
 import { dirname } from "path"
-import middleware from "./api/middleware/middleware.js"
 import users from "./api/routes/users.routes.js"
 import notes from "./api/routes/notes.routes.js"
 import messages from "./api/routes/messages.routes.js"
@@ -11,12 +9,11 @@ import friends from "./api/routes/friends.routes.js"
 import auth from "./api/routes/auth.routes.js"
 import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
 import cors from 'cors'
-import { ApolloServer } from '@apollo/server'
-import { expressMiddleware } from '@apollo/server/express4'
+import { ApolloServer } from '@apollo/server' 
+import { expressMiddleware } from '@as-integrations/express5'
 import { typeDefs } from './graphql/schema.js'
 import { resolvers } from './graphql/resolvers.js'
-import session from 'express-session'
-import passport from 'passport'
+
 dotenv.config()
 const app = express()
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -57,26 +54,36 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization']
 }
 
-// Apply middleware
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Configure session middleware
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}))
+// Initialize database connection
+let dbInitialized = false;
+let apolloServer = null;
 
-// Initialize Passport
-app.use(passport.initialize())
-app.use(passport.session())
+const initializeServer = async () => {
+  if (!dbInitialized) {
+    await connectWithRetry();
+    dbInitialized = true;
+  }
+  
+  if (!apolloServer) {
+    apolloServer = new ApolloServer({
+      typeDefs,
+      resolvers,
+    });
+    await apolloServer.start();
+    
+    app.use(
+      '/graphql',
+      cors(corsOptions),
+      expressMiddleware(apolloServer, {
+        context: async ({ req }) => ({ req })
+      })
+    );
+  }
+};
 
 // Mount API routes
 app.use('/api/users', users)
@@ -85,15 +92,6 @@ app.use('/api/messages', messages)
 app.use('/api/friends', friends)
 app.use('/api/auth', auth)
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')))
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'))
-  })
-}
-
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -102,7 +100,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 
     status: "healthy",
@@ -112,7 +109,6 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Root API route
 app.get("/api", (req, res) => {
   res.json({ 
     message: 'Welcome to Placenotes API',
@@ -120,46 +116,20 @@ app.get("/api", (req, res) => {
   });
 });
 
-// 404 handler for API routes
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ 
-    message: 'API endpoint not found',
-    requestedUrl: req.url
-  });
+app.use('/api', (req, res, next) => {
+  // Only handle unmatched API routes
+  if (req.originalUrl.startsWith('/api/')) {
+    res.status(404).json({ 
+      message: 'API endpoint not found',
+      requestedUrl: req.url
+    });
+  } else {
+    next();
+  }
 });
 
-// Start Apollo Server and Express
-const startServer = async () => {
-  try {
-    await connectWithRetry()
-    
-    // Create Apollo Server
-    const apolloServer = new ApolloServer({
-      typeDefs,
-      resolvers,
-    });
-    
-    await apolloServer.start();
-
-    // Apply middleware after Apollo Server is started
-    app.use(
-      '/graphql',
-      cors(corsOptions),
-      expressMiddleware(apolloServer, {
-        context: async ({ req }) => ({ req })
-      })
-    );
-
-    const port = process.env.PORT || 5000
-    app.listen(port, () => {
-      console.log(`Server is running on port: ${port}`)
-      console.log(`GraphQL endpoint: http://localhost:${port}/graphql`)
-    })
-  } catch (error) {
-    console.error("Failed to start server:", error)
-    process.exit(1)
-  }
+// Vercel serverless function handler
+export default async function handler(req, res) {
+  await initializeServer();
+  return app(req, res);
 }
-
-// Start the server
-startServer();

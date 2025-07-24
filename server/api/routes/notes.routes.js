@@ -30,32 +30,30 @@ router.get("/test-nearby", (req, res) => {
 // Protect all routes
 router.use(setUser);
 
-// Note management routes
+// Note management routes (specific paths first)
 router.get("/all", allNotes);
 router.get("/", getNotes);
 router.get("/new", newNoteForm);
 router.post("/new", newNote);
-router.get("/edit/:id", editNote);
-// CRUD by ID (GET must come after specific paths like /new, /search, /recent etc.)
-router.get("/:id", getNoteById);
-router.put("/:id", updateNote); // Existing
-router.delete("/:id", deleteNote); // Existing
+router.get("/recent", recentNotes);
+router.get("/oldest", oldestNotes);
+router.get("/search", searchNotes);
+router.get("/nearby", getNotesByLocation);
+router.get("/current-location", getNotesByCurrentLocation);
 
-// Time-based routes
+router.get("/:id", getNoteById);
+router.put("/:id", updateNote);
+router.delete("/:id", deleteNote);
+
+// Time-based routes (must come after /:id)
 router.get("/time/:time", getNoteByTime);
 router.put("/time/:time", updateNoteByTime);
 router.delete("/time/:time", deleteNoteByTime);
 
-// Recent and oldest notes
-router.get("/recent", recentNotes);
-router.get("/oldest", oldestNotes);
-
-// Location-based routes
-router.get("/nearby", getNotesByLocation);
+// Location-based routes with parameters (must come after /:id)
 router.get("/location/:lat/:lon", getNotesByLocation);
-router.get("/current-location", getNotesByCurrentLocation);
 
-// Search route
-router.get("/search", searchNotes);
+// Edit form route (must come after /:id)
+router.get("/edit/:id", editNote);
 
 export default router;

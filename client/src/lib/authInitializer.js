@@ -21,7 +21,7 @@ export const initializeAuth = async (store) => {
     store.dispatch(setToken(token));
     
     // Fetch user data
-    const response = await fetch(`${SERVER}/users/me`, {
+    const response = await fetch(`${SERVER}/users/account`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
