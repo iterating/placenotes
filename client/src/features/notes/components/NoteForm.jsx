@@ -6,13 +6,13 @@ import "./Notes.css";
 import "./NoteForm.css";
 
 const NoteForm = ({ 
-  note: initialNote, 
+  note, 
+  onNoteChange,
   onSubmit, 
   onDelete,
   isSubmitting 
 }) => {
   const navigate = useNavigate();
-  const [note, setNote] = useState(initialNote);
   const [error, setError] = useState(null);
 
   const handleSubmit = (event) => {
@@ -33,36 +33,21 @@ const NoteForm = ({
       return;
     }
     
-    onSubmit(note);
+    onSubmit();
   };
 
-  const handleMapChange = (lng, lat) => {
+  const handleFieldChange = (fieldName, value) => {
+    onNoteChange({ ...note, [fieldName]: value });
+  };
+
+  const handleLocationChange = (lng, lat) => {
     if (typeof lng === 'number' && typeof lat === 'number' && !isNaN(lng) && !isNaN(lat)) {
-      setNote(prev => ({
-        ...prev,
-        location: {
-          type: "Point",
-          coordinates: [lng, lat]
-        }
-      }));
+      handleFieldChange('location', { type: 'Point', coordinates: [lng, lat] });
       setError(null);
     }
   };
 
-  const handleRadiusChange = (radius) => {
-    setNote(prev => ({
-      ...prev,
-      radius: radius
-    }));
-  };
 
-  const handleContentChange = (newContent) => {
-    setNote(prev => ({
-      ...prev,
-      body: newContent
-    }));
-    setError(null);
-  };
 
   return (
     <>
@@ -71,14 +56,14 @@ const NoteForm = ({
         <div className="editor-container">
           <NoteCodemirror
             content={note?.body || ""}
-            onUpdate={handleContentChange}
+            onUpdate={(body) => handleFieldChange('body', body)}
           />
         </div>
         <div className="note-form-map">
           <Mapmark
             location={note?.location}
-            onLocationChange={handleMapChange}
-            onRadiusChange={handleRadiusChange}
+            onLocationChange={handleLocationChange}
+            onRadiusChange={(radius) => handleFieldChange('radius', radius)}
             radius={note?.radius}
           />
         </div>
@@ -94,7 +79,7 @@ const NoteForm = ({
               max="5000"
               step="50"
               value={note?.radius || 100}
-              onChange={(e) => handleRadiusChange(Number(e.target.value))}
+              onChange={(e) => handleFieldChange('radius', Number(e.target.value))}
               className="radius-slider"
             />
             <span className="radius-value">{note?.radius || 100}m</span>
@@ -113,12 +98,12 @@ const NoteForm = ({
               disabled={isSubmitting} 
               className="btn btn-primary"
             >
-              {isSubmitting ? "Saving..." : (initialNote?._id ? "Save Changes" : "Create Note")}
+              {isSubmitting ? "Saving..." : (note?._id ? "Save Changes" : "Create Note")}
             </button>
           </div>
         </div>
       </form>
-      {initialNote?._id && (
+      {note?._id && (
         <div className="delete-container">
           <button 
             onClick={onDelete} 

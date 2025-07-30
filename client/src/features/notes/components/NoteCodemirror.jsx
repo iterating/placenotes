@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { EditorView, basicSetup } from 'codemirror';
+import { basicSetup } from 'codemirror';
 import { markdown } from '@codemirror/lang-markdown';
-import { oneDark } from '@codemirror/theme-one-dark';
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { EditorState } from '@codemirror/state';
-import { placeholder } from '@codemirror/view';
+import { EditorView, keymap, placeholder } from '@codemirror/view';
 import './NoteCodemirror.css';
 
 const NoteCodemirror = ({ content = '', onUpdate, editable = true }) => {
@@ -14,7 +14,10 @@ const NoteCodemirror = ({ content = '', onUpdate, editable = true }) => {
     if (!editorRef.current) return;
 
     const extensions = [
+      history(),
+      keymap.of([historyKeymap, defaultKeymap, indentWithTab]),
       basicSetup,
+      EditorView.lineWrapping,
       markdown(),
       placeholder('Write something...'),
       EditorView.updateListener.of((update) => {

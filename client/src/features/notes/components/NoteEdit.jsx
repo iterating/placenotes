@@ -55,36 +55,19 @@ const NoteEdit = () => {
     setIsLoading(false);
   }, [isAuthenticated, user, isEditMode, existingNote, navigate]);
 
-  const handleSubmit = async (updatedNote) => {
+  const handleNoteChange = (newNote) => {
+    setNote(newNote);
+  };
+
+  const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
       setError(null);
 
       if (isEditMode) {
-        await dispatch(updateNote({
-          id: id,
-          noteData: {
-            ...updatedNote,
-            location: updatedNote.location || {
-              type: "Point",
-              coordinates: [-118.243683, 34.052235] // Default to LA coordinates if missing
-            },
-            radius: updatedNote.radius || 1000,
-            email: user.email,
-            userId: user._id
-          }
-        }));
+        await dispatch(updateNote({ id: id, noteData: note }));
       } else {
-        await dispatch(createNote({
-          ...updatedNote,
-          location: updatedNote.location || {
-            type: "Point",
-            coordinates: [-118.243683, 34.052235]
-          },
-          radius: updatedNote.radius || 1000,
-          email: user.email,
-          userId: user._id
-        }));
+        await dispatch(createNote(note));
       }
 
       navigate('/notes');
@@ -154,7 +137,9 @@ const NoteEdit = () => {
 
         <NoteForm
           note={note}
+          onNoteChange={handleNoteChange}
           onSubmit={handleSubmit}
+          onDelete={handleDelete}
           isSubmitting={isSubmitting}
         />
       </div>

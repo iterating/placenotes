@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@apollo/client':
-    specifier: ^3.13.8
+    specifier: ^3.13.9
     version: 3.13.9(@types/react@18.3.23)(graphql@16.11.0)(react-dom@18.3.1)(react@18.3.1)
   '@apollo/server':
     specifier: ^5.0.0
@@ -14,9 +14,12 @@ dependencies:
   '@as-integrations/express5':
     specifier: ^1.1.2
     version: 1.1.2(@apollo/server@5.0.0)(express@5.1.0)
+  '@codemirror/commands':
+    specifier: ^6.8.1
+    version: 6.8.1
   '@codemirror/lang-markdown':
-    specifier: ^6.3.3
-    version: 6.3.3
+    specifier: ^6.3.4
+    version: 6.3.4
   '@codemirror/state':
     specifier: ^6.5.2
     version: 6.5.2
@@ -72,11 +75,11 @@ dependencies:
     specifier: ^1.0.4
     version: 1.0.4
   marked:
-    specifier: ^16.1.1
-    version: 16.1.1
+    specifier: ^16.1.2
+    version: 16.1.2
   mongoose:
-    specifier: ^8.16.4
-    version: 8.16.5
+    specifier: ^8.17.0
+    version: 8.17.0
   passport:
     specifier: ^0.7.0
     version: 0.7.0
@@ -119,7 +122,7 @@ devDependencies:
     specifier: ^9.2.0
     version: 9.2.0
   eslint:
-    specifier: ^9.31.0
+    specifier: ^9.32.0
     version: 9.32.0
   eslint-plugin-react:
     specifier: ^7.37.5
@@ -602,8 +605,8 @@ packages:
       '@lezer/javascript': 1.5.1
     dev: false
 
-  /@codemirror/lang-markdown@6.3.3:
-    resolution: {integrity: sha512-1fn1hQAPWlSSMCvnF810AkhWpNLkJpl66CRfIy3vVl20Sl4NwChkorCHqpMtNbXr1EuMJsrDnhEpjZxKZ2UX3A==}
+  /@codemirror/lang-markdown@6.3.4:
+    resolution: {integrity: sha512-fBm0BO03azXnTAsxhONDYHi/qWSI+uSEIpzKM7h/bkIc9fHnFp9y7KTMXKON0teNT97pFhc1a9DQTtWBYEZ7ug==}
     dependencies:
       '@codemirror/autocomplete': 6.18.6
       '@codemirror/lang-html': 6.4.9
@@ -1380,7 +1383,7 @@ packages:
       '@babel/types': 7.28.2
       '@types/babel__generator': 7.27.0
       '@types/babel__template': 7.4.4
-      '@types/babel__traverse': 7.20.7
+      '@types/babel__traverse': 7.28.0
     dev: true
 
   /@types/babel__generator@7.27.0:
@@ -1396,8 +1399,8 @@ packages:
       '@babel/types': 7.28.2
     dev: true
 
-  /@types/babel__traverse@7.20.7:
-    resolution: {integrity: sha512-dkO5fhS7+/oos4ciWxyEyjWe48zmG6wbCheo/G2ZnHx4fs3EU6YC6UM8rk56gAjNJ9P3MTH2jo5jb92/K6wbng==}
+  /@types/babel__traverse@7.28.0:
+    resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
     dependencies:
       '@babel/types': 7.28.2
     dev: true
@@ -1667,7 +1670,7 @@ packages:
   /axios@1.11.0:
     resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
     dependencies:
-      follow-redirects: 1.15.9
+      follow-redirects: 1.15.11
       form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -1729,7 +1732,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001731
-      electron-to-chromium: 1.5.192
+      electron-to-chromium: 1.5.197
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.1)
     dev: true
@@ -2042,8 +2045,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /electron-to-chromium@1.5.192:
-    resolution: {integrity: sha512-rP8Ez0w7UNw/9j5eSXCe10o1g/8B1P5SM90PCCMVkIRQn2R0LEHWz4Eh9RnxkniuDe1W0cTSOB3MLlkTGDcuCg==}
+  /electron-to-chromium@1.5.197:
+    resolution: {integrity: sha512-m1xWB3g7vJ6asIFz+2pBUbq3uGmfmln1M9SSvBe4QIFWYrRHylP73zL/3nMjDmwz8V+1xAXQDfBd6+HPW0WvDQ==}
     dev: true
 
   /emoji-regex@8.0.0:
@@ -2495,8 +2498,8 @@ packages:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
     dev: true
 
-  /follow-redirects@1.15.9:
-    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
+  /follow-redirects@1.15.11:
+    resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -3156,8 +3159,8 @@ packages:
       yallist: 3.1.1
     dev: true
 
-  /marked@16.1.1:
-    resolution: {integrity: sha512-ij/2lXfCRT71L6u0M29tJPhP0bM5shLL3u5BePhFwPELj2blMJ6GDtD7PfJhRLhJ/c2UwrK17ySVcDzy2YHjHQ==}
+  /marked@16.1.2:
+    resolution: {integrity: sha512-rNQt5EvRinalby7zJZu/mB+BvaAY2oz3wCuCjt1RDrWNpS1Pdf9xqMOeC9Hm5adBdcV/3XZPJpG58eT+WBc0XQ==}
     engines: {node: '>= 20'}
     hasBin: true
     dev: false
@@ -3217,8 +3220,8 @@ packages:
       whatwg-url: 14.2.0
     dev: false
 
-  /mongodb@6.17.0:
-    resolution: {integrity: sha512-neerUzg/8U26cgruLysKEjJvoNSXhyID3RvzvdcpsIi2COYM3FS3o9nlH7fxFtefTb942dX3W9i37oPfCVj4wA==}
+  /mongodb@6.18.0:
+    resolution: {integrity: sha512-fO5ttN9VC8P0F5fqtQmclAkgXZxbIkYRTUi1j8JO6IYwvamkhtYDilJr35jOPELR49zqCJgXZWwCtW7B+TM8vQ==}
     engines: {node: '>=16.20.1'}
     peerDependencies:
       '@aws-sdk/credential-providers': ^3.188.0
@@ -3249,13 +3252,13 @@ packages:
       mongodb-connection-string-url: 3.0.2
     dev: false
 
-  /mongoose@8.16.5:
-    resolution: {integrity: sha512-Ey84Jf1c426FEMj16+j/VqFKupFN2Ey5uAy6TTAN9HlFP4OcunL7j9O7vTuwAipzlZdjctxP0OK9MRJ4Aa/jNg==}
+  /mongoose@8.17.0:
+    resolution: {integrity: sha512-mxW6TBPHViORfNYOFXCVOnT4d5aRr+CgDxTs1ViYXfuHzNpkelgJQrQa+Lz6hofoEQISnKlXv1L3ZnHyJRkhfA==}
     engines: {node: '>=16.20.1'}
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
-      mongodb: 6.17.0
+      mongodb: 6.18.0
       mpath: 0.9.0
       mquery: 5.0.0
       ms: 2.1.3
