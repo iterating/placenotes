@@ -1,0 +1,95 @@
+.codemirror-editor {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.editor-toolbar {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+}
+
+.toolbar-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-mode {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.editor-container {
+  flex: 1;
+  min-height: 200px;
+}
+
+/* Override CodeMirror defaults for better integration */
+.codemirror-editor .cm-editor {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.codemirror-editor .cm-editor.cm-focused {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.codemirror-editor .cm-content {
+  padding: 16px !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Markdown-specific styling */
+.codemirror-editor .cm-content .cm-header {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.codemirror-editor .cm-content .cm-strong {
+  font-weight: 600;
+}
+
+.codemirror-editor .cm-content .cm-emphasis {
+  font-style: italic;
+}
+
+.codemirror-editor .cm-content .cm-strikethrough {
+  text-decoration: line-through;
+}
+
+.codemirror-editor .cm-content .cm-link {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.codemirror-editor .cm-content .cm-monospace {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  background: #f1f5f9;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Placeholder styling */
+.codemirror-editor .cm-placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Focus states */
+.codemirror-editor:focus-within {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+}

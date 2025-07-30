@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoteTiptap from "./NoteTiptap";
+import NoteCodemirror from "./NoteCodemirror";
 import Mapmark from "./Mapmark";
 import "./Notes.css";
 import "./NoteForm.css";
@@ -69,7 +69,7 @@ const NoteForm = ({
       <form onSubmit={handleSubmit} className="note-form">
         {error && <div className="error-message">{error}</div>}
         <div className="editor-container">
-          <NoteTiptap
+          <NoteCodemirror
             content={note?.body || ""}
             onUpdate={handleContentChange}
           />
