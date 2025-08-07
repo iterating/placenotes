@@ -22,6 +22,53 @@
   gap: 8px;
 }
 
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.toolbar-button:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.toolbar-button:active {
+  background: #cbd5e1;
+  transform: scale(0.95);
+}
+
+.toolbar-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.toolbar-button svg {
+  display: block;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #e2e8f0;
+  margin: 0 4px;
+}
+
 .editor-mode {
   font-size: 12px;
   color: #64748b;

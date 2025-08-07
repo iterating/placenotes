@@ -1,5 +1,3 @@
-// d:\studio\atelier\placenotes\server\services\getUserById.get.js
-
 import mongoose from "mongoose";
 import User from "../models/User.js";
 
@@ -17,17 +15,13 @@ export const getUserById = async (id) => {
 
     const user = await User.findById(id).exec();
     if (!user) {
-      // It might be better to return null or undefined instead of throwing an error
-      // Depending on how this function is used upstream.
-      // Throwing for now to match original behavior.
+
       throw new Error('User not found');
     }
 
     return user;
   } catch (error) {
-    // Log the specific error for debugging
     console.error(`Error in getUserById for ID ${id}:`, error);
-    // Re-throw the error to be handled by the caller
     throw error;
   }
 };
