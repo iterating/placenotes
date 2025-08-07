@@ -7,8 +7,8 @@ import {
   accountSet,
   searchUsers,
   sendFriendRequest,
-  getUserByName, // Assuming this controller exists or will be created
-  getUserByEmail // Assuming this controller exists or will be created
+  getUserByName,
+  getUserByEmail
 } from "../../controllers/users.controllers.js";
 
 const router = express.Router();
@@ -19,6 +19,8 @@ router.use(setUser);
 // User management routes
 router.get("/all", allUsers); // Keep the one from userRoutes.js? Check controller logic.
 router.post("/account/set", accountSet);
+router.post("/account", accountSet);
+
 
 // User search and friend request routes
 router.get("/search", searchUsers); // Uses controller, preferred over direct service call

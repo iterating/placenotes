@@ -40,7 +40,7 @@ const Notes = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/users/login")
+      navigate("/auth/login")
       return
     }
 
