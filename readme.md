@@ -70,9 +70,9 @@ These benefits make GraphQL an ideal choice for Placenotes' complex, interconnec
 
 The Placenotes server is a RESTful API build on Express that supports the following actions:
 
-- POST users/login or users/signup
+- POST auth/login or users/signup
   - Directs user to login form
-- POST users/login or users/signup
+- POST auth/login or users/signup
 
   - Creates a new user
 

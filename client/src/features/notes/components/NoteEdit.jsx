@@ -23,7 +23,7 @@ const NoteEdit = () => {
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      navigate('/users/login');
+      navigate('/auth/login');
       return;
     }
 

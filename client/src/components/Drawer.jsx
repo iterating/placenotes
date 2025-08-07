@@ -26,7 +26,7 @@ const Drawer = ({ isOpen, onClose }) => {
   const handleLogout = () => {
     dispatch(logout());
     dispatch(clearNotes());
-    navigate('/users/login');
+    navigate('/auth/login');
     onClose();
   };
 
