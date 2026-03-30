@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { deleteNote } from "../store/noteThunks";
 import { marked } from "marked";
+import { sanitizeHTML } from "../../../lib/sanitizer";
 import "./NoteCard.css";
 import "./ToggleBar.css";
 
@@ -94,11 +95,13 @@ const NoteCard = ({ note, markers }) => {
         <div
           className="note-body prose"
           dangerouslySetInnerHTML={{
-            __html: marked(
-              // Clean and sanitize the note text to prevent unwanted elements
-              (showFullNote ? note.body : note.body.split("\n")[0])
-                .replace(/\n\s*\n/g, '\n') // Replace double line breaks with single
-                .replace(/\/\s*$/g, '') // Remove trailing slashes
+            __html: sanitizeHTML(
+              marked(
+                // Clean and sanitize the note text to prevent unwanted elements
+                (showFullNote ? note.body : note.body.split("\n")[0])
+                  .replace(/\n\s*\n/g, '\n') // Replace double line breaks with single
+                  .replace(/\/\s*$/g, '') // Remove trailing slashes
+              )
             ),
           }}
         />

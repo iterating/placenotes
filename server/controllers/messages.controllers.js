@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Message from '../models/Message.js';
 import User from '../models/User.js';
+import { sanitizeHTML } from '../utils/sanitizer.js';
 
 // Cache messages for 5 minutes
 const messageCache = new Map();
@@ -123,6 +124,9 @@ export const createMessage = async (req, res) => {
       return res.status(400).json({ message: 'Missing required message fields: content, location, radius, recipientId' });
     }
 
+    // Sanitize message content to prevent XSS attacks
+    const sanitizedContent = sanitizeHTML(content);
+
     // Validate location format (simple check)
     if (!location.type || location.type !== 'Point' || !Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
         return res.status(400).json({ message: 'Invalid location format. Expected { type: "Point", coordinates: [longitude, latitude] }' });
@@ -149,7 +153,7 @@ export const createMessage = async (req, res) => {
     const newMessage = new Message({
       senderId,
       recipientId,
-      content,
+      content: sanitizedContent,
       location,
       radius,
       parentMessage: parentMessageId || null, // Store parent ID if exists

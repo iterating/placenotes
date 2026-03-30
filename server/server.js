@@ -13,6 +13,7 @@ import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@as-integrations/express5'
 import { typeDefs } from './graphql/schema.js'
 import { resolvers } from './graphql/resolvers.js'
+import mongoSanitize from 'express-mongo-sanitize'
 
 dotenv.config()
 const app = express()
@@ -57,6 +58,14 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Sanitize user input to prevent NoSQL injection
+app.use(mongoSanitize({
+  replaceWith: '_',
+  onSanitize: ({ req, key }) => {
+    console.warn(`[Security] Sanitized potentially malicious key: ${key}`);
+  }
+}))
 
 // Initialize database connection
 let dbInitialized = false;

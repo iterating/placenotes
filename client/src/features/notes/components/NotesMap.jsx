@@ -12,6 +12,7 @@ import { toggleNotesPanel } from "../store/noteSlice.js"
 import MessageList from "../../messages/components/MessageList"
 import { selectAllMessages } from "../../messages/store/messageSlice"
 import { getCurrentLocationFromStorage, fromGeoJSONPoint } from "../../../lib/GeoUtils"
+import { sanitizeHTML } from "../../../lib/sanitizer"
 
 // Set up default icon
 let DefaultIcon = L.icon({
@@ -212,10 +213,12 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
             const marker = L.marker([lat, lng])
               .addTo(map)
               .bindPopup(
-                `<div class="popup-content" data-note-id="${note._id}">
-                  <div class="popup-body">${note.body ? note.body.split("\n")[0] : 'No content'}</div>
-                  <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
-                </div>`
+                sanitizeHTML(
+                  `<div class="popup-content" data-note-id="${note._id}">
+                    <div class="popup-body">${note.body ? note.body.split("\n")[0] : 'No content'}</div>
+                    <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
+                  </div>`
+                )
               )
 
             marker.on("mouseover", () => {
@@ -324,9 +327,11 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
           const marker = L.marker([lat, lng], { icon: GreenMessageIcon })
             .addTo(map)
             .bindPopup(
-              `<div class="popup-content" data-message-id="${message._id}">
-                <div class="popup-body">${message.content || 'No content'}</div>
-              </div>`
+              sanitizeHTML(
+                `<div class="popup-content" data-message-id="${message._id}">
+                  <div class="popup-body">${message.content || 'No content'}</div>
+                </div>`
+              )
             )
 
           // Create circle but don't display it (radius is hidden)

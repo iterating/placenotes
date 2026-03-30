@@ -1,5 +1,6 @@
 import { marked } from "marked"
 import * as NotesService from "../services/notes.service.js"
+import { sanitizeHTML } from "../utils/sanitizer.js"
 
 // notes
 export const getNoteById = async (req, res) => {
@@ -77,9 +78,12 @@ export const newNote = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Create the note with markdown content
+    // Sanitize the note body to prevent XSS attacks
+    const sanitizedBody = sanitizeHTML(body.trim());
+
+    // Create the note with sanitized content
     const note = await NotesService.newNote({
-      body: body.trim(), // Store as markdown
+      body: sanitizedBody,
       location,
       radius,
       userId,
@@ -115,9 +119,12 @@ export const updateNote = async (req, res) => {
       });
     }
 
+    // Sanitize the note body to prevent XSS attacks
+    const sanitizedBody = sanitizeHTML(req.body.body.trim());
+
     const note = await NotesService.updateNote({
       _id: req.params.id,
-      body: req.body.body.trim(),
+      body: sanitizedBody,
       location: {
         type: "Point",
         coordinates: coordinates.map(coord => Number(coord))

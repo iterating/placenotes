@@ -189,6 +189,27 @@ export const refreshToken = async (req, res) => {
       throw new Error('Invalid token payload')
     }
     
+    // Security: Check token expiration and issued time
+    const now = Math.floor(Date.now() / 1000)
+    const maxRefreshWindow = 7 * 24 * 60 * 60 // 7 days in seconds
+    const maxTokenAge = 30 * 24 * 60 * 60 // 30 days in seconds
+    
+    // Check if token expired more than 7 days ago
+    if (decoded.exp && (now - decoded.exp) > maxRefreshWindow) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token expired too long ago. Please login again.'
+      })
+    }
+    
+    // Check if token was issued more than 30 days ago
+    if (decoded.iat && (now - decoded.iat) > maxTokenAge) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token too old. Please login again.'
+      })
+    }
+    
     // Generate a new token
     const newToken = generateToken({
       _id: decoded._id,
