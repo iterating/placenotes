@@ -1,13 +1,8 @@
-import axios from 'axios';
 import { SERVER } from '../app/config';
 import store from '../store/store';
 import { logout, setToken } from '../store/authSlice';
 import { validateToken } from '../lib/tokenManager';
 import { showToast } from '../components/ToastManager';
-
-const apiClient = axios.create({
-  baseURL: SERVER,
-});
 
 // Clear all pending requests on logout
 let pendingRequests = [];
@@ -25,84 +20,78 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Add a request interceptor to add the token to all requests
-apiClient.interceptors.request.use(
-  (config) => {
-    // First try to get token from Redux store
-    let token = store.getState().auth.token;
+// Create fetch wrapper with request interceptor logic
+const createFetchConfig = (url, options = {}) => {
+  // First try to get token from Redux store
+  let token = store.getState().auth.token;
+  
+  // If no token in store, try localStorage as fallback
+  if (!token) {
+    token = localStorage.getItem('token');
     
-    // If no token in store, try localStorage as fallback
-    if (!token) {
-      token = localStorage.getItem('token');
-      
-      // If found in localStorage but not in store, update the store
-      if (token) {
-        store.dispatch(setToken(token));
-      }
-    }
-    
-    // Add token to request headers if available
+    // If found in localStorage but not in store, update the store
     if (token) {
-      // Validate token before using it
-      if (validateToken(token)) {
-        config.headers.Authorization = `Bearer ${token}`;
-      } else {
-        // Token is invalid or expired, clear it
-        localStorage.removeItem('token');
-        store.dispatch(setToken(null));
-        console.warn('Invalid token detected and removed');
-      }
+      store.dispatch(setToken(token));
     }
-
-    // Add request to pending list
-    const source = axios.CancelToken.source();
-    config.cancelToken = source.token;
-    pendingRequests.push(source);
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
   }
-);
-
-// Add a response interceptor to handle errors
-apiClient.interceptors.response.use(
-  (response) => {
-    // Remove request from pending list
-    if (response.config.cancelToken) {
-      pendingRequests = pendingRequests.filter(
-        (source) => source.token !== response.config.cancelToken
-      );
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+  
+  // Add token to request headers if available
+  if (token) {
+    // Validate token before using it
+    if (validateToken(token)) {
+      headers.Authorization = `Bearer ${token}`;
+    } else {
+      // Token is invalid or expired, clear it
+      localStorage.removeItem('token');
+      store.dispatch(setToken(null));
+      console.warn('Invalid token detected and removed');
     }
-    return response;
-  },
-  async (error) => {
-    // Remove request from pending list
-    if (error.config?.cancelToken) {
-      pendingRequests = pendingRequests.filter(
-        (source) => source.token !== error.config.cancelToken
-      );
-    }
+  }
 
-    const originalRequest = error.config;
+  // Create AbortController for request cancellation
+  const controller = new AbortController();
+  pendingRequests.push(controller);
 
+  return {
+    url: `${SERVER}${url}`,
+    config: {
+      ...options,
+      headers,
+      signal: controller.signal,
+    },
+    controller,
+  };
+};
+
+// Fetch wrapper with error handling and token refresh
+const fetchWithInterceptor = async (url, options = {}) => {
+  const { url: fullUrl, config, controller } = createFetchConfig(url, options);
+  
+  try {
+    const response = await fetch(fullUrl, config);
+    
+    // Remove controller from pending list
+    pendingRequests = pendingRequests.filter(c => c !== controller);
+    
     // Check if the URL contains 'notes' to prevent logout on note editing
-    const isNoteEditRequest = originalRequest.url && (
-      originalRequest.url.includes('/notes/') || 
-      originalRequest.url.includes('/notes/new')
-    );
-
+    const isNoteEditRequest = url.includes('/notes/') || url.includes('/notes/new');
+    
     // Handle 401 errors with token refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (response.status === 401 && !options._retry) {
       if (isRefreshing) {
         try {
           // Wait for the refresh to complete
           const token = await new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           });
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return apiClient(originalRequest);
+          // Retry with new token
+          const retryHeaders = { ...config.headers, Authorization: `Bearer ${token}` };
+          return fetchWithInterceptor(url, { ...options, headers: retryHeaders });
         } catch (err) {
           // Don't automatically logout for note edit requests
           if (!isNoteEditRequest) {
@@ -119,20 +108,26 @@ apiClient.interceptors.response.use(
               duration: 10000
             });
           }
-          return Promise.reject(err);
+          throw err;
         }
       }
 
-      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const response = await apiClient.post('/auth/refresh', {}, {
+        const refreshResponse = await fetch(`${SERVER}/auth/refresh`, {
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${store.getState().auth.token}`
-          }
+          },
         });
-        const { token } = response.data;
+        
+        if (!refreshResponse.ok) {
+          throw new Error('Token refresh failed');
+        }
+        
+        const { token } = await refreshResponse.json();
         
         if (validateToken(token)) {
           store.dispatch(setToken(token));
@@ -142,8 +137,10 @@ apiClient.interceptors.response.use(
             duration: 3000
           });
           processQueue(null, token);
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return apiClient(originalRequest);
+          
+          // Retry original request with new token
+          const retryHeaders = { ...config.headers, Authorization: `Bearer ${token}` };
+          return fetchWithInterceptor(url, { ...options, headers: retryHeaders, _retry: true });
         } else {
           throw new Error('Invalid refresh token');
         }
@@ -163,36 +160,75 @@ apiClient.interceptors.response.use(
           showToast({
             message: 'Please save your changes! Your session is expiring but we\'re keeping you logged in to finish this edit.',
             type: 'warning',
-            duration: 0 // Won't auto-dismiss
+            duration: 0
           });
         }
         
-        return Promise.reject(refreshError);
+        throw refreshError;
       } finally {
         isRefreshing = false;
       }
-    } else if (error.response?.status === 403) {
+    }
+    
+    // Handle other error status codes
+    if (response.status === 403) {
       showToast({
         message: 'You don\'t have permission to perform this action',
         type: 'error',
         duration: 5000
       });
-    } else if (error.response?.status >= 500) {
+    } else if (response.status >= 500) {
       showToast({
         message: 'Server error. Please try again later.',
         type: 'error',
         duration: 5000
       });
     }
-
-    return Promise.reject(error);
+    
+    // Parse response based on content type
+    if (!response.ok) {
+      const error = new Error(`HTTP error! status: ${response.status}`);
+      error.response = {
+        status: response.status,
+        data: await response.json().catch(() => null)
+      };
+      throw error;
+    }
+    
+    const data = await response.json();
+    return { data, status: response.status, headers: response.headers };
+  } catch (error) {
+    // Remove controller from pending list
+    pendingRequests = pendingRequests.filter(c => c !== controller);
+    throw error;
   }
-);
+};
+
+// Create axios-like API client interface
+const apiClient = {
+  get: (url, config = {}) => fetchWithInterceptor(url, { ...config, method: 'GET' }),
+  post: (url, data, config = {}) => fetchWithInterceptor(url, { 
+    ...config, 
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  put: (url, data, config = {}) => fetchWithInterceptor(url, { 
+    ...config, 
+    method: 'PUT',
+    body: JSON.stringify(data)
+  }),
+  patch: (url, data, config = {}) => fetchWithInterceptor(url, { 
+    ...config, 
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  }),
+  delete: (url, config = {}) => fetchWithInterceptor(url, { ...config, method: 'DELETE' }),
+};
 
 // Function to cancel all pending requests
 export const cancelPendingRequests = () => {
-  pendingRequests.forEach((source) => {
-    source.cancel('Request cancelled due to logout');
+  pendingRequests.forEach((controller) => {
+    controller.abort();
   });
   pendingRequests = [];
 };

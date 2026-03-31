@@ -15,8 +15,10 @@ passport.use(
           console.log("Passport: Incorrect email.")
           return done(null, false, { message: "Incorrect email." })
         }
+        
+        const userDoc = user;
         console.log("User found. Checking password...")
-        if (!(await user.matchPassword(password))) {
+        if (!(await userDoc.matchPassword(password))) {
           console.log("Incorrect password.")
           return done(null, false, { message: "Incorrect password." })
         }

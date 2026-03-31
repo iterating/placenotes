@@ -19,10 +19,10 @@ export const signup = async ({ email, password, currentLocation, ...userData }) 
       return { errorMessage: errors };
     }
 
-    const newUser = new User({
+    const newUser = await User.model.create({
       _id: new mongoose.Types.ObjectId(),
       email,
-      password,
+      password: await User.encryptPassword(password),
       currentLocation: {
         type: 'Point',
         coordinates: currentLocation?.coordinates || [-118.243683, 34.052235]
@@ -30,9 +30,7 @@ export const signup = async ({ email, password, currentLocation, ...userData }) 
       ...userData,
     });
 
-    newUser.password = await newUser.encryptPassword(password);
-    const savedUser = await newUser.save();
-    return savedUser;
+    return newUser;
   } catch (error) {
     console.error('Error in signup:', error);
     throw error;

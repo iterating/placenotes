@@ -55,8 +55,7 @@ export const signup = async (req, res) => {
         errors: result.errorMessage
       })
     }
-
-    // Log the user in after successful signup
+        // Log the user in after successful signup
     req.login(result, (err) => {
       if (err) {
         console.error("Error logging in after signup:", err)
@@ -66,17 +65,18 @@ export const signup = async (req, res) => {
         })
       }
 
-      const token = generateToken(result)
-      return res.status(201).json({
-        success: true,
-        message: "User registered successfully",
-        user: {
-          _id: result._id,
-          email: result.email,
-          ...userData
-        },
-        token
-      })
+    const token = generateToken(result)
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        _id: result._id,
+        email: result.email,
+        ...userData
+      },
+      token
+            })
+
     })
   } catch (error) {
     console.error("Error in signup controller:", error)

@@ -7,6 +7,8 @@ import notes from "./api/routes/notes.routes.js"
 import messages from "./api/routes/messages.routes.js"
 import friends from "./api/routes/friends.routes.js"
 import auth from "./api/routes/auth.routes.js"
+import session from 'express-session'
+import passport from './api/middleware/passport.js'
 import { connectWithRetry, isConnectedToDb } from "./db/conn.js"
 import cors from 'cors'
 import { ApolloServer } from '@apollo/server' 
@@ -58,6 +60,21 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'placenotes-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}))
+
+// Passport middleware
+app.use(passport.initialize())
+app.use(passport.session())
 
 // Sanitize user input to prevent NoSQL injection
 app.use(mongoSanitize({
