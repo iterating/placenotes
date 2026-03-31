@@ -10,7 +10,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist",
-        "buildCommand": "cd client && vite build && mv dist ../dist"
+        "buildCommand": "rm -rf dist && cd client && vite build && mv dist ../dist"
       }
     }
   ],

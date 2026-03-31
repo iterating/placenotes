@@ -10,7 +10,7 @@
     "dev:server": "node server/server.js",
     "dev": "concurrently \"pnpm run dev:server\" \"pnpm run dev:client\"",
     "build": "cd client && vite build && mv dist ../dist",
-    "vercel-build": "cd client && vite build && mv dist ../dist",
+    "vercel-build": "rm -rf dist && cd client && vite build && mv dist ../dist",
     "start": "node server/server.js",
     "lint": "eslint .",
     "preview": "cd client && vite preview"

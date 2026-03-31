@@ -14,7 +14,7 @@ import Signup from './features/users/components/Signup';
 import Settings from './features/users/components/Settings';
 import Notes from './features/notes/components/Notes';
 import NoteEdit from './features/notes/components/NoteEdit';
-import SearchResults from './features/search/SearchResults';
+import NoteSearch from './features/search/NoteSearch';
 import Messages from './features/messages/components/Messages';
 import MessageCompose from './features/messages/components/MessageCompose';
 import Friends from './features/friends/Friends';
@@ -73,7 +73,7 @@ function AppContent() {
           {/* Protected routes */}
           <Route path="/search" element={
             <RequireAuth>
-              <SearchResults />
+              <NoteSearch />
             </RequireAuth>
           } />
           <Route path="/notes" element={

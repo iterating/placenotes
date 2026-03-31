@@ -6,7 +6,7 @@ import { useMessageCompose } from '../hooks/useMessageCompose';
 import RecipientSelector from './RecipientSelector';
 import './MessageStyles.css';
 
-const MessageCompose = ({ onCancel, mapCenter, parentMessageId, onSuccess }) => {
+const MessageCompose = ({ onCancel, mapCenter = null, parentMessageId, onSuccess }) => {
   const parentMessage = useSelector(parentMessageId ? state => selectMessageById(state, parentMessageId) : () => null);
 
   const [recipientId, setRecipientId] = useState('');

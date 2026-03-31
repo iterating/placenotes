@@ -6,7 +6,7 @@ import MessageThread from './MessageThread';
 import HiddenMessages from './HiddenMessages';
 import './MessageStyles.css';
 
-const MessageList = ({ isOpen, onClose, mapCenter }) => {
+const MessageList = () => {
   const {
     messages,
     hiddenMessages,
@@ -28,7 +28,7 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     viewHiddenMessages,
     closeHiddenMessages,
     retryFetch
-  } = useMessageList(isOpen, mapCenter);
+  } = useMessageList();
 
   const renderMessages = () => {
     if (loading && !refreshing && messages.length === 0) {
@@ -108,13 +108,6 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     return (
       <div className="messages-header">
         <h2 className="messages-title">{title}</h2>
-        <button
-          className="close-button"
-          onClick={onClose}
-          aria-label="Close messages"
-        >
-          <span className="icon">×</span>
-        </button>
       </div>
     );
   };
@@ -124,7 +117,6 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
       <MessageCompose
         onCancel={closeCompose}
         onSuccess={closeCompose}
-        mapCenter={mapCenter}
       />
     );
   };
@@ -150,8 +142,6 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
     </div>
   );
 
-  if (!isOpen) return null;
-
   let content;
   if (isComposing) {
     content = (
@@ -176,7 +166,6 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
             <span className="icon">←</span>
           </button>
           <h2 className="messages-title">Hidden Messages</h2>
-          <button className="close-button" onClick={onClose} aria-label="Close panel">×</button>
         </div>
         <HiddenMessages />
       </div>
@@ -206,9 +195,9 @@ const MessageList = ({ isOpen, onClose, mapCenter }) => {
   }
 
   return (
-    <div className={`drawer-base drawer-right ${isOpen ? 'open' : ''}`}>
+    <div className="messages-page">
       {renderHeader()}
-      <div className="drawer-content">
+      <div className="messages-content">
         {content}
       </div>
     </div>

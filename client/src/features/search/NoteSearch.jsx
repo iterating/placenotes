@@ -1,13 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useNoteSearch } from '../../hooks/useNoteSearch';
 import { useGeolocation } from '../../hooks/useGeolocation';
-import { Box, TextField, IconButton, Card, CardContent, Typography, CircularProgress } from '@mui/material';
-import { Search as SearchIcon, MyLocation as MyLocationIcon, Clear as ClearIcon } from '@mui/icons-material';
+import NotesList from '../notes/components/NotesList';
+import './NoteSearch.css';
 
 const NoteSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { searchNotes, clearSearch, searchResults, isSearching, error } = useNoteSearch();
   const { getCurrentPosition } = useGeolocation();
+  const markers = useRef([]);
 
   const handleSearch = useCallback(async (useLocation = false) => {
     if (!searchQuery && !useLocation) return;
@@ -37,64 +38,76 @@ const NoteSearch = () => {
   }, [clearSearch]);
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 800, mx: 'auto', p: 2 }}>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Search notes..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          InputProps={{
-            endAdornment: searchQuery && (
-              <IconButton onClick={handleClear} size="small">
-                <ClearIcon />
-              </IconButton>
-            )
-          }}
-        />
-        <IconButton onClick={() => handleSearch()} color="primary">
-          <SearchIcon />
-        </IconButton>
-        <IconButton onClick={() => handleSearch(true)} color="primary">
-          <MyLocationIcon />
-        </IconButton>
-      </Box>
+    <div className="note-search-container">
+      <div className="search-header">
+        <h2>Search Notes</h2>
+      </div>
+      
+      <div className="search-controls">
+        <div className="search-input-wrapper">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search notes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          {searchQuery && (
+            <button 
+              className="clear-button"
+              onClick={handleClear}
+              aria-label="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <button 
+          className="search-button"
+          onClick={() => handleSearch()}
+          aria-label="Search"
+        >
+          🔍 Search
+        </button>
+        <button 
+          className="location-button"
+          onClick={() => handleSearch(true)}
+          aria-label="Search by location"
+        >
+          📍 Near Me
+        </button>
+      </div>
 
       {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
+        <div className="error-message">
           {error}
-        </Typography>
+        </div>
       )}
 
       {isSearching ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Searching...</p>
+        </div>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {searchResults.map((note) => (
-            <Card key={note._id}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {note.title || 'Untitled Note'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {note.locationName}
-                </Typography>
-                <Typography variant="body1">
-                  {note.body}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Created: {new Date(note.createdAt).toLocaleString()}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
+        <div className="search-results">
+          {searchResults.length === 0 && !error ? (
+            <div className="no-results">
+              {searchQuery ? 'No notes found matching your search.' : 'Enter a search term or search by location to find notes.'}
+            </div>
+          ) : (
+            <NotesList
+              notes={searchResults}
+              handleNoteClick={() => {}}
+              handleMouseOver={() => {}}
+              handleMouseOut={() => {}}
+              markers={markers}
+            />
+          )}
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 
