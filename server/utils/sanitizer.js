@@ -1,18 +1,16 @@
-import DOMPurify from 'isomorphic-dompurify';
+// Lightweight sanitizer for serverless environments (no DOM dependencies)
+// This escapes HTML to prevent XSS attacks without requiring jsdom
 
-// Configure DOMPurify for markdown-friendly sanitization
-const sanitizeConfig = {
-  ALLOWED_TAGS: [
-    'p', 'br', 'strong', 'em', 'u', 'del', 's', 'strike',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'ul', 'ol', 'li',
-    'a', 'code', 'pre', 'blockquote',
-    'table', 'thead', 'tbody', 'tr', 'th', 'td',
-    'hr', 'img', 'span', 'div'
-  ],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'title', 'class'],
-  ALLOW_DATA_ATTR: false,
-  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+const escapeHtml = (text) => {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+    '/': '&#x2F;'
+  };
+  return String(text).replace(/[&<>"'\/]/g, (s) => map[s]);
 };
 
 /**
@@ -24,7 +22,24 @@ export const sanitizeHTML = (dirty) => {
   if (!dirty || typeof dirty !== 'string') {
     return '';
   }
-  return DOMPurify.sanitize(dirty, sanitizeConfig);
+  
+  let clean = dirty;
+  
+  // Remove script tags and their content
+  clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  
+  // Remove event handlers (onclick, onerror, etc.)
+  clean = clean.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+  clean = clean.replace(/on\w+\s*=\s*[^\s>]*/gi, '');
+  
+  // Remove javascript: protocol
+  clean = clean.replace(/javascript:/gi, '');
+  
+  // Remove data: protocol (except for images)
+  clean = clean.replace(/(<(?!img)[^>]+)\s+src\s*=\s*["']data:[^"']*["']/gi, '$1');
+  
+  // Escape the cleaned HTML to be safe
+  return escapeHtml(clean);
 };
 
 /**
@@ -36,7 +51,8 @@ export const sanitizeText = (dirty) => {
   if (!dirty || typeof dirty !== 'string') {
     return '';
   }
-  return DOMPurify.sanitize(dirty, { ALLOWED_TAGS: [] });
+  // Remove all HTML tags and escape
+  return escapeHtml(dirty.replace(/<[^>]*>/g, ''));
 };
 
 export default {
