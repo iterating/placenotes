@@ -41,14 +41,14 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
     ? [geoJSONLocation.coordinates[1], geoJSONLocation.coordinates[0]]
     : [34.052235, -118.243683];
 
-  const updateLocation = (lat, lng) => {
+  const updateLocation = (lat, lng, name = null) => {
     // Create proper GeoJSON Point object
     const geoJSONPoint = {
       type: 'Point',
       coordinates: [lng, lat] // GeoJSON uses [longitude, latitude] order
     };
     
-    onLocationChange(geoJSONPoint);
+    onLocationChange(geoJSONPoint, name);
     
     if (markerRef.current && circleRef.current) {
       markerRef.current.setLatLng([lat, lng]);
@@ -74,7 +74,8 @@ const Mapmark = ({ location, onLocationChange, onRadiusChange, radius = 100 }) =
       })
         .on("markgeocode", (e) => {
           const latlng = e.geocode.center;
-          updateLocation(latlng.lat, latlng.lng);
+          const name = e.geocode.name || e.geocode.html || null;
+          updateLocation(latlng.lat, latlng.lng, name);
           mapInstance.current.setView(latlng, 15);
         })
         .addTo(mapInstance.current);

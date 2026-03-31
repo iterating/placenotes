@@ -40,9 +40,13 @@ const NoteForm = ({
     onNoteChange({ ...note, [fieldName]: value });
   };
 
-  const handleLocationChange = (lng, lat) => {
-    if (typeof lng === 'number' && typeof lat === 'number' && !isNaN(lng) && !isNaN(lat)) {
-      handleFieldChange('location', { type: 'Point', coordinates: [lng, lat] });
+  const handleLocationChange = (location, name) => {
+    if (location && location.type === 'Point' && Array.isArray(location.coordinates)) {
+      const updatedNote = { ...note, location };
+      if (name) {
+        updatedNote.locationName = name;
+      }
+      onNoteChange(updatedNote);
       setError(null);
     }
   };

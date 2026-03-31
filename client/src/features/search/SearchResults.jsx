@@ -62,11 +62,11 @@ const SearchResults = () => {
         {results.map((note) => (
           <div key={note._id} className="note-card">
             <h3>{note.title || 'Untitled Note'}</h3>
-            <p>{note.content}</p>
+            <p>{note.body}</p>
             <div className="note-metadata">
               <span>{new Date(note.createdAt).toLocaleDateString()}</span>
-              {note.location && (
-                <span>{note.location.name || 'Unknown Location'}</span>
+              {note.locationName && (
+                <span>{note.locationName}</span>
               )}
             </div>
           </div>

@@ -46,6 +46,7 @@ const NoteEdit = () => {
         type: "Point",
         coordinates: [-118.243683, 34.052235] // Default to LA coordinates
       },
+      locationName: "",
       radius: 1000,
       email: user.email,
       userId: user._id

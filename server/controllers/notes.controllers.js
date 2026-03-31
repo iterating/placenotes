@@ -62,6 +62,7 @@ export const newNoteForm = (req, res) =>
       location: {
         coordinates: req.body?.location ?? [-118.243683, 34.052235],
       },
+      locationName: "",
       radius: 200,
       time: "",
       body: "",
@@ -71,7 +72,7 @@ export const newNoteForm = (req, res) =>
 
 export const newNote = async (req, res) => {
   try {
-    const { body, location, radius, userId, email, tags } = req.body;
+    const { body, location, locationName, radius, userId, email, tags } = req.body;
 
     // Validate the required fields
     if (!body || !location || !userId || !email) {
@@ -85,6 +86,7 @@ export const newNote = async (req, res) => {
     const note = await NotesService.newNote({
       body: sanitizedBody,
       location,
+      locationName,
       radius,
       userId,
       email,
@@ -129,6 +131,7 @@ export const updateNote = async (req, res) => {
         type: "Point",
         coordinates: coordinates.map(coord => Number(coord))
       },
+      locationName: req.body.locationName,
       radius: Number(req.body.radius) || 1000,
       email: req.body.email,
       userId: req.body.userId,

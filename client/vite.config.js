@@ -8,7 +8,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'react': path.resolve(__dirname, '../node_modules/react'),
+      'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   server: {
     port: 5173,
@@ -32,8 +35,10 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('@reduxjs/toolkit')) return 'redux';
-            if (id.includes('react')) return 'react';
+            if (id.includes('@reduxjs/toolkit') || id.includes('react-redux') || id.includes('redux')) return 'redux';
+            if (id.includes('react-router')) return 'react-router';
+            if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+            if (id.includes('leaflet')) return 'leaflet';
             if (id.includes('axios')) return 'axios';
             return 'vendor';
           }
@@ -42,7 +47,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['@reduxjs/toolkit', 'react-redux']
+    include: ['react', 'react-dom', '@reduxjs/toolkit', 'react-redux', 'react-router-dom']
   }
 });
 

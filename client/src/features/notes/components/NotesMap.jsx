@@ -215,6 +215,9 @@ const NotesMap = ({ notes, handleMouseOver, handleMouseOut, markers }) => {
               .bindPopup(
                 sanitizeHTML(
                   `<div class="popup-content" data-note-id="${note._id}">
+                    <div class="popup-header">
+                      <strong>${note.locationName || 'Note Location'}</strong>
+                    </div>
                     <div class="popup-body">${note.body ? note.body.split("\n")[0] : 'No content'}</div>
                     <a href="/notes/${note._id}/edit" class="popup-link">Edit Note</a>
                   </div>`

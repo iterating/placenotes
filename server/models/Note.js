@@ -48,6 +48,12 @@ const noteSchema = new Schema({
       }
     }
   },
+  locationName: {
+    type: String,
+    required: false,
+    trim: true,
+    index: true
+  },
   radius: {
     type: Number,
     default: 1000,

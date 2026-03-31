@@ -151,6 +151,7 @@ export const createNote = createAsyncThunk(
         email: noteData.email, // Add email field
         body: noteData.body.trim(),
         location: validateLocation(noteData.location),
+        locationName: noteData.locationName || '',
         radius: Number(noteData.radius) || 1000,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -174,6 +175,7 @@ export const updateNote = createAsyncThunk(
       const formattedData = {
         ...noteData,
         location: validateLocation(noteData.location),
+        locationName: noteData.locationName || '',
         radius: Number(noteData.radius) || 1000,
         email: noteData.email
       };
